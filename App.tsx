@@ -22,6 +22,7 @@ import { AchievementsView } from './components/AchievementsView';
 import { IdentityView } from './components/IdentityView';
 import { LifeThemesView } from './components/LifeThemesView';
 import { ShadowWorkView } from './components/ShadowWorkView';
+import { SettingsView } from './components/SettingsView';
 import { View } from './types';
 import { GlassCard } from './components/GlassCard';
 import { Hammer } from 'lucide-react';
@@ -73,6 +74,8 @@ const App: React.FC = () => {
         return <MonthlyReviewView />;
       case View.YEARLY_REVIEW:
         return <YearlyReviewView />;
+      case View.SETTINGS:
+        return <SettingsView />;
       default:
         return (
           <div className="h-full flex flex-col items-center justify-center p-8 text-center">
@@ -82,7 +85,7 @@ const App: React.FC = () => {
               </div>
               <h2 className="text-2xl font-display font-bold mb-2">Module Under Construction</h2>
               <p className="text-gray-400 mb-6">
-                The {currentView.toLowerCase().replace('_', ' ')} interface is currently being forged in the system core.
+                The {(currentView as string).toLowerCase().replace('_', ' ')} interface is currently being forged in the system core.
               </p>
               <button 
                 onClick={() => setCurrentView(View.DASHBOARD)}

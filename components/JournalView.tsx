@@ -1,7 +1,8 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   Search, Plus, Calendar, MoreHorizontal, PenLine, Sparkles, Maximize2, Minimize2, Tag, Hash, ChevronRight, Save, BrainCircuit,
+  Bold, Italic, List, Type, Quote, Code, Eye, Edit3, Heading1, Heading2, Heading3
 } from 'lucide-react';
 import { GlassCard } from './GlassCard';
 import { JournalEntry, JournalAnalysis, MoodType } from '../types';
@@ -13,7 +14,7 @@ const MOCK_ENTRIES: JournalEntry[] = [
   {
     id: '1',
     title: 'The Architecture of Silence',
-    content: "Today I realized that noise isn't just sound. It's visual clutter, it's unread notifications, it's the constant hum of expectation. I spent an hour just staring at the wall, letting the mental sediment settle. In that silence, I found the solution to the navigation problem I've been stuck on for days. It wasn't about adding more; it was about removing the friction.",
+    content: "Today I realized that noise isn't just sound. It's visual clutter, it's unread notifications, it's the constant hum of expectation.\n\n> True insight often requires the removal of external stimuli.\n\nI spent an hour just staring at the wall, letting the mental sediment settle. In that silence, I found the solution to the navigation problem I've been stuck on for days. \n\n**Key Realizations:**\n- It wasn't about adding more\n- It was about removing the friction\n- Silence is an active state, not a passive one",
     date: new Date(),
     mood: 'calm',
     tags: ['Design', 'Philosophy', 'Silence'],
@@ -41,7 +42,7 @@ const MOCK_ENTRIES: JournalEntry[] = [
   {
     id: '3',
     title: 'Project Nebula Ideas',
-    content: "What if the interface itself was alive? Not just responding to clicks, but anticipating intent. We could use the cursor velocity to predict the next action...",
+    content: "What if the interface itself was alive? Not just responding to clicks, but anticipating intent.\n\nWe could use the cursor velocity to predict the next action...",
     date: new Date(Date.now() - 172800000), 
     mood: 'inspired',
     tags: ['Work', 'Ideas'],
@@ -62,6 +63,64 @@ const MOOD_COLORS: Record<MoodType, string> = {
   angry: 'text-rose-500 bg-rose-500/10 border-rose-500/20',
   energetic: 'text-lime-400 bg-lime-400/10 border-lime-400/20',
   empty: 'text-stone-400 bg-stone-400/10 border-stone-400/20',
+};
+
+// --- MARKDOWN RENDERER ---
+
+const MarkdownRenderer: React.FC<{ content: string }> = ({ content }) => {
+  const parseInline = (text: string) => {
+    // Split by bold, italic, code
+    const parts = text.split(/(\*\*.*?\*\*|\*.*?\*|`.*?`)/g);
+    return parts.map((part, i) => {
+      if (part.startsWith('**') && part.endsWith('**')) {
+        return <strong key={i} className="text-white font-bold">{part.slice(2, -2)}</strong>;
+      }
+      if (part.startsWith('*') && part.endsWith('*')) {
+        return <em key={i} className="text-gray-200 italic">{part.slice(1, -1)}</em>;
+      }
+      if (part.startsWith('`') && part.endsWith('`')) {
+        return <code key={i} className="bg-white/10 px-1.5 py-0.5 rounded text-sm font-mono text-forge-cyan border border-white/5">{part.slice(1, -1)}</code>;
+      }
+      return part;
+    });
+  };
+
+  const lines = content.split('\n');
+  return (
+    <div className="space-y-3 text-gray-300 leading-relaxed">
+      {lines.map((line, index) => {
+        const trimmed = line.trim();
+        if (!trimmed) return <div key={index} className="h-4" />; // Spacer for empty lines
+
+        if (trimmed.startsWith('# ')) {
+          return <h1 key={index} className="text-3xl font-display font-bold text-white mt-6 mb-4">{parseInline(trimmed.slice(2))}</h1>;
+        }
+        if (trimmed.startsWith('## ')) {
+          return <h2 key={index} className="text-2xl font-display font-bold text-white mt-5 mb-3">{parseInline(trimmed.slice(3))}</h2>;
+        }
+        if (trimmed.startsWith('### ')) {
+          return <h3 key={index} className="text-xl font-display font-bold text-white mt-4 mb-2">{parseInline(trimmed.slice(4))}</h3>;
+        }
+        if (trimmed.startsWith('> ')) {
+          return (
+            <blockquote key={index} className="border-l-4 border-forge-accent pl-4 py-1 italic text-gray-400 my-4 bg-white/[0.02] rounded-r-lg">
+              {parseInline(trimmed.slice(2))}
+            </blockquote>
+          );
+        }
+        if (trimmed.startsWith('- ')) {
+          return (
+            <div key={index} className="flex items-start gap-2 ml-2">
+              <div className="mt-2 w-1.5 h-1.5 rounded-full bg-forge-cyan shrink-0" />
+              <span>{parseInline(trimmed.slice(2))}</span>
+            </div>
+          );
+        }
+        
+        return <p key={index}>{parseInline(line)}</p>;
+      })}
+    </div>
+  );
 };
 
 const JournalSidebar: React.FC<{
@@ -140,6 +199,44 @@ const JournalEditor: React.FC<{
   isFocusMode: boolean;
   toggleFocusMode: () => void;
 }> = ({ entry, onChange, onAnalyze, isAnalyzing, isFocusMode, toggleFocusMode }) => {
+  const [mode, setMode] = useState<'write' | 'preview'>('write');
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const insertFormat = (prefix: string, suffix: string = '') => {
+    if (!textareaRef.current) return;
+    
+    const start = textareaRef.current.selectionStart;
+    const end = textareaRef.current.selectionEnd;
+    const text = entry.content;
+    
+    const before = text.substring(0, start);
+    const selection = text.substring(start, end);
+    const after = text.substring(end);
+    
+    const newText = before + prefix + selection + suffix + after;
+    onChange({ content: newText });
+    
+    // Restore focus and cursor
+    setTimeout(() => {
+      if (textareaRef.current) {
+        textareaRef.current.focus();
+        textareaRef.current.setSelectionRange(start + prefix.length, end + prefix.length);
+      }
+    }, 0);
+  };
+
+  const handleToolbarAction = (action: string) => {
+    switch (action) {
+      case 'bold': insertFormat('**', '**'); break;
+      case 'italic': insertFormat('*', '*'); break;
+      case 'h1': insertFormat('# '); break;
+      case 'h2': insertFormat('## '); break;
+      case 'list': insertFormat('- '); break;
+      case 'quote': insertFormat('> '); break;
+      case 'code': insertFormat('`', '`'); break;
+    }
+  };
+
   return (
     <div className={cn("flex-1 relative h-full flex flex-col transition-all duration-500", isFocusMode ? 'bg-black' : 'bg-transparent')}>
       <div className={cn(
@@ -177,7 +274,9 @@ const JournalEditor: React.FC<{
       </div>
 
       <div className="flex-1 overflow-y-auto">
-        <div className="max-w-3xl mx-auto px-8 py-12 min-h-full flex flex-col">
+        <div className="max-w-3xl mx-auto px-8 py-8 min-h-full flex flex-col">
+          
+          {/* Mood Selector */}
           <div className={cn("flex gap-2 mb-6 transition-opacity duration-500", isFocusMode ? 'opacity-0 hover:opacity-100' : 'opacity-100')}>
              {(Object.keys(MOOD_COLORS) as MoodType[]).map(mood => (
                 <button
@@ -193,6 +292,36 @@ const JournalEditor: React.FC<{
              ))}
           </div>
 
+          {/* Toolbar & Mode Switch */}
+          <div className="flex items-center justify-between mb-4 pb-4 border-b border-white/5 sticky top-0 bg-[#09090b]/95 backdrop-blur-md z-20 transition-all">
+             <div className="flex items-center gap-1">
+               <button onClick={() => handleToolbarAction('bold')} className="p-2 rounded hover:bg-white/10 text-gray-400 hover:text-white transition-colors" title="Bold"><Bold size={14} /></button>
+               <button onClick={() => handleToolbarAction('italic')} className="p-2 rounded hover:bg-white/10 text-gray-400 hover:text-white transition-colors" title="Italic"><Italic size={14} /></button>
+               <div className="w-px h-4 bg-white/10 mx-1" />
+               <button onClick={() => handleToolbarAction('h1')} className="p-2 rounded hover:bg-white/10 text-gray-400 hover:text-white transition-colors" title="Heading 1"><Heading1 size={14} /></button>
+               <button onClick={() => handleToolbarAction('h2')} className="p-2 rounded hover:bg-white/10 text-gray-400 hover:text-white transition-colors" title="Heading 2"><Heading2 size={14} /></button>
+               <div className="w-px h-4 bg-white/10 mx-1" />
+               <button onClick={() => handleToolbarAction('list')} className="p-2 rounded hover:bg-white/10 text-gray-400 hover:text-white transition-colors" title="List"><List size={14} /></button>
+               <button onClick={() => handleToolbarAction('quote')} className="p-2 rounded hover:bg-white/10 text-gray-400 hover:text-white transition-colors" title="Quote"><Quote size={14} /></button>
+               <button onClick={() => handleToolbarAction('code')} className="p-2 rounded hover:bg-white/10 text-gray-400 hover:text-white transition-colors" title="Code"><Code size={14} /></button>
+             </div>
+             
+             <div className="flex items-center bg-white/5 rounded-lg p-1 border border-white/5">
+                <button 
+                  onClick={() => setMode('write')} 
+                  className={cn("px-3 py-1 rounded text-xs font-medium transition-all flex items-center gap-2", mode === 'write' ? 'bg-white/10 text-white shadow-sm' : 'text-gray-500 hover:text-gray-300')}
+                >
+                  <Edit3 size={12} /> Write
+                </button>
+                <button 
+                  onClick={() => setMode('preview')} 
+                  className={cn("px-3 py-1 rounded text-xs font-medium transition-all flex items-center gap-2", mode === 'preview' ? 'bg-white/10 text-white shadow-sm' : 'text-gray-500 hover:text-gray-300')}
+                >
+                  <Eye size={12} /> Preview
+                </button>
+             </div>
+          </div>
+
           <input 
             type="text"
             value={entry.title}
@@ -201,13 +330,20 @@ const JournalEditor: React.FC<{
             className="w-full bg-transparent border-none text-4xl font-display font-bold text-white placeholder-gray-700 focus:ring-0 px-0 py-4 mb-4"
           />
 
-          <textarea 
-            value={entry.content}
-            onChange={(e) => onChange({ content: e.target.value })}
-            placeholder="Start writing..."
-            className="flex-1 w-full bg-transparent border-none text-lg leading-relaxed text-gray-300 placeholder-gray-700 focus:ring-0 px-0 resize-none font-sans scrollbar-hide focus:outline-none"
-            spellCheck={false}
-          />
+          {mode === 'write' ? (
+            <textarea 
+              ref={textareaRef}
+              value={entry.content}
+              onChange={(e) => onChange({ content: e.target.value })}
+              placeholder="Start writing... (Markdown supported)"
+              className="flex-1 w-full bg-transparent border-none text-lg leading-relaxed text-gray-300 placeholder-gray-700 focus:ring-0 px-0 resize-none font-sans scrollbar-hide focus:outline-none min-h-[500px]"
+              spellCheck={false}
+            />
+          ) : (
+            <div className="flex-1 min-h-[500px] animate-in fade-in duration-300">
+              <MarkdownRenderer content={entry.content} />
+            </div>
+          )}
           
           {isFocusMode && (
             <button 

@@ -266,11 +266,127 @@ const ContextPanel: React.FC<{ item: TimelineItem | null; onClose: () => void; o
     );
 };
 
+const CreateTimelineModal: React.FC<{ onClose: () => void; onSave: (item: TimelineItem) => void }> = ({ onClose, onSave }) => {
+    const [type, setType] = useState<TimelineType>('journal');
+    const [title, setTitle] = useState('');
+    const [content, setContent] = useState('');
+    const [mood, setMood] = useState<MoodType>('neutral');
+    const [dateStr, setDateStr] = useState(new Date().toISOString().split('T')[0]); // YYYY-MM-DD
+    const [tagsStr, setTagsStr] = useState('');
+
+    const handleSave = () => {
+        if (!title || !content) return;
+        
+        const newItem: TimelineItem = {
+            id: Date.now().toString(),
+            type,
+            title,
+            content,
+            date: new Date(dateStr),
+            mood,
+            tags: tagsStr.split(',').map(t => t.trim()).filter(t => t),
+            metadata: {}
+        };
+        onSave(newItem);
+        onClose();
+    };
+
+    return (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+            <div className="w-full max-w-lg bg-[#09090b] border border-white/10 rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col max-h-[90vh]">
+                <div className="p-6 border-b border-white/5 flex justify-between items-center shrink-0">
+                    <h3 className="font-display font-bold text-white">Log Timeline Event</h3>
+                    <button onClick={onClose} className="text-gray-500 hover:text-white"><X size={18}/></button>
+                </div>
+                <div className="p-6 space-y-6 overflow-y-auto">
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-xs text-gray-500 font-mono uppercase mb-2">Type</label>
+                            <select 
+                                value={type}
+                                onChange={(e) => setType(e.target.value as TimelineType)}
+                                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:border-forge-accent focus:outline-none appearance-none"
+                            >
+                                {Object.entries(TYPE_CONFIG).map(([key, config]) => (
+                                    <option key={key} value={key}>{config.label}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-xs text-gray-500 font-mono uppercase mb-2">Date</label>
+                            <input 
+                                type="date"
+                                value={dateStr}
+                                onChange={(e) => setDateStr(e.target.value)}
+                                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:border-forge-accent focus:outline-none"
+                            />
+                        </div>
+                    </div>
+
+                    <div>
+                        <label className="block text-xs text-gray-500 font-mono uppercase mb-2">Title</label>
+                        <input 
+                            className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-forge-accent focus:outline-none"
+                            placeholder="Event Title"
+                            value={title}
+                            onChange={e => setTitle(e.target.value)}
+                            autoFocus
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-xs text-gray-500 font-mono uppercase mb-2">Description</label>
+                        <textarea 
+                            className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-forge-accent focus:outline-none h-32 resize-none"
+                            placeholder="What happened?"
+                            value={content}
+                            onChange={e => setContent(e.target.value)}
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-xs text-gray-500 font-mono uppercase mb-2">Tags</label>
+                        <input 
+                            className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-forge-accent focus:outline-none text-sm"
+                            placeholder="Comma separated tags (e.g. Work, Life, Milestone)"
+                            value={tagsStr}
+                            onChange={e => setTagsStr(e.target.value)}
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-xs text-gray-500 font-mono uppercase mb-2">Mood Snapshot</label>
+                        <div className="flex flex-wrap gap-2">
+                            {Object.keys(MOOD_COLORS).map(m => (
+                                <button 
+                                    key={m}
+                                    onClick={() => setMood(m as MoodType)}
+                                    className={cn(
+                                        "px-3 py-1 rounded-full text-xs border transition-all capitalize",
+                                        mood === m ? 'bg-white/10 border-white text-white' : 'text-gray-500 border-transparent hover:bg-white/5'
+                                    )}
+                                >
+                                    {m}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+                <div className="p-6 border-t border-white/5 flex justify-end gap-3 bg-black/40 shrink-0">
+                    <button onClick={onClose} className="px-4 py-2 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-white/5">Cancel</button>
+                    <button onClick={handleSave} className="px-4 py-2 rounded-lg text-sm bg-forge-accent text-white hover:bg-forge-accent/80 shadow-lg shadow-forge-accent/20">Add to Timeline</button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 export const TimelineView: React.FC = () => {
     const [items, setItems] = useState<TimelineItem[]>(MOCK_TIMELINE);
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [filterType, setFilterType] = useState<TimelineType | 'all'>('all');
     const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [isCreating, setIsCreating] = useState(false);
 
     const filteredItems = filterType === 'all' ? items : items.filter(i => i.type === filterType);
     const sortedItems = [...filteredItems].sort((a, b) => b.date.getTime() - a.date.getTime());
@@ -287,6 +403,10 @@ export const TimelineView: React.FC = () => {
         } finally {
             setIsAnalyzing(false);
         }
+    };
+
+    const handleSaveNew = (item: TimelineItem) => {
+        setItems([item, ...items]);
     };
 
     return (
@@ -319,7 +439,10 @@ export const TimelineView: React.FC = () => {
                         <h1 className="text-3xl font-display font-bold text-white">Chronicle</h1>
                         <p className="text-xs text-gray-500 mt-1 font-mono">{sortedItems.length} Artifacts</p>
                     </div>
-                    <button className="pointer-events-auto p-3 rounded-full bg-forge-accent text-white shadow-lg hover:scale-110 transition-transform">
+                    <button 
+                        onClick={() => setIsCreating(true)}
+                        className="pointer-events-auto p-3 rounded-full bg-forge-accent text-white shadow-lg hover:scale-110 transition-transform"
+                    >
                         <Plus size={20} />
                     </button>
                 </div>
@@ -340,6 +463,10 @@ export const TimelineView: React.FC = () => {
 
             {selectedId && (
                 <ContextPanel item={items.find(i => i.id === selectedId) || null} onClose={() => setSelectedId(null)} onAnalyze={handleAnalyze} isAnalyzing={isAnalyzing} />
+            )}
+
+            {isCreating && (
+                <CreateTimelineModal onClose={() => setIsCreating(false)} onSave={handleSaveNew} />
             )}
         </div>
     );
