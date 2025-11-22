@@ -23,7 +23,12 @@ import {
   Zap,
   Flag,
   CalendarCheck,
-  Moon
+  Moon,
+  Orbit,
+  Trophy,
+  Fingerprint,
+  Map,
+  Ghost
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -37,16 +42,21 @@ const NAV_ITEMS: NavItem[] = [
   { id: View.TIMELINE, label: 'Timeline', icon: GitCommitHorizontal, group: 'Reflection' },
   { id: View.JOURNAL, label: 'Journal', icon: BookOpen, group: 'Reflection' },
   { id: View.MEMORY, label: 'Memory', icon: History, group: 'Reflection' },
+  { id: View.SHADOW_WORK, label: 'Shadow Work', icon: Ghost, group: 'Reflection' },
   { id: View.MOOD, label: 'Mood', icon: Smile, group: 'Reflection' },
   { id: View.QUOTES, label: 'Wisdom', icon: Quote, group: 'Reflection' },
   { id: View.GOALS, label: 'Goals', icon: Target, group: 'Evolution' },
+  { id: View.IDENTITY, label: 'Identity', icon: Fingerprint, group: 'Evolution' },
+  { id: View.THEMES, label: 'Life Themes', icon: Map, group: 'Evolution' },
   { id: View.MILESTONES, label: 'Milestones', icon: Flag, group: 'Evolution' },
+  { id: View.ACHIEVEMENTS, label: 'Archive', icon: Trophy, group: 'Evolution' },
   { id: View.HABITS, label: 'Habits', icon: Repeat, group: 'Evolution' },
   { id: View.ROUTINES, label: 'Routines', icon: Clock, group: 'Evolution' },
   { id: View.ENERGY, label: 'Energy', icon: Zap, group: 'Evolution' },
   { id: View.INSIGHTS, label: 'Observatory', icon: Telescope, group: 'System' },
   { id: View.WEEKLY_REVIEW, label: 'Weekly Review', icon: CalendarCheck, group: 'System' },
   { id: View.MONTHLY_REVIEW, label: 'Monthly Review', icon: Moon, group: 'System' },
+  { id: View.YEARLY_REVIEW, label: 'Yearly Review', icon: Orbit, group: 'System' },
   { id: View.IDEAS, label: 'Forge Lab', icon: Lightbulb, group: 'Creativity' },
   { id: View.SETTINGS, label: 'System', icon: Settings, group: 'System' },
 ];

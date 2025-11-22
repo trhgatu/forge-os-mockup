@@ -5,16 +5,21 @@ interface GlassCardProps {
   className?: string;
   interactive?: boolean;
   noPadding?: boolean;
+  onClick?: () => void;
+  style?: React.CSSProperties;
 }
 
 export const GlassCard: React.FC<GlassCardProps> = ({ 
   children, 
   className = '', 
   interactive = false,
-  noPadding = false
+  noPadding = false,
+  onClick,
+  style
 }) => {
   return (
     <div
+      onClick={onClick}
       className={`
         relative overflow-hidden rounded-2xl
         bg-forge-glass backdrop-blur-xl
@@ -25,6 +30,7 @@ export const GlassCard: React.FC<GlassCardProps> = ({
         ${noPadding ? '' : 'p-6'}
         ${className}
       `}
+      style={style}
     >
       {/* Noise texture overlay could go here */}
       {children}

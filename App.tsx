@@ -17,6 +17,11 @@ import { MilestoneView } from './components/MilestoneView';
 import { EnergyView } from './components/EnergyView';
 import { WeeklyReviewView } from './components/WeeklyReviewView';
 import { MonthlyReviewView } from './components/MonthlyReviewView';
+import { YearlyReviewView } from './components/YearlyReviewView';
+import { AchievementsView } from './components/AchievementsView';
+import { IdentityView } from './components/IdentityView';
+import { LifeThemesView } from './components/LifeThemesView';
+import { ShadowWorkView } from './components/ShadowWorkView';
 import { View } from './types';
 import { GlassCard } from './components/GlassCard';
 import { Hammer } from 'lucide-react';
@@ -52,12 +57,22 @@ const App: React.FC = () => {
         return <RoutinesView />;
       case View.MILESTONES:
         return <MilestoneView />;
+      case View.ACHIEVEMENTS:
+        return <AchievementsView />;
+      case View.IDENTITY:
+        return <IdentityView />;
+      case View.THEMES:
+        return <LifeThemesView />;
+      case View.SHADOW_WORK:
+        return <ShadowWorkView />;
       case View.ENERGY:
         return <EnergyView />;
       case View.WEEKLY_REVIEW:
         return <WeeklyReviewView />;
       case View.MONTHLY_REVIEW:
         return <MonthlyReviewView />;
+      case View.YEARLY_REVIEW:
+        return <YearlyReviewView />;
       default:
         return (
           <div className="h-full flex flex-col items-center justify-center p-8 text-center">

@@ -16,9 +16,14 @@ export enum View {
   HABITS = 'HABITS',
   ROUTINES = 'ROUTINES',
   MILESTONES = 'MILESTONES',
+  ACHIEVEMENTS = 'ACHIEVEMENTS',
+  IDENTITY = 'IDENTITY',
+  THEMES = 'THEMES',
+  SHADOW_WORK = 'SHADOW_WORK', // New Module
   ENERGY = 'ENERGY',
   WEEKLY_REVIEW = 'WEEKLY_REVIEW',
   MONTHLY_REVIEW = 'MONTHLY_REVIEW',
+  YEARLY_REVIEW = 'YEARLY_REVIEW',
   SETTINGS = 'SETTINGS',
 }
 
@@ -420,6 +425,191 @@ export interface EnergyAnalysis {
   peakTime: string; // "10:00 AM - 11:30 AM"
 }
 
+// --- Achievement Archive Types ---
+
+export type AchievementCategory = 'Work' | 'Health' | 'Personal' | 'Creative' | 'Social' | 'Milestone';
+
+export interface AchievementAnalysis {
+  significanceScore: number; // 1-10
+  identityShift: string; // "From learner to practitioner"
+  growthPattern: string; // "You tend to achieve big leaps after rest periods"
+  emotionalDriver: string; // "Driven by frustration with status quo"
+}
+
+export interface Achievement {
+  id: string;
+  title: string;
+  description: string;
+  date: Date;
+  category: AchievementCategory;
+  tags: string[];
+  moodSnapshot: MoodType;
+  energySnapshot: number; // 1-100
+  linkedGoalId?: string;
+  linkedMilestoneId?: string;
+  analysis?: AchievementAnalysis;
+  imageUrl?: string;
+}
+
+export interface AchievementStats {
+  total: number;
+  categoryBreakdown: Record<AchievementCategory, number>;
+  topMonth: string;
+  currentStreak: number;
+}
+
+// --- Identity Evolution Types ---
+
+export type IdentityArchetype = 'Creator' | 'Strategist' | 'Warrior' | 'Healer' | 'Builder' | 'Explorer';
+
+export interface IdentityTrait {
+  name: string;
+  score: number; // 0-100
+}
+
+export interface IdentityPhase {
+  id: string;
+  title: string; // e.g., "Era of Building Foundations"
+  startDate: Date;
+  endDate?: Date;
+  description: string;
+  moodBaseline: MoodType;
+  energyAvg: number;
+}
+
+export interface IdentityShift {
+  id: string;
+  title: string; // e.g., "Shift to Sovereignty"
+  date: Date;
+  type: 'Mindset' | 'Behavioral' | 'Emotional' | 'Value';
+  impactScore: number; // 0-100
+  context: string;
+}
+
+export interface IdentityDriver {
+  id: string;
+  name: string;
+  type: 'Habit' | 'Emotion' | 'Goal' | 'Belief';
+  impact: number; // 0-100
+  description: string;
+}
+
+export interface IdentityProfile {
+  currentPhase: IdentityPhase;
+  vector: string; // e.g., "Resilient Builder in Emergence"
+  evolutionScore: number; // 0-100
+  archetype: IdentityArchetype;
+  traits: IdentityTrait[]; // For radar chart
+  topDrivers: IdentityDriver[];
+  recentShifts: IdentityShift[];
+  futureProjection: {
+    trajectory: string;
+    alignment: number; // 0-100
+    nextPhasePrediction: string;
+    potentialTraps: string[];
+  };
+}
+
+// --- Life Themes Types ---
+
+export type ThemeStatus = 'emerging' | 'dominant' | 'fading' | 'dormant' | 'resolved';
+
+export interface ThemeBehavior {
+  id: string;
+  description: string; // "Waking early"
+  type: 'habit' | 'decision' | 'avoidance';
+}
+
+export interface ThemeConflict {
+  id: string;
+  opposingThemeId: string;
+  opposingThemeName: string;
+  description: string; // "Stability vs Ambition"
+  tensionLevel: number; // 1-10
+  resolutionHint: string;
+}
+
+export interface LifeTheme {
+  id: string;
+  title: string; // "The Architect", "Solitude", "Reinvention"
+  description: string;
+  status: ThemeStatus;
+  strength: number; // 0-100
+  firstDetected: Date;
+  lastActive: Date;
+  relatedMoods: MoodType[]; // Moods that trigger this theme
+  archetypeIcon: 'crown' | 'sword' | 'compass' | 'feather' | 'anchor' | 'flame'; // UI helper
+  colorSignature: string; // hex or tailwind class
+  evidence: string[]; // IDs or titles of journals/memories
+  behaviors: ThemeBehavior[];
+  conflicts?: ThemeConflict[];
+  evolutionArc: string; // "Crisis -> Recovery"
+}
+
+export interface ThemeTimelinePoint {
+  date: string;
+  themeId: string;
+  intensity: number;
+}
+
+export interface LifeThemeAnalysis {
+  currentSeasonSummary: string; // "This season is about Self-Reliance..."
+  stabilityScore: number; // 0-100
+  dominantThemes: LifeTheme[];
+  emergingThemes: LifeTheme[];
+  quietThemes: LifeTheme[];
+  timelineData: ThemeTimelinePoint[];
+  reflectionPrompts: string[];
+}
+
+// --- Shadow Work Types ---
+
+export interface ShadowMask {
+  id: string;
+  name: string; // e.g. "Hyper-productivity"
+  protecting: string; // "Fear of worthlessness"
+  triggeredBy: string; // "Silence, Failure"
+  description: string;
+  icon: 'shield' | 'mask' | 'wall' | 'clock' | 'smile';
+}
+
+export interface InnerConflict {
+  id: string;
+  desire: string; // "Connection"
+  fear: string; // "Vulnerability"
+  manifestation: string; // "Withdrawal"
+  tensionLevel: number; // 1-10
+}
+
+export interface LimitingBelief {
+  id: string;
+  statement: string; // "I'm not ready yet"
+  originAge?: string; // "Childhood" or "Early Career"
+  intensity: number; // 1-10
+  consequences: string[];
+}
+
+export interface ShadowTransmutation {
+  shadow: string; // "Fear"
+  gift: string; // "Courage"
+  path: string; // "Action despite trembling"
+}
+
+export interface ShadowAnalysis {
+  primaryShadow: string; // "Fear of Inadequacy"
+  supportingShadows: string[];
+  tensionScore: number; // 0-100
+  avoidanceIndex: number; // 0-100
+  emotionalRoots: string[]; // "Unmet need for safety"
+  masks: ShadowMask[];
+  conflicts: InnerConflict[];
+  limitingBeliefs: LimitingBelief[];
+  transmutation: ShadowTransmutation;
+  integrationSteps: string[];
+  reflectionPrompts: string[];
+  shadowTimeline: { date: string; intensity: number; trigger: string }[];
+}
+
 // --- Weekly Review Types ---
 
 export interface WeeklyReviewData {
@@ -468,4 +658,42 @@ export interface MonthlyReviewAnalysis {
   lowlights: string[];
   keyInsight: string;
   nextMonthAdvice: string;
+}
+
+// --- Yearly Review Types ---
+
+export interface YearlyReviewData {
+  year: string; // "2023"
+  moodMatrix: { month: string; intensity: number; dominantMood: MoodType }[]; // 12 months
+  energySeasonality: { month: string; value: number }[]; // 12 months
+  topMilestones: { id: string; title: string; month: string; type: MilestoneType }[];
+  habitPerformance: { name: string; consistency: number }[];
+}
+
+export interface IdentityAxis {
+  subject: string; // "Discipline", "Clarity", etc.
+  A: number; // Value 0-100
+  fullMark: number;
+}
+
+export interface NarrativeChapter {
+  month: string;
+  title: string;
+  summary: string;
+  mood: MoodType;
+}
+
+export interface YearlyReviewAnalysis {
+  theme: string; // "The Year of Awakening"
+  summary: string;
+  score: number;
+  identityLabel: string; // "The Sovereign Individual"
+  identityRadar: IdentityAxis[];
+  narrativeChapters: NarrativeChapter[];
+  momentumRating: number;
+  stabilityRating: number;
+  highlights: string[];
+  lowlights: string[];
+  keyInsight: string;
+  nextYearAdvice: string;
 }

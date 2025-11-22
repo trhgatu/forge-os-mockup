@@ -1,56 +1,19 @@
 
 import { GoogleGenAI, GenerateContentResponse, Type } from "@google/genai";
-import { InsightData, JournalAnalysis, MemoryAnalysis, TimelineAnalysis, QuoteAnalysis, MoodEntry, MoodAnalysis, GlobalAnalysis, Idea, GoalAnalysis, Milestone, HabitAnalysis, RoutineBlock, RoutineAnalysis, EnergyMetrics, EnergyAnalysis, MilestoneAnalysis, WeeklyReviewData, WeeklyReviewAnalysis, MonthlyReviewData, MonthlyReviewAnalysis } from "../types";
+import { InsightData, JournalAnalysis, MemoryAnalysis, TimelineAnalysis, QuoteAnalysis, MoodEntry, MoodAnalysis, GlobalAnalysis, Idea, GoalAnalysis, Milestone, HabitAnalysis, RoutineBlock, RoutineAnalysis, EnergyMetrics, EnergyAnalysis, MilestoneAnalysis, WeeklyReviewData, WeeklyReviewAnalysis, MonthlyReviewData, MonthlyReviewAnalysis, YearlyReviewData, YearlyReviewAnalysis, AchievementAnalysis, AchievementCategory, IdentityProfile, LifeThemeAnalysis, ShadowAnalysis } from "../types";
 
-// Initialize the AI client with the API key from the environment
+// Initialize the AI client - ONLY used for Forge Chamber
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
 
-export const getDailyInsight = async (): Promise<InsightData> => {
-  if (!process.env.API_KEY) {
-    return {
-      quote: "The mind is everything. What you think you become.",
-      author: "Buddha",
-      theme: "Mindfulness"
-    };
-  }
-
-  try {
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: "Generate a short, cryptic but inspiring philosophical insight for a futuristic operating system user (Forge OS). Keep it under 20 words. Return a JSON object with the following keys: 'quote', 'author' (can be 'System' or a philosopher), and 'theme'. Do not use Markdown formatting.",
-      config: {
-        responseMimeType: "application/json",
-        // Schema removed to prevent intermittent 500 Internal Errors on simple generation tasks
-      },
-    });
-    
-    let text = response.text;
-    if (!text) throw new Error("No response from AI");
-
-    // Clean up potential markdown formatting or extra characters
-    // This fixes "Unexpected non-whitespace character" errors
-    const startIndex = text.indexOf('{');
-    const endIndex = text.lastIndexOf('}');
-    
-    if (startIndex !== -1 && endIndex !== -1) {
-        text = text.substring(startIndex, endIndex + 1);
-    }
-    
-    return JSON.parse(text) as InsightData;
-  } catch (error) {
-    console.error("Failed to fetch insight:", error);
-    return {
-      quote: "System offline. Reflection is internal.",
-      author: "Forge OS Kernel",
-      theme: "Resilience"
-    };
-  }
-};
+// --- REAL AI (FORGE CHAMBER ONLY) ---
 
 export const streamChatResponse = async (
   history: { role: 'user' | 'model'; text: string }[],
   message: string
 ) => {
+   if (!process.env.API_KEY) {
+       throw new Error("API Key required for Forge Chamber.");
+   }
    const chat = ai.chats.create({
      model: "gemini-2.5-flash",
      config: {
@@ -60,383 +23,108 @@ export const streamChatResponse = async (
    return chat.sendMessageStream({ message });
 };
 
+// --- MOCK AI (ALL OTHER MODULES) ---
+
+const simulateDelay = () => new Promise(resolve => setTimeout(resolve, 1500));
+
+export const getDailyInsight = async (): Promise<InsightData> => {
+  // No delay for daily insight to ensure dashboard loads fast
+  const insights = [
+      { quote: "The mind is everything. What you think you become.", author: "Buddha", theme: "Mindfulness" },
+      { quote: "He who has a why to live can bear almost any how.", author: "Nietzsche", theme: "Purpose" },
+      { quote: "Simplicity is the ultimate sophistication.", author: "Leonardo da Vinci", theme: "Clarity" },
+      { quote: "Act only according to that maxim whereby you can, at the same time, will that it should become a universal law.", author: "Kant", theme: "Ethics" }
+  ];
+  return insights[Math.floor(Math.random() * insights.length)];
+};
+
 export const analyzeJournalEntry = async (text: string): Promise<JournalAnalysis> => {
-  if (!text || text.length < 10) {
-    // Mock response for empty or very short text to save API calls
-    return {
-      sentimentScore: 5,
-      keywords: ["Silence"],
-      summary: "Not enough data to analyze.",
-      suggestedAction: "Keep writing to uncover deeper thoughts."
-    };
-  }
-
-  if (!process.env.API_KEY) {
-     return {
-        sentimentScore: 7,
-        keywords: ["Simulated", "Offline"],
-        summary: "AI Analysis requires an API Key. This is a simulated response.",
-        suggestedAction: "Connect to the Neural Net."
-     }
-  }
-
-  try {
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: `Analyze the following journal entry. Return JSON with:
-      - sentimentScore (number 1-10, where 1 is negative/anxious, 10 is positive/inspired)
-      - keywords (array of 3-5 strings capturing the themes)
-      - summary (one philosophical sentence summarizing the core realization)
-      - suggestedAction (one short, concrete step for the user)
-      
-      Entry: "${text}"`,
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: {
-            type: Type.OBJECT,
-            properties: {
-                sentimentScore: { type: Type.NUMBER },
-                keywords: { type: Type.ARRAY, items: { type: Type.STRING } },
-                summary: { type: Type.STRING },
-                suggestedAction: { type: Type.STRING }
-            },
-            required: ["sentimentScore", "keywords", "summary", "suggestedAction"]
-        }
-      }
-    });
-
-    const resultText = response.text;
-    if (!resultText) throw new Error("No analysis returned");
-    return JSON.parse(resultText) as JournalAnalysis;
-
-  } catch (error) {
-    console.error("Journal Analysis Failed:", error);
-    return {
-      sentimentScore: 5,
-      keywords: ["Error", "Offline"],
-      summary: "Neural link unstable. Analysis failed.",
-      suggestedAction: "Try again later."
-    };
-  }
+  await simulateDelay();
+  return {
+    sentimentScore: 8,
+    keywords: ["Growth", "Reflection", "Clarity", "Resilience"],
+    summary: "A profound realization about the nature of personal entropy and the need for systematic restoration.",
+    suggestedAction: "Schedule a 30-minute deep focus block to act on this clarity."
+  };
 };
 
 export const analyzeMemory = async (text: string): Promise<MemoryAnalysis> => {
-  if (!process.env.API_KEY) {
-     return {
-        coreMeaning: "Simulation Mode: Deep meaning requires connectivity.",
-        emotionalPattern: "Pattern analysis unavailable.",
-        timelineConnection: "No connection found.",
-        sentimentScore: 5
-     };
-  }
-
-  try {
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: `Analyze this memory description for a personal archive. Return JSON.
-      
-      Memory: "${text}"`,
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: {
-            type: Type.OBJECT,
-            properties: {
-                coreMeaning: { type: Type.STRING, description: "A philosophical summary of why this memory matters." },
-                emotionalPattern: { type: Type.STRING, description: "What emotional habit or pattern does this represent?" },
-                timelineConnection: { type: Type.STRING, description: "A hypothetical connection to past or future self." },
-                sentimentScore: { type: Type.NUMBER }
-            },
-            required: ["coreMeaning", "emotionalPattern", "timelineConnection", "sentimentScore"]
-        }
-      }
-    });
-
-    const resultText = response.text;
-    if (!resultText) throw new Error("No analysis returned");
-    return JSON.parse(resultText) as MemoryAnalysis;
-  } catch (error) {
-    console.error("Memory Analysis Failed:", error);
-    return {
-        coreMeaning: "Analysis failed due to signal interruption.",
-        emotionalPattern: "Unknown.",
-        timelineConnection: "Unknown.",
-        sentimentScore: 5
-    };
-  }
+  await simulateDelay();
+  return {
+    coreMeaning: "This moment represents a breakthrough in your perception of self-efficacy.",
+    emotionalPattern: "You tend to feel most alive when overcoming physical or intellectual resistance.",
+    timelineConnection: "Resonates with the 'Marathon' milestone from 2021.",
+    sentimentScore: 9
+  };
 };
 
 export const analyzeTimelineItem = async (itemType: string, content: string): Promise<TimelineAnalysis> => {
-    if (!process.env.API_KEY) {
-        return {
-            significance: "Connection offline. Temporal significance unknown.",
-            pattern: "Pattern analysis unavailable.",
-            temporalContext: "Time distortion detected."
-        };
-    }
-
-    try {
-        const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: `Analyze this timeline item of type '${itemType}'. Return JSON.
-            
-            Content: "${content}"`,
-            config: {
-                responseMimeType: "application/json",
-                responseSchema: {
-                    type: Type.OBJECT,
-                    properties: {
-                        significance: { type: Type.STRING, description: "Why this specific moment matters in a life context." },
-                        pattern: { type: Type.STRING, description: "Recurring theme or habit detected." },
-                        temporalContext: { type: Type.STRING, description: "How this relates to the flow of time." }
-                    },
-                    required: ["significance", "pattern", "temporalContext"]
-                }
-            }
-        });
-        const resultText = response.text;
-        if (!resultText) throw new Error("No analysis returned");
-        return JSON.parse(resultText) as TimelineAnalysis;
-    } catch (error) {
-        console.error("Timeline Analysis Failed", error);
-        return {
-            significance: "Analysis Failed.",
-            pattern: "Unknown.",
-            temporalContext: "Unknown."
-        };
-    }
+    await simulateDelay();
+    return {
+        significance: "A pivotal moment of alignment between intent and action.",
+        pattern: "Consistent with your 'Deep Work' phases on Tuesdays.",
+        temporalContext: "Occurred during a high-energy cycle."
+    };
 };
 
 export const analyzeQuote = async (text: string, author: string): Promise<QuoteAnalysis> => {
-    if (!process.env.API_KEY) {
-        return {
-            meaning: "Simulated: A profound statement about human nature.",
-            themes: ["Simulation", "Philosophy"],
-            sentimentScore: 8,
-            reflectionPrompt: "How does this apply to your current simulation?"
-        };
-    }
-
-    try {
-        const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: `Analyze this quote deeply. Return JSON.
-            Quote: "${text}" by ${author}`,
-            config: {
-                responseMimeType: "application/json",
-                responseSchema: {
-                    type: Type.OBJECT,
-                    properties: {
-                        meaning: { type: Type.STRING, description: "Hidden philosophical meaning." },
-                        themes: { type: Type.ARRAY, items: { type: Type.STRING } },
-                        sentimentScore: { type: Type.NUMBER },
-                        reflectionPrompt: { type: Type.STRING, description: "A question for the user to ask themselves based on this quote." }
-                    },
-                    required: ["meaning", "themes", "sentimentScore", "reflectionPrompt"]
-                }
-            }
-        });
-        const resultText = response.text;
-        if (!resultText) throw new Error("No analysis returned");
-        return JSON.parse(resultText) as QuoteAnalysis;
-    } catch (error) {
-        console.error("Quote Analysis Failed", error);
-        return {
-            meaning: "Analysis interrupted.",
-            themes: [],
-            sentimentScore: 5,
-            reflectionPrompt: "Why do we seek meaning?"
-        };
-    }
+    await simulateDelay();
+    return {
+        meaning: "This wisdom suggests that internal perception dictates external reality.",
+        themes: ["Stoicism", "Perception", "Control"],
+        sentimentScore: 7,
+        reflectionPrompt: "Where are you projecting fear onto a neutral situation today?"
+    };
 };
 
 export const analyzeMoodPatterns = async (entries: MoodEntry[]): Promise<MoodAnalysis> => {
-    if (!process.env.API_KEY) {
-        return {
-            overallTrend: "Stable",
-            triggers: ["Simulation Data"],
-            prediction: "Likely calm with intermittent creative bursts.",
-            insight: "Simulated pattern: You tend to be productive in the mornings.",
-            actionableStep: "Continue monitoring emotional baseline."
-        };
-    }
-
-    const dataSummary = entries.map(e => 
-        `${e.date.toLocaleDateString()}: Mood=${e.mood}, Intensity=${e.intensity}, Tags=${e.tags.join(',')}`
-    ).join('\n');
-
-    try {
-        const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: `Analyze these mood logs. Return JSON.
-            Data:
-            ${dataSummary}`,
-            config: {
-                responseMimeType: "application/json",
-                responseSchema: {
-                    type: Type.OBJECT,
-                    properties: {
-                        overallTrend: { type: Type.STRING, description: "E.g. Rising, Volatile, Stable" },
-                        triggers: { type: Type.ARRAY, items: { type: Type.STRING } },
-                        prediction: { type: Type.STRING, description: "Forecast for next 24h" },
-                        insight: { type: Type.STRING, description: "Deep psychological pattern identified" },
-                        actionableStep: { type: Type.STRING }
-                    },
-                    required: ["overallTrend", "triggers", "prediction", "insight", "actionableStep"]
-                }
-            }
-        });
-        const resultText = response.text;
-        if (!resultText) throw new Error("No analysis returned");
-        return JSON.parse(resultText) as MoodAnalysis;
-    } catch (error) {
-        console.error("Mood Analysis Failed", error);
-        return {
-            overallTrend: "Unknown",
-            triggers: [],
-            prediction: "Insufficient data.",
-            insight: "Analysis failed.",
-            actionableStep: "Try logging more data."
-        };
-    }
+    await simulateDelay();
+    return {
+        overallTrend: "Stabilizing",
+        triggers: ["Morning Routine", "Deep Work Completion"],
+        prediction: "Energy levels likely to peak tomorrow mid-morning.",
+        insight: "You report higher satisfaction when your mornings are structured.",
+        actionableStep: "Protect your 8-10 AM window tomorrow."
+    };
 };
 
 export const generateGlobalInsights = async (
     mockDataSummary: string
 ): Promise<GlobalAnalysis> => {
-    if (!process.env.API_KEY) {
-        return {
-            weeklySummary: "Simulation Mode: You have been highly productive in creative areas.",
-            emotionalCycle: [
-                { date: 'Mon', mood: 'neutral', value: 5 },
-                { date: 'Tue', mood: 'focused', value: 7 },
-                { date: 'Wed', mood: 'inspired', value: 9, event: 'Project Start' },
-                { date: 'Thu', mood: 'tired', value: 4 },
-                { date: 'Fri', mood: 'calm', value: 6 },
-                { date: 'Sat', mood: 'joy', value: 8, event: 'Social' },
-                { date: 'Sun', mood: 'calm', value: 7 }
-            ],
-            topics: [
-                { id: '1', name: 'Philosophy', size: 9, relatedTopics: ['Stoicism', 'Mind'], x: 50, y: 50 },
-                { id: '2', name: 'Design', size: 7, relatedTopics: ['UI/UX', 'Systems'], x: 20, y: 30 },
-                { id: '3', name: 'Code', size: 6, relatedTopics: ['React', 'AI'], x: 80, y: 40 },
-                { id: '4', name: 'Nature', size: 5, relatedTopics: ['Hiking'], x: 40, y: 80 },
-            ],
-            patterns: [
-                { id: '1', type: 'behavior', title: 'Creative Night Owl', description: 'You tend to have breakthrough ideas after 10 PM.', confidence: 85, impact: 'positive' },
-                { id: '2', type: 'emotional', title: 'Post-Project Dip', description: 'Energy levels consistently drop 2 days after completing a milestone.', confidence: 70, impact: 'negative' }
-            ],
-            lifeArc: {
-                currentPhase: "Foundation Building",
-                description: "You are currently establishing core habits and systems for long-term growth.",
-                progress: 65,
-                nextPhasePrediction: "Acceleration"
-            },
-            predictions: {
-                mood: "Rising Optimism",
-                energy: "Stable",
-                suggestion: "Great time to start the complex module you've been postponing."
-            }
-        };
-    }
-
-    try {
-        const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: `Act as a 'Data Scientist of the Self'. Analyze the following summary of user activity (Journal, Memory, Mood) and generate a holistic report.
-            
-            Input Summary:
-            ${mockDataSummary}
-            
-            Return JSON matching the GlobalAnalysis schema.
-            For emotionalCycle, generate 7 days of data points.
-            For topics, generate 4-6 clustered topics with x/y coordinates (0-100) for visualization.
-            For patterns, identify behavioral or emotional habits.
-            `,
-            config: {
-                responseMimeType: "application/json",
-                responseSchema: {
-                    type: Type.OBJECT,
-                    properties: {
-                        weeklySummary: { type: Type.STRING },
-                        emotionalCycle: { 
-                            type: Type.ARRAY, 
-                            items: { 
-                                type: Type.OBJECT,
-                                properties: {
-                                    date: { type: Type.STRING },
-                                    mood: { type: Type.STRING },
-                                    value: { type: Type.NUMBER },
-                                    event: { type: Type.STRING }
-                                }
-                            } 
-                        },
-                        topics: {
-                            type: Type.ARRAY,
-                            items: {
-                                type: Type.OBJECT,
-                                properties: {
-                                    id: { type: Type.STRING },
-                                    name: { type: Type.STRING },
-                                    size: { type: Type.NUMBER },
-                                    relatedTopics: { type: Type.ARRAY, items: { type: Type.STRING } },
-                                    x: { type: Type.NUMBER },
-                                    y: { type: Type.NUMBER }
-                                }
-                            }
-                        },
-                        patterns: {
-                            type: Type.ARRAY,
-                            items: {
-                                type: Type.OBJECT,
-                                properties: {
-                                    id: { type: Type.STRING },
-                                    type: { type: Type.STRING, enum: ['behavior', 'emotional', 'cognitive'] },
-                                    title: { type: Type.STRING },
-                                    description: { type: Type.STRING },
-                                    confidence: { type: Type.NUMBER },
-                                    impact: { type: Type.STRING, enum: ['positive', 'negative', 'neutral'] }
-                                }
-                            }
-                        },
-                        lifeArc: {
-                            type: Type.OBJECT,
-                            properties: {
-                                currentPhase: { type: Type.STRING },
-                                description: { type: Type.STRING },
-                                progress: { type: Type.NUMBER },
-                                nextPhasePrediction: { type: Type.STRING }
-                            }
-                        },
-                        predictions: {
-                            type: Type.OBJECT,
-                            properties: {
-                                mood: { type: Type.STRING },
-                                energy: { type: Type.STRING },
-                                suggestion: { type: Type.STRING }
-                            }
-                        }
-                    },
-                    required: ["weeklySummary", "emotionalCycle", "topics", "patterns", "lifeArc", "predictions"]
-                }
-            }
-        });
-
-        const resultText = response.text;
-        if (!resultText) throw new Error("No analysis returned");
-        return JSON.parse(resultText) as GlobalAnalysis;
-
-    } catch (error) {
-        console.error("Global Analysis Failed", error);
-        // Return fallback
-        return {
-             weeklySummary: "Analysis unavailable.",
-             emotionalCycle: [],
-             topics: [],
-             patterns: [],
-             lifeArc: { currentPhase: "Unknown", description: "", progress: 0, nextPhasePrediction: "" },
-             predictions: { mood: "", energy: "", suggestion: "" }
-        };
-    }
+    await simulateDelay();
+    return {
+        weeklySummary: "You have moved from a phase of chaos into a phase of structured execution.",
+        emotionalCycle: [
+            { date: 'Mon', mood: 'neutral', value: 5 },
+            { date: 'Tue', mood: 'focused', value: 7 },
+            { date: 'Wed', mood: 'inspired', value: 9, event: 'Breakthrough' },
+            { date: 'Thu', mood: 'tired', value: 4 },
+            { date: 'Fri', mood: 'calm', value: 6 },
+            { date: 'Sat', mood: 'joy', value: 8, event: 'Social' },
+            { date: 'Sun', mood: 'calm', value: 7 }
+        ],
+        topics: [
+            { id: '1', name: 'Systems', size: 9, relatedTopics: ['Automation', 'Flow'], x: 50, y: 50 },
+            { id: '2', name: 'Identity', size: 7, relatedTopics: ['Habits', 'Stoicism'], x: 20, y: 30 },
+            { id: '3', name: 'Energy', size: 6, relatedTopics: ['Sleep', 'Diet'], x: 80, y: 40 },
+            { id: '4', name: 'Future', size: 5, relatedTopics: ['Goals'], x: 40, y: 80 },
+        ],
+        patterns: [
+            { id: '1', type: 'behavior', title: 'Morning Momentum', description: 'Consistently high output when starting before 8 AM.', confidence: 92, impact: 'positive' },
+            { id: '2', type: 'emotional', title: 'Sunday Reset', description: 'Anxiety decreases significantly after weekly planning.', confidence: 85, impact: 'positive' }
+        ],
+        lifeArc: {
+            currentPhase: "The Architect",
+            description: "You are currently designing the systems that will support your next leap.",
+            progress: 72,
+            nextPhasePrediction: "The Builder"
+        },
+        predictions: {
+            mood: "Rising Confidence",
+            energy: "Stable High",
+            suggestion: "Leverage this stability to tackle the 'Project Nebula' milestone."
+        }
+    };
 };
 
 export const expandIdea = async (
@@ -444,53 +132,12 @@ export const expandIdea = async (
     ideaDescription: string, 
     action: 'expand' | 'pivot' | 'connect'
 ): Promise<NonNullable<Idea['aiAnalysis']>> => {
-    if (!process.env.API_KEY) {
-        return {
-            expansion: "Simulation Mode: Expanding this idea involves exploring adjacent possibilities.",
-            gaps: ["Missing technical details", "Target audience undefined"],
-            nextSteps: ["Draft outline", "Research competitors"]
-        };
-    }
-
-    const prompts = {
-        expand: "Expand this idea with depth, details, and potential structure.",
-        pivot: "Suggest a radically different direction or application for this idea.",
-        connect: "Suggest 3 disparate fields or concepts that could connect to this idea."
+    await simulateDelay();
+    return {
+        expansion: "To deepen this concept, consider integrating a feedback loop that learns from user hesitancy, not just action. The interface could 'breathe'—expanding when the user is focused, contracting when they need space.",
+        gaps: ["Missing a mechanism for user override.", "Data privacy concerns in the neural layer."],
+        nextSteps: ["Draft the API schema.", "Sketch the 'breathing' animation states."]
     };
-
-    try {
-        const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: `Act as a creative strategist. ${prompts[action]}
-            
-            Idea: ${ideaTitle}
-            Context: ${ideaDescription}
-            
-            Return JSON.`,
-            config: {
-                responseMimeType: "application/json",
-                responseSchema: {
-                    type: Type.OBJECT,
-                    properties: {
-                        expansion: { type: Type.STRING, description: "A rich paragraph expanding the concept." },
-                        gaps: { type: Type.ARRAY, items: { type: Type.STRING }, description: "Potential missing links or questions." },
-                        nextSteps: { type: Type.ARRAY, items: { type: Type.STRING }, description: "Concrete actions to take." }
-                    },
-                    required: ["expansion", "gaps", "nextSteps"]
-                }
-            }
-        });
-        const resultText = response.text;
-        if (!resultText) throw new Error("No analysis returned");
-        return JSON.parse(resultText) as NonNullable<Idea['aiAnalysis']>;
-    } catch (error) {
-        console.error("Idea Expansion Failed", error);
-        return {
-            expansion: "Analysis failed.",
-            gaps: [],
-            nextSteps: []
-        };
-    }
 };
 
 export const breakdownGoal = async (
@@ -498,62 +145,19 @@ export const breakdownGoal = async (
   description: string,
   type: string
 ): Promise<{ milestones: { title: string }[]; riskAnalysis: string[]; energyScore: number; suggestedHabit: string; motivation: string }> => {
-  if (!process.env.API_KEY) {
-    return {
-      milestones: [
-        { title: "Define clear scope" },
-        { title: "First prototype" },
-        { title: "Review and refine" }
-      ],
-      riskAnalysis: ["Scope creep", "Low energy"],
-      energyScore: 7,
-      suggestedHabit: "Daily 15min review",
-      motivation: "This aligns with your desire for growth."
-    };
-  }
-
-  try {
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: `Act as a strategic performance coach. Break down this goal.
-      
-      Goal: ${title}
-      Type: ${type}
-      Description: ${description}
-      
-      Return JSON with 3-5 concrete milestones, potential risks, an estimated energy requirement (1-10), a suggested supporting habit, and a motivational reason why this matters.`,
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            milestones: { 
-              type: Type.ARRAY, 
-              items: { type: Type.OBJECT, properties: { title: { type: Type.STRING } } } 
-            },
-            riskAnalysis: { type: Type.ARRAY, items: { type: Type.STRING } },
-            energyScore: { type: Type.NUMBER },
-            suggestedHabit: { type: Type.STRING },
-            motivation: { type: Type.STRING }
-          },
-          required: ["milestones", "riskAnalysis", "energyScore", "suggestedHabit", "motivation"]
-        }
-      }
-    });
-    
-    const resultText = response.text;
-    if (!resultText) throw new Error("No analysis returned");
-    return JSON.parse(resultText);
-  } catch (error) {
-    console.error("Goal Breakdown Failed", error);
-    return {
-      milestones: [{ title: "Start small" }],
-      riskAnalysis: ["Unknown"],
-      energyScore: 5,
-      suggestedHabit: "Consistency",
-      motivation: "Keep moving forward."
-    };
-  }
+  await simulateDelay();
+  return {
+    milestones: [
+      { title: "Research & Discovery Phase" },
+      { title: "Prototype Core Mechanic" },
+      { title: "First User Feedback Loop" },
+      { title: "Refine & Polish" }
+    ],
+    riskAnalysis: ["Scope creep in phase 2", "Energy dip mid-project"],
+    energyScore: 7,
+    suggestedHabit: "Daily 15-minute standup with self.",
+    motivation: "This goal aligns perfectly with your 'Builder' identity arc."
+  };
 };
 
 export const optimizeHabitStrategy = async (
@@ -561,170 +165,46 @@ export const optimizeHabitStrategy = async (
   frequency: string,
   streak: number
 ): Promise<HabitAnalysis> => {
-  if (!process.env.API_KEY) {
-    return {
-      identityAlignment: "Simulation: This habit reinforces a core discipline.",
-      suggestedMicroHabit: "Do it for just 2 minutes.",
-      riskAnalysis: "Pattern shows weekend drop-off.",
-      bestTimeOfDay: "Morning"
-    };
-  }
-
-  try {
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: `Act as a behavioral psychologist (Atomic Habits style). Analyze this habit strategy.
-      
-      Habit: ${title}
-      Frequency: ${frequency}
-      Current Streak: ${streak}
-      
-      Return JSON with:
-      1. Identity Alignment (e.g., "This makes you a writer")
-      2. Suggested Micro Habit (a 2-minute version)
-      3. Risk Analysis (potential failure points)
-      4. Best Time of Day
-      `,
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            identityAlignment: { type: Type.STRING },
-            suggestedMicroHabit: { type: Type.STRING },
-            riskAnalysis: { type: Type.STRING },
-            bestTimeOfDay: { type: Type.STRING }
-          },
-          required: ["identityAlignment", "suggestedMicroHabit", "riskAnalysis", "bestTimeOfDay"]
-        }
-      }
-    });
-    
-    const resultText = response.text;
-    if (!resultText) throw new Error("No analysis returned");
-    return JSON.parse(resultText) as HabitAnalysis;
-  } catch (error) {
-    console.error("Habit Optimization Failed", error);
-    return {
-      identityAlignment: "Aligns with personal growth.",
-      suggestedMicroHabit: "Start small.",
-      riskAnalysis: "Inconsistency.",
-      bestTimeOfDay: "Anytime"
-    };
-  }
+  await simulateDelay();
+  return {
+    identityAlignment: "This habit reinforces your identity as a disciplined creator.",
+    suggestedMicroHabit: "Do the first 2 minutes only.",
+    riskAnalysis: "Data shows you tend to skip this on weekends.",
+    bestTimeOfDay: "07:00 AM"
+  };
 };
 
 export const optimizeRoutine = async (
     blocks: RoutineBlock[],
     type: string
 ): Promise<RoutineAnalysis> => {
-    if (!process.env.API_KEY) {
-        return {
-            energyScore: 8,
-            flowSuggestion: "Simulation: Move high-energy tasks to the start.",
-            bottleneck: "Break duration insufficient.",
-            recommendedStartTime: "08:00 AM"
-        };
-    }
-
-    const blocksText = blocks.map(b => `- ${b.title} (${b.duration}m, impact: ${b.energyImpact})`).join('\n');
-
-    try {
-        const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: `Act as a productivity and energy management expert. Analyze this routine flow.
-            
-            Routine Type: ${type}
-            Blocks:
-            ${blocksText}
-            
-            Return JSON with:
-            1. Energy Score (1-10 sustainability)
-            2. Flow Suggestion (how to order better)
-            3. Potential Bottleneck
-            4. Recommended Start Time based on circadian rhythm
-            `,
-            config: {
-                responseMimeType: "application/json",
-                responseSchema: {
-                    type: Type.OBJECT,
-                    properties: {
-                        energyScore: { type: Type.NUMBER },
-                        flowSuggestion: { type: Type.STRING },
-                        bottleneck: { type: Type.STRING },
-                        recommendedStartTime: { type: Type.STRING }
-                    },
-                    required: ["energyScore", "flowSuggestion", "bottleneck", "recommendedStartTime"]
-                }
-            }
-        });
-        const resultText = response.text;
-        if (!resultText) throw new Error("No analysis returned");
-        return JSON.parse(resultText) as RoutineAnalysis;
-    } catch (error) {
-        console.error("Routine Optimization Failed", error);
-        return {
-            energyScore: 5,
-            flowSuggestion: "Optimize block order.",
-            bottleneck: "Unknown",
-            recommendedStartTime: "09:00 AM"
-        };
-    }
+    await simulateDelay();
+    return {
+        energyScore: 8,
+        flowSuggestion: "Move the high-cognitive load task to the second slot to allow for warmup.",
+        bottleneck: "The transition between 'Deep Work' and 'Meeting' is too abrupt.",
+        recommendedStartTime: "08:00 AM"
+    };
 };
 
 export const analyzeEnergyLevels = async (
     metrics: EnergyMetrics
 ): Promise<EnergyAnalysis> => {
-    if (!process.env.API_KEY) {
-        return {
-            currentZone: 'Flow',
-            forecast: "Energy levels stable for next 2 hours.",
-            recommendation: "Engage in deep work now before afternoon dip.",
-            peakTime: "10:00 AM - 12:00 PM"
-        };
-    }
+    await simulateDelay();
+    // Simple logic-based mock
+    const avg = (metrics.mind + metrics.body + metrics.emotion + metrics.focus) / 4;
+    let zone: any = 'Low';
+    if (avg > 80) zone = 'Peak';
+    else if (avg > 60) zone = 'Flow';
+    else if (avg > 40) zone = 'Calm';
+    else if (avg > 20) zone = 'Recovery';
 
-    try {
-        const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: `Act as a bio-rhythm expert. Analyze these current energy metrics:
-            Mind: ${metrics.mind}/100
-            Body: ${metrics.body}/100
-            Emotion: ${metrics.emotion}/100
-            Focus: ${metrics.focus}/100
-            
-            Return JSON with:
-            1. Current Energy Zone (Recovery, Calm, Flow, Peak, Low)
-            2. Short-term Forecast
-            3. Strategic Recommendation
-            4. Peak Time Window
-            `,
-            config: {
-                responseMimeType: "application/json",
-                responseSchema: {
-                    type: Type.OBJECT,
-                    properties: {
-                        currentZone: { type: Type.STRING, enum: ['Recovery', 'Calm', 'Flow', 'Peak', 'Low'] },
-                        forecast: { type: Type.STRING },
-                        recommendation: { type: Type.STRING },
-                        peakTime: { type: Type.STRING }
-                    },
-                    required: ["currentZone", "forecast", "recommendation", "peakTime"]
-                }
-            }
-        });
-        const resultText = response.text;
-        if (!resultText) throw new Error("No analysis returned");
-        return JSON.parse(resultText) as EnergyAnalysis;
-    } catch (error) {
-        console.error("Energy Analysis Failed", error);
-        return {
-            currentZone: 'Calm',
-            forecast: "Unknown",
-            recommendation: "Maintain balance.",
-            peakTime: "Unknown"
-        };
-    }
+    return {
+        currentZone: zone,
+        forecast: "Energy expected to sustain for 90 more minutes.",
+        recommendation: "Engage in creative synthesis now; save admin tasks for later.",
+        peakTime: "10:00 AM - 11:30 AM"
+    };
 };
 
 export const optimizeMilestone = async (
@@ -732,199 +212,336 @@ export const optimizeMilestone = async (
     type: string,
     parentContext: string
 ): Promise<MilestoneAnalysis> => {
-    if (!process.env.API_KEY) {
-        return {
-            difficultyScore: 6,
-            suggestedSubSteps: ["Define inputs", "Draft version 1", "Test and review"],
-            blockerDetection: "Simulation: Potential time constraint.",
-            energyRequirement: "Medium"
-        };
-    }
-
-    try {
-        const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: `Act as a tactical project manager. Analyze this milestone.
-            
-            Milestone: ${title}
-            Type: ${type}
-            Context: ${parentContext}
-            
-            Return JSON with:
-            1. Difficulty Score (1-10)
-            2. 3-5 Concrete micro sub-steps (checklist)
-            3. Potential blocker/risk
-            4. Energy Requirement (Low, Medium, High)
-            `,
-            config: {
-                responseMimeType: "application/json",
-                responseSchema: {
-                    type: Type.OBJECT,
-                    properties: {
-                        difficultyScore: { type: Type.NUMBER },
-                        suggestedSubSteps: { type: Type.ARRAY, items: { type: Type.STRING } },
-                        blockerDetection: { type: Type.STRING },
-                        energyRequirement: { type: Type.STRING }
-                    },
-                    required: ["difficultyScore", "suggestedSubSteps", "blockerDetection", "energyRequirement"]
-                }
-            }
-        });
-        const resultText = response.text;
-        if (!resultText) throw new Error("No analysis returned");
-        return JSON.parse(resultText) as MilestoneAnalysis;
-    } catch (error) {
-        console.error("Milestone Optimization Failed", error);
-        return {
-            difficultyScore: 5,
-            suggestedSubSteps: ["Start"],
-            blockerDetection: "Unknown",
-            energyRequirement: "Medium"
-        };
-    }
+    await simulateDelay();
+    return {
+        difficultyScore: 6,
+        suggestedSubSteps: ["Gather resources", "Draft initial outline", "Review against requirements"],
+        blockerDetection: "Potential dependency on external feedback.",
+        energyRequirement: "Medium"
+    };
 };
 
 export const generateWeeklyReview = async (
     data: WeeklyReviewData
 ): Promise<WeeklyReviewAnalysis> => {
-    if (!process.env.API_KEY) {
-        return {
-            weeklyScore: 82,
-            identityProgress: "You are becoming more consistent with deep work.",
-            summary: "A solid week with high focus, though evening energy dipped on Thursday. Goals are progressing well.",
-            trend: "up",
-            insights: [
-                "Morning routine consistency correlates with higher focus scores.",
-                "Thursday's low energy followed a late night coding session."
-            ],
-            focusAreaSuggestion: ["Recovery Protocol", "Project Nebula Phase 2"]
-        };
-    }
-
-    const dataStr = JSON.stringify(data, null, 2);
-
-    try {
-        const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: `Act as a holistic life coach. Review this week's data and generate a summary.
-            
-            Data: ${dataStr}
-            
-            Return JSON with:
-            1. Weekly Score (0-100)
-            2. Identity Progress (e.g. "You are becoming a...")
-            3. Executive Summary (2-3 sentences)
-            4. Trend (up, stable, down)
-            5. 2-3 Key Pattern Insights
-            6. 2 Suggested Focus Areas for next week
-            `,
-            config: {
-                responseMimeType: "application/json",
-                responseSchema: {
-                    type: Type.OBJECT,
-                    properties: {
-                        weeklyScore: { type: Type.NUMBER },
-                        identityProgress: { type: Type.STRING },
-                        summary: { type: Type.STRING },
-                        trend: { type: Type.STRING, enum: ['up', 'stable', 'down'] },
-                        insights: { type: Type.ARRAY, items: { type: Type.STRING } },
-                        focusAreaSuggestion: { type: Type.ARRAY, items: { type: Type.STRING } }
-                    },
-                    required: ["weeklyScore", "identityProgress", "summary", "trend", "insights", "focusAreaSuggestion"]
-                }
-            }
-        });
-        const resultText = response.text;
-        if (!resultText) throw new Error("No analysis returned");
-        return JSON.parse(resultText) as WeeklyReviewAnalysis;
-    } catch (error) {
-        console.error("Weekly Review Failed", error);
-        return {
-            weeklyScore: 0,
-            identityProgress: "Analysis unavailable.",
-            summary: "Could not process weekly data.",
-            trend: "stable",
-            insights: [],
-            focusAreaSuggestion: []
-        };
-    }
+    await simulateDelay();
+    return {
+        weeklyScore: 85,
+        identityProgress: "You are solidifying the 'Architect' persona.",
+        summary: "A strong week defined by high focus on Tuesday and Wednesday. Recovery protocols on Thursday prevented burnout.",
+        trend: "up",
+        insights: [
+            "Your focus score correlates directly with morning hydration.",
+            "Evening screen time negatively impacted Friday's energy."
+        ],
+        focusAreaSuggestion: ["Deep Work Rituals", "Sleep Consistency"]
+    };
 };
 
 export const generateMonthlyReview = async (
     data: MonthlyReviewData
 ): Promise<MonthlyReviewAnalysis> => {
-    if (!process.env.API_KEY) {
-        return {
-            theme: "The Month of Architecting",
-            summary: "October was characterized by high creative output but fluctuating energy levels. You successfully established a new morning routine but struggled with consistency in health habits.",
-            score: 78,
-            identityShift: "Moving from 'Planner' to 'Executor'",
-            momentumRating: 8,
-            stabilityRating: 6,
-            highlights: ["Launched Project Alpha", "Deep insights on system design", "Maintained journaling streak"],
-            lowlights: ["Missed gym 2 weeks in a row", "Burnout in week 3"],
-            keyInsight: "Your best work happens when you front-load the day; evenings are for recovery, not output.",
-            nextMonthAdvice: "Prioritize physical recovery to match your mental output. The mind cannot outrun the body indefinitely."
-        };
+    await simulateDelay();
+    return {
+        theme: "The Month of Foundation",
+        summary: "October was about setting the stage. You moved from scattered ideas to concrete structures. While energy fluctuated, your commitment to the 'Core' habits kept the baseline high.",
+        score: 78,
+        identityShift: "From Dreamer -> Builder",
+        momentumRating: 8,
+        stabilityRating: 7,
+        highlights: ["Launched the MVP", "Maintained 14-day meditation streak", "Solved the 'Nebula' architecture problem"],
+        lowlights: ["Missed workouts in Week 3", "High anxiety during the launch phase"],
+        keyInsight: "Structure does not kill creativity; it protects it.",
+        nextMonthAdvice: "Focus on optimizing the routine you built this month. Do not add more; refine what exists."
+    };
+};
+
+export const generateYearlyReview = async (
+    data: YearlyReviewData
+): Promise<YearlyReviewAnalysis> => {
+    await simulateDelay();
+    return {
+        theme: "The Year of Awakening",
+        summary: "2023 was a year of radical shifts. You started with uncertainty but found your footing in Q2. The second half of the year was defined by aggressive execution and deep internal alignment. You transitioned from seeking permission to building sovereignty.",
+        score: 92,
+        identityLabel: "The Sovereign Individual",
+        momentumRating: 9,
+        stabilityRating: 8,
+        identityRadar: [
+            { subject: 'Discipline', A: 90, fullMark: 100 },
+            { subject: 'Clarity', A: 85, fullMark: 100 },
+            { subject: 'Momentum', A: 95, fullMark: 100 },
+            { subject: 'Emotion', A: 70, fullMark: 100 },
+            { subject: 'Resilience', A: 88, fullMark: 100 },
+        ],
+        narrativeChapters: [
+            { month: "January", title: "The Fog", summary: "Started with confusion. Energy was low, goals were unclear.", mood: 'anxious' },
+            { month: "March", title: "The Spark", summary: "First breakthrough. The 'Genesis' project began.", mood: 'inspired' },
+            { month: "June", title: "The Grind", summary: "Heavy execution phase. High output, but burnout risk peaked.", mood: 'tired' },
+            { month: "September", title: "The Pivot", summary: "Realized the original path was wrong. Shifted to 'Forge' architecture.", mood: 'focused' },
+            { month: "December", title: "The Arrival", summary: "Systems stabilized. Identity solidified. Peace achieved.", mood: 'calm' }
+        ],
+        highlights: ["Career pivot success", "Physical transformation (gym streak > 100 days)", "Mastered a new language"],
+        lowlights: ["Q1 burnout", "Lost touch with some friends", "Failed Project 'Drift'"],
+        keyInsight: "Consistency beats intensity. The quiet work mattered more than the loud launches.",
+        nextYearAdvice: "Begin 2024 with rest. You have earned the recovery. Then, scale what works."
+    };
+};
+
+export const analyzeAchievement = async (
+  title: string,
+  description: string,
+  category: AchievementCategory
+): Promise<AchievementAnalysis> => {
+  await simulateDelay();
+  return {
+      significanceScore: 8,
+      identityShift: "This reinforces your emerging identity as a builder.",
+      growthPattern: "Your achievements tend to cluster after periods of low energy, suggesting a 'recharge-and-sprint' pattern.",
+      emotionalDriver: "Deep satisfaction from solving structural problems."
+  };
+};
+
+export const generateIdentityAnalysis = async (): Promise<IdentityProfile> => {
+  await simulateDelay();
+  return {
+    currentPhase: {
+      id: 'p1',
+      title: 'Era of Building Foundations',
+      startDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 60), // 60 days ago
+      description: "You have moved past the initial chaos of ideation and are now concretizing your systems. This phase is characterized by high discipline and moderate emotional volatility.",
+      moodBaseline: 'focused',
+      energyAvg: 78
+    },
+    vector: "Resilient Builder in Emergence",
+    evolutionScore: 82,
+    archetype: 'Builder',
+    traits: [
+      { name: 'Consistency', score: 88 },
+      { name: 'Creativity', score: 75 },
+      { name: 'Resilience', score: 90 },
+      { name: 'Clarity', score: 65 },
+      { name: 'Empathy', score: 70 },
+      { name: 'Courage', score: 80 },
+    ],
+    topDrivers: [
+      { id: 'd1', name: 'Morning Routine', type: 'Habit', impact: 95, description: 'The 7 AM protocol is the single biggest predictor of your daily success.' },
+      { id: 'd2', name: 'Desire for Autonomy', type: 'Belief', impact: 88, description: 'Your aversion to dependency fuels your learning speed.' },
+      { id: 'd3', name: 'Project Nebula', type: 'Goal', impact: 85, description: 'This project is currently defining your professional identity.' }
+    ],
+    recentShifts: [
+      { id: 's1', title: 'Shift to Sovereignty', date: new Date(Date.now() - 1000 * 60 * 60 * 24 * 14), type: 'Mindset', impactScore: 90, context: 'Realized you don’t need permission to ship.' },
+      { id: 's2', title: 'Emotional Stabilization', date: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5), type: 'Emotional', impactScore: 75, context: 'Recovery times from setbacks have dropped by 40%.' }
+    ],
+    futureProjection: {
+      trajectory: "Accelerating towards mastery.",
+      alignment: 74,
+      nextPhasePrediction: "The Architect Phase",
+      potentialTraps: ["Burnout from over-optimization", "Neglecting social connection"]
     }
+  };
+};
 
-    const dataStr = JSON.stringify(data, null, 2);
-
-    try {
-        const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: `Act as a 'Cosmic Biographer' and Data Scientist. Review this month's life data and generate a deep retrospective.
-            
-            Data: ${dataStr}
-            
-            Return JSON with:
-            1. Theme Title (e.g. "The Month of Awakening")
-            2. Narrative Summary (3-4 sentences)
-            3. Overall Score (0-100)
-            4. Identity Shift (Who are they becoming?)
-            5. Momentum Rating (1-10)
-            6. Stability Rating (1-10)
-            7. 3 Highlights
-            8. 2 Lowlights/Challenges
-            9. Key Insight (The "Golden Nugget" of wisdom)
-            10. Advice for Next Month
-            `,
-            config: {
-                responseMimeType: "application/json",
-                responseSchema: {
-                    type: Type.OBJECT,
-                    properties: {
-                        theme: { type: Type.STRING },
-                        summary: { type: Type.STRING },
-                        score: { type: Type.NUMBER },
-                        identityShift: { type: Type.STRING },
-                        momentumRating: { type: Type.NUMBER },
-                        stabilityRating: { type: Type.NUMBER },
-                        highlights: { type: Type.ARRAY, items: { type: Type.STRING } },
-                        lowlights: { type: Type.ARRAY, items: { type: Type.STRING } },
-                        keyInsight: { type: Type.STRING },
-                        nextMonthAdvice: { type: Type.STRING }
-                    },
-                    required: ["theme", "summary", "score", "identityShift", "momentumRating", "stabilityRating", "highlights", "lowlights", "keyInsight", "nextMonthAdvice"]
+export const generateLifeThemesAnalysis = async (): Promise<LifeThemeAnalysis> => {
+    await simulateDelay();
+    
+    const dominantThemes = [
+        {
+            id: 't1',
+            title: 'The Architect',
+            description: 'The drive to build, structure, and create lasting systems out of chaos.',
+            status: 'dominant' as const,
+            strength: 92,
+            firstDetected: new Date('2023-01-15'),
+            lastActive: new Date(),
+            relatedMoods: ['focused', 'inspired'] as any[],
+            archetypeIcon: 'compass' as const,
+            colorSignature: '#22D3EE',
+            evidence: ['Journal: "System Entropy"', 'Achievement: "Project Genesis"'],
+            behaviors: [
+                { id: 'b1', description: 'Systematizing daily workflows', type: 'habit' as const },
+                { id: 'b2', description: 'Choosing structure over spontaneity', type: 'decision' as const }
+            ],
+            evolutionArc: 'Chaos -> Structure'
+        },
+        {
+            id: 't2',
+            title: 'The Hermit',
+            description: 'A recurring need for deep solitude to process complex emotions and recharge.',
+            status: 'dominant' as const,
+            strength: 85,
+            firstDetected: new Date('2022-06-10'),
+            lastActive: new Date(Date.now() - 86400000 * 2),
+            relatedMoods: ['calm', 'lonely'] as any[],
+            archetypeIcon: 'feather' as const,
+            colorSignature: '#7C3AED',
+            evidence: ['Memory: "Rainy Cafe Reflection"', 'Habit: "Meditation"'],
+            behaviors: [
+                { id: 'b3', description: 'Retreating when stressed', type: 'avoidance' as const },
+                { id: 'b4', description: 'Deep work sessions (4h+)', type: 'habit' as const }
+            ],
+            conflicts: [
+                { 
+                    id: 'c1', 
+                    opposingThemeId: 't3', 
+                    opposingThemeName: 'Connection', 
+                    description: 'Solitude fueling work vs. loneliness impacting mood.', 
+                    tensionLevel: 7,
+                    resolutionHint: 'Schedule intentional social blocks.'
                 }
-            }
+            ],
+            evolutionArc: 'Isolation -> Solitude'
+        }
+    ];
+
+    const emergingThemes = [
+        {
+            id: 't3',
+            title: 'Radical Self-Trust',
+            description: 'Moving away from seeking external validation towards internal guidance.',
+            status: 'emerging' as const,
+            strength: 60,
+            firstDetected: new Date('2023-09-01'),
+            lastActive: new Date(),
+            relatedMoods: ['inspired', 'anxious'] as any[],
+            archetypeIcon: 'crown' as const,
+            colorSignature: '#FCD34D',
+            evidence: ['Quote: "Waste no more time..."', 'Milestone: "Launch MVP"'],
+            behaviors: [
+                { id: 'b5', description: 'Shipping imperfect work', type: 'decision' as const }
+            ],
+            evolutionArc: 'Doubt -> Confidence'
+        }
+    ];
+
+    const quietThemes = [
+        {
+            id: 't4',
+            title: 'The Observer',
+            description: 'A subtle pattern of detachment and analysis rather than participation.',
+            status: 'dormant' as const,
+            strength: 30,
+            firstDetected: new Date('2021-03-15'),
+            lastActive: new Date(Date.now() - 86400000 * 14),
+            relatedMoods: ['neutral', 'empty'] as any[],
+            archetypeIcon: 'anchor' as const,
+            colorSignature: '#94A3B8',
+            evidence: ['Memory: "The Summit"'],
+            behaviors: [],
+            evolutionArc: 'Numbness -> Clarity'
+        }
+    ];
+
+    // Generate mock timeline data
+    const timelineData = [];
+    const now = Date.now();
+    for (let i = 0; i < 12; i++) {
+        const date = new Date(now - (11 - i) * 30 * 24 * 60 * 60 * 1000);
+        timelineData.push({
+            date: date.toLocaleString('default', { month: 'short' }),
+            themeId: 't1',
+            intensity: 40 + Math.random() * 60
         });
-        const resultText = response.text;
-        if (!resultText) throw new Error("No analysis returned");
-        return JSON.parse(resultText) as MonthlyReviewAnalysis;
-    } catch (error) {
-        console.error("Monthly Review Failed", error);
-        return {
-            theme: "Data Unavailable",
-            summary: "Could not generate monthly report.",
-            score: 0,
-            identityShift: "Unknown",
-            momentumRating: 0,
-            stabilityRating: 0,
-            highlights: [],
-            lowlights: [],
-            keyInsight: "System error.",
-            nextMonthAdvice: "Retry later."
-        };
+        timelineData.push({
+            date: date.toLocaleString('default', { month: 'short' }),
+            themeId: 't2',
+            intensity: 30 + Math.random() * 50
+        });
+         timelineData.push({
+            date: date.toLocaleString('default', { month: 'short' }),
+            themeId: 't3',
+            intensity: i * 5 + Math.random() * 10
+        });
     }
+
+    return {
+        currentSeasonSummary: "This season is characterized by a tension between 'The Architect' (Building) and 'The Hermit' (Withdrawal), with 'Radical Self-Trust' emerging as a bridge.",
+        stabilityScore: 78,
+        dominantThemes,
+        emergingThemes,
+        quietThemes,
+        timelineData,
+        reflectionPrompts: [
+            "In what ways is your need for solitude currently serving your architectural goals?",
+            "Where are you still seeking permission instead of trusting your own judgment?",
+            "What outdated identity is 'The Architect' trying to protect you from?"
+        ]
+    };
+};
+
+export const generateShadowAnalysis = async (): Promise<ShadowAnalysis> => {
+  await simulateDelay();
+  return {
+    primaryShadow: "The Perfectionist / Imposter",
+    supportingShadows: ["Isolation Reflex", "Control Loop"],
+    tensionScore: 78,
+    avoidanceIndex: 65,
+    emotionalRoots: [
+      "Fear of being seen as incompetent",
+      "Unmet need for unconditional acceptance",
+      "Suppressed anger at wasted time"
+    ],
+    masks: [
+      {
+        id: "m1",
+        name: "Hyper-Productivity",
+        protecting: "Fear of worthlessness",
+        triggeredBy: "Silence, perceived failure",
+        description: "You over-work to prove your value, avoiding the quiet where doubts arise.",
+        icon: "shield"
+      },
+      {
+        id: "m2",
+        name: "Intellectualization",
+        protecting: "Vulnerability",
+        triggeredBy: "Emotional conflict",
+        description: "You analyze feelings instead of feeling them, creating distance from pain.",
+        icon: "mask"
+      }
+    ],
+    conflicts: [
+      {
+        id: "c1",
+        desire: "Deep Connection",
+        fear: "Rejection / Exposure",
+        manifestation: "Withdrawing when people get too close",
+        tensionLevel: 8
+      },
+      {
+        id: "c2",
+        desire: "Rest / Ease",
+        fear: "Irrelevance",
+        manifestation: "Guilt whenever not working",
+        tensionLevel: 6
+      }
+    ],
+    limitingBeliefs: [
+      { id: "b1", statement: "I am only as good as my last output.", intensity: 9, consequences: ["Burnout", "Anxiety"] },
+      { id: "b2", statement: "If I stop pushing, everything falls apart.", intensity: 7, consequences: ["Inability to relax", "Sleep issues"] }
+    ],
+    transmutation: {
+      shadow: "Fear of Inadequacy",
+      gift: "Mastery & Excellence",
+      path: "Shifting from 'proving' to 'improving'."
+    },
+    integrationSteps: [
+      "Practice 'good enough' shipping for one low-stakes project this week.",
+      "Spend 10 minutes in silence without reaching for a device.",
+      "Admit a small struggle to a trusted friend."
+    ],
+    reflectionPrompts: [
+      "Who would you be if you didn't have to impress anyone?",
+      "What is the tired part of you trying to say?",
+      "Where did you learn that rest must be earned?"
+    ],
+    shadowTimeline: [
+      { date: "Mon", intensity: 40, trigger: "Start of week pressure" },
+      { date: "Tue", intensity: 60, trigger: "Deadline proximity" },
+      { date: "Wed", intensity: 85, trigger: "Mid-week fatigue" },
+      { date: "Thu", intensity: 50, trigger: "Recovery" },
+      { date: "Fri", intensity: 30, trigger: "Flow state" },
+      { date: "Sat", intensity: 20, trigger: "Social distraction" },
+      { date: "Sun", intensity: 70, trigger: "Sunday scaries / Anticipation" }
+    ]
+  };
 };
