@@ -1,6 +1,6 @@
 
 import { GoogleGenAI, GenerateContentResponse, Type } from "@google/genai";
-import { InsightData, JournalAnalysis, MemoryAnalysis, TimelineAnalysis, QuoteAnalysis, MoodEntry, MoodAnalysis, GlobalAnalysis, Idea, GoalAnalysis, Milestone, HabitAnalysis, RoutineBlock, RoutineAnalysis, EnergyMetrics, EnergyAnalysis, MilestoneAnalysis, WeeklyReviewData, WeeklyReviewAnalysis, MonthlyReviewData, MonthlyReviewAnalysis, YearlyReviewData, YearlyReviewAnalysis, AchievementAnalysis, AchievementCategory, IdentityProfile, LifeThemeAnalysis, ShadowAnalysis } from "../types";
+import { InsightData, JournalAnalysis, MemoryAnalysis, TimelineAnalysis, QuoteAnalysis, MoodEntry, MoodAnalysis, GlobalAnalysis, Idea, GoalAnalysis, Milestone, HabitAnalysis, RoutineBlock, RoutineAnalysis, EnergyMetrics, EnergyAnalysis, MilestoneAnalysis, WeeklyReviewData, WeeklyReviewAnalysis, MonthlyReviewData, MonthlyReviewAnalysis, YearlyReviewData, YearlyReviewAnalysis, AchievementAnalysis, AchievementCategory, IdentityProfile, LifeThemeAnalysis, ShadowAnalysis, CompassData } from "../types";
 
 // Initialize the AI client - ONLY used for Forge Chamber
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
@@ -543,5 +543,57 @@ export const generateShadowAnalysis = async (): Promise<ShadowAnalysis> => {
       { date: "Sat", intensity: 20, trigger: "Social distraction" },
       { date: "Sun", intensity: 70, trigger: "Sunday scaries / Anticipation" }
     ]
+  };
+};
+
+export const generateCompassAnalysis = async (): Promise<CompassData> => {
+  await simulateDelay();
+  return {
+    northStar: {
+      statement: "Become a world-class builder of meaningful digital worlds.",
+      whyItMatters: "To express the deepest parts of my creativity and provide utility to others, achieving autonomy.",
+      timeHorizon: "5 years",
+      resonanceScore: 8.5
+    },
+    currentPhase: "Ascent",
+    alignmentScore: 72,
+    driftScore: 28,
+    driftSources: ["Excessive consumption of tech news", "Perfectionism in planning phase", "Saying yes to low-leverage social events"],
+    horizons: [
+      {
+        level: '1Y',
+        vision: "Ship the Forge OS MVP and achieve 100 true fans. Establish a physical health baseline of daily movement.",
+        domains: [
+          { name: 'Work', status: 'on-track', anchorGoal: 'Launch v1.0' },
+          { name: 'Health', status: 'at-risk', anchorGoal: 'Run 10k' },
+          { name: 'Inner', status: 'on-track', anchorGoal: 'Daily Meditation' }
+        ]
+      },
+      {
+        level: '3Y',
+        vision: "Financial independence through IP. Leading a small, high-trust team. Living in a location that feeds the soul.",
+        domains: [
+          { name: 'Wealth', status: 'on-track', anchorGoal: '$10k MRR' },
+          { name: 'Relationships', status: 'drifting', anchorGoal: 'Core Tribe' }
+        ]
+      },
+      {
+        level: '5Y',
+        vision: "Recognized as a master craftsman. Teaching others. Deep peace and integration of shadow.",
+        domains: [
+          { name: 'Mastery', status: 'on-track', anchorGoal: 'Magnum Opus' },
+          { name: 'Legacy', status: 'on-track', anchorGoal: 'Mentorship' }
+        ]
+      }
+    ],
+    tracks: [
+      { id: 't1', title: 'Engineering Mastery', linkedThemeId: 't1', horizon: '5Y', status: 'active', momentum: 85, progress: 40 },
+      { id: 't2', title: 'Physical Foundation', linkedThemeId: 't5', horizon: '1Y', status: 'active', momentum: 60, progress: 25 },
+      { id: 't3', title: 'Inner Citadel', linkedThemeId: 't2', horizon: '3Y', status: 'active', momentum: 90, progress: 65 }
+    ],
+    nextQuarterFocus: {
+      themes: ["Creation", "Health", "Depth"],
+      goals: ["Ship Module X", "Correct Sleep Cycle", "Read 5 Core Books"]
+    }
   };
 };

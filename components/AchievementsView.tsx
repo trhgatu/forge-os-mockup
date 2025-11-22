@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Trophy, Star, Zap, Heart, Briefcase, Users, Flag, Plus, Filter, Search, Sparkles, ChevronRight, X, Brain, Target } from 'lucide-react';
+import { Trophy, Star, Zap, Heart, Briefcase, Users, Flag, Plus, Filter, Search, Sparkles, ChevronRight, X, Brain, Target, Calendar } from 'lucide-react';
 import { GlassCard } from './GlassCard';
 import { Achievement, AchievementCategory, MoodType } from '../types';
 import { analyzeAchievement } from '../services/geminiService';
@@ -192,8 +192,32 @@ export const AchievementsView: React.FC = () => {
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [isCreating, setIsCreating] = useState(false);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
+    
+    // Filters
+    const [showFilters, setShowFilters] = useState(false);
+    const [categoryFilter, setCategoryFilter] = useState<AchievementCategory | 'All'>('All');
+    const [searchQuery, setSearchQuery] = useState('');
+    const [startDate, setStartDate] = useState<string>('');
+    const [endDate, setEndDate] = useState<string>('');
 
     const selectedAchievement = achievements.find(a => a.id === selectedId) || null;
+
+    const filteredAchievements = achievements.filter(a => {
+        const matchesCategory = categoryFilter === 'All' || a.category === categoryFilter;
+        const matchesSearch = searchQuery === '' || 
+                              a.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                              a.tags.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()));
+        
+        let matchesDate = true;
+        if (startDate) {
+            matchesDate = matchesDate && new Date(a.date) >= new Date(startDate);
+        }
+        if (endDate) {
+            matchesDate = matchesDate && new Date(a.date) <= new Date(endDate);
+        }
+
+        return matchesCategory && matchesSearch && matchesDate;
+    });
 
     const handleAnalyze = async () => {
         if (!selectedAchievement) return;
@@ -230,7 +254,7 @@ export const AchievementsView: React.FC = () => {
                 {/* Constellation Timeline */}
                 <div className="w-full mb-8 relative">
                     <div className="absolute top-4 left-8 text-[10px] font-mono text-gray-500 uppercase tracking-widest z-10">Cosmic Timeline</div>
-                    <ConstellationTimeline achievements={achievements} onSelect={setSelectedId} selectedId={selectedId} />
+                    <ConstellationTimeline achievements={filteredAchievements} onSelect={setSelectedId} selectedId={selectedId} />
                 </div>
 
                 {/* Grid View */}
@@ -238,14 +262,87 @@ export const AchievementsView: React.FC = () => {
                     <div className="flex items-center justify-between mb-6">
                          <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2"><Trophy size={16} className="text-yellow-500" /> Vault</h3>
                          <div className="flex gap-2">
-                            <button className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white"><Filter size={16}/></button>
-                            <button className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white"><Search size={16}/></button>
+                            <button 
+                                onClick={() => setShowFilters(!showFilters)}
+                                className={cn("p-2 rounded-lg transition-all", showFilters ? 'bg-white/20 text-white' : 'bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white')}
+                            >
+                                <Filter size={16}/>
+                            </button>
                          </div>
                     </div>
+
+                    {/* Filters Panel */}
+                    {showFilters && (
+                        <div className="mb-6 p-6 rounded-2xl bg-white/[0.02] border border-white/5 animate-in slide-in-from-top-2 backdrop-blur-md">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div>
+                                    <label className="block text-xs text-gray-500 font-mono uppercase mb-3">Category</label>
+                                    <div className="flex flex-wrap gap-2">
+                                        <button 
+                                            onClick={() => setCategoryFilter('All')}
+                                            className={cn("px-3 py-1.5 rounded-lg text-xs border transition-all", categoryFilter === 'All' ? 'bg-white text-black border-white font-bold' : 'bg-transparent text-gray-400 border-white/10 hover:border-white/30')}
+                                        >
+                                            All
+                                        </button>
+                                        {Object.keys(CATEGORY_CONFIG).map(c => (
+                                            <button 
+                                                key={c}
+                                                onClick={() => setCategoryFilter(c as AchievementCategory)}
+                                                className={cn("px-3 py-1.5 rounded-lg text-xs border transition-all", categoryFilter === c ? 'bg-white text-black border-white font-bold' : 'bg-transparent text-gray-400 border-white/10 hover:border-white/30')}
+                                            >
+                                                {c}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="block text-xs text-gray-500 font-mono uppercase mb-3">Date Range</label>
+                                    <div className="flex items-center gap-2">
+                                        <div className="relative flex-1">
+                                            <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-forge-accent/50" />
+                                        </div>
+                                        <span className="text-gray-500 text-xs">to</span>
+                                        <div className="relative flex-1">
+                                            <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-forge-accent/50" />
+                                        </div>
+                                    </div>
+                                </div>
+                                 <div>
+                                    <label className="block text-xs text-gray-500 font-mono uppercase mb-3">Search & Tags</label>
+                                    <div className="relative">
+                                        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                                        <input 
+                                            type="text" 
+                                            value={searchQuery} 
+                                            onChange={e => setSearchQuery(e.target.value)} 
+                                            placeholder="Filter by title or #tag..." 
+                                            className="w-full bg-white/5 border border-white/10 rounded-lg pl-9 pr-3 py-2 text-xs text-white focus:outline-none focus:border-forge-accent/50 placeholder-gray-600 transition-colors" 
+                                        />
+                                        {searchQuery && (
+                                            <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white">
+                                                <X size={12} />
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        {achievements.map(achievement => (
-                            <AchievementCard key={achievement.id} achievement={achievement} onClick={() => setSelectedId(achievement.id)} />
-                        ))}
+                        {filteredAchievements.length > 0 ? (
+                            filteredAchievements.map(achievement => (
+                                <AchievementCard key={achievement.id} achievement={achievement} onClick={() => setSelectedId(achievement.id)} />
+                            ))
+                        ) : (
+                            <div className="col-span-full py-20 text-center border border-dashed border-white/5 rounded-2xl bg-white/[0.01]">
+                                <Trophy size={32} className="mx-auto mb-4 text-white/10" />
+                                <p className="text-gray-500">No artifacts found matching your criteria.</p>
+                                <button onClick={() => {setCategoryFilter('All'); setSearchQuery(''); setStartDate(''); setEndDate('');}} className="text-xs text-forge-cyan mt-2 hover:underline">
+                                    Clear Filters
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

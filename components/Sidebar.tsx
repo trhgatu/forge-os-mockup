@@ -28,7 +28,8 @@ import {
   Trophy,
   Fingerprint,
   Map,
-  Ghost
+  Ghost,
+  Navigation
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -45,6 +46,7 @@ const NAV_ITEMS: NavItem[] = [
   { id: View.SHADOW_WORK, label: 'Shadow Work', icon: Ghost, group: 'Reflection' },
   { id: View.MOOD, label: 'Mood', icon: Smile, group: 'Reflection' },
   { id: View.QUOTES, label: 'Wisdom', icon: Quote, group: 'Reflection' },
+  { id: View.COMPASS, label: 'Compass', icon: Navigation, group: 'Evolution' },
   { id: View.GOALS, label: 'Goals', icon: Target, group: 'Evolution' },
   { id: View.IDENTITY, label: 'Identity', icon: Fingerprint, group: 'Evolution' },
   { id: View.THEMES, label: 'Life Themes', icon: Map, group: 'Evolution' },

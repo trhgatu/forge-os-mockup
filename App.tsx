@@ -22,6 +22,7 @@ import { AchievementsView } from './components/AchievementsView';
 import { IdentityView } from './components/IdentityView';
 import { LifeThemesView } from './components/LifeThemesView';
 import { ShadowWorkView } from './components/ShadowWorkView';
+import { CompassView } from './components/CompassView';
 import { SettingsView } from './components/SettingsView';
 import { View } from './types';
 import { GlassCard } from './components/GlassCard';
@@ -66,6 +67,8 @@ const App: React.FC = () => {
         return <LifeThemesView />;
       case View.SHADOW_WORK:
         return <ShadowWorkView />;
+      case View.COMPASS:
+        return <CompassView />;
       case View.ENERGY:
         return <EnergyView />;
       case View.WEEKLY_REVIEW:

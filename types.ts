@@ -5,6 +5,7 @@ import React from 'react';
 export enum View {
   DASHBOARD = 'DASHBOARD',
   FORGE_CHAMBER = 'FORGE_CHAMBER',
+  COMPASS = 'COMPASS', // New View
   JOURNAL = 'JOURNAL',
   MEMORY = 'MEMORY',
   TIMELINE = 'TIMELINE',
@@ -19,7 +20,7 @@ export enum View {
   ACHIEVEMENTS = 'ACHIEVEMENTS',
   IDENTITY = 'IDENTITY',
   THEMES = 'THEMES',
-  SHADOW_WORK = 'SHADOW_WORK', // New Module
+  SHADOW_WORK = 'SHADOW_WORK', 
   ENERGY = 'ENERGY',
   WEEKLY_REVIEW = 'WEEKLY_REVIEW',
   MONTHLY_REVIEW = 'MONTHLY_REVIEW',
@@ -696,4 +697,49 @@ export interface YearlyReviewAnalysis {
   lowlights: string[];
   keyInsight: string;
   nextYearAdvice: string;
+}
+
+// --- Compass Types (New) ---
+
+export interface NorthStar {
+  statement: string;
+  whyItMatters: string;
+  timeHorizon: string; // "3-5 years"
+  resonanceScore: number; // 1-10
+}
+
+export type HorizonLevel = '1Y' | '3Y' | '5Y';
+
+export interface CompassHorizon {
+  level: HorizonLevel;
+  vision: string;
+  domains: {
+    name: string; // "Work", "Health", etc.
+    status: 'on-track' | 'drifting' | 'at-risk';
+    anchorGoal: string;
+  }[];
+}
+
+export interface StrategicTrack {
+  id: string;
+  title: string;
+  linkedThemeId: string;
+  horizon: HorizonLevel;
+  status: 'active' | 'paused' | 'completed';
+  momentum: number; // 0-100
+  progress: number; // 0-100
+}
+
+export interface CompassData {
+  northStar: NorthStar;
+  horizons: CompassHorizon[];
+  tracks: StrategicTrack[];
+  alignmentScore: number; // 0-100
+  driftScore: number; // 0-100
+  currentPhase: string; // "Foundation"
+  driftSources: string[];
+  nextQuarterFocus: {
+    themes: string[];
+    goals: string[];
+  };
 }
