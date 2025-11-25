@@ -29,7 +29,9 @@ import {
   Fingerprint,
   Map,
   Ghost,
-  Navigation
+  Navigation,
+  Globe,
+  Hexagon
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -38,6 +40,7 @@ interface SidebarProps {
 }
 
 const NAV_ITEMS: NavItem[] = [
+  { id: View.MASTERPLAN, label: 'Masterplan', icon: Globe, group: 'Meta' }, // New Top Level
   { id: View.DASHBOARD, label: 'Dashboard', icon: LayoutDashboard, group: 'Main' },
   { id: View.FORGE_CHAMBER, label: 'Forge Chamber', icon: BrainCircuit, group: 'Main' },
   { id: View.TIMELINE, label: 'Timeline', icon: GitCommitHorizontal, group: 'Reflection' },
@@ -107,7 +110,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate }) => 
 
       {/* Navigation Groups */}
       <nav className="flex-1 overflow-y-auto overflow-x-hidden px-3 py-2 space-y-6 scrollbar-hide">
-        {['Main', 'Reflection', 'Creativity', 'Evolution', 'System'].map((group) => (
+        {['Meta', 'Main', 'Reflection', 'Creativity', 'Evolution', 'System'].map((group) => (
           <div key={group} className="relative">
             {/* Group Label */}
             <h3 className={cn(

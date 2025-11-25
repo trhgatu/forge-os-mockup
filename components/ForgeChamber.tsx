@@ -11,7 +11,7 @@ import { Message, AgentId, Agent } from '../types';
 export const ForgeChamber: React.FC = () => {
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<Message[]>([
-    { id: '1', role: 'model', agentId: 'nexus', text: 'Forge Systems Online. I am ready to assist with your cognitive processes.' }
+    { id: '1', role: 'model', agentId: 'nova', text: 'Nova v∞ activated. The space is open.' }
   ]);
   const [isStreaming, setIsStreaming] = useState(false);
   const [isDockOpen, setIsDockOpen] = useState(true);
@@ -55,7 +55,7 @@ export const ForgeChamber: React.FC = () => {
         const promises = roundtableAgents.map(async (agent, index) => {
            await new Promise(r => setTimeout(r, index * 400)); 
            const personaPrompt = `${agent.systemPrompt}\nUser Query: "${userMsg.text}"\nRespond to the user in your specific persona. Keep it under 100 words.`;
-           const result = await streamChatResponse([], personaPrompt);
+           const result = await streamChatResponse([], personaPrompt, agent.systemPrompt);
            let fullText = '';
            for await (const chunk of result) {
               const c = chunk as GenerateContentResponse;
@@ -68,8 +68,8 @@ export const ForgeChamber: React.FC = () => {
         await Promise.all(promises);
       } else {
         const modelMsgId = (Date.now() + 1).toString();
-        setMessages(prev => [...prev, { id: modelMsgId, role: 'model', agentId: 'nexus', text: '' }]);
-        setActiveAgentIds(['nexus']);
+        setMessages(prev => [...prev, { id: modelMsgId, role: 'model', agentId: 'nova', text: '' }]);
+        setActiveAgentIds(['nova']);
         const result = await streamChatResponse(history, userMsg.text);
         let fullText = '';
         for await (const chunk of result) {
@@ -100,7 +100,7 @@ export const ForgeChamber: React.FC = () => {
                 <div className="flex items-center gap-3">
                   <div className={cn("w-2 h-2 rounded-full shadow-[0_0_10px_currentColor] animate-pulse bg-current", isRoundtableMode ? 'text-fuchsia-500' : 'text-forge-cyan')} />
                   <span className="font-mono text-sm text-gray-300 tracking-wider uppercase">
-                    {isRoundtableMode ? 'Roundtable Protocol' : 'Nexus Core'}
+                    {isRoundtableMode ? 'Roundtable Protocol' : 'Nova Core'}
                   </span>
                 </div>
 
@@ -206,7 +206,7 @@ export const ForgeChamber: React.FC = () => {
              </GlassCard>
              <div className="text-center mt-2 flex justify-center gap-4">
                 <p className="text-[10px] text-gray-600 font-mono">
-                   {isRoundtableMode ? 'Cluster Processing Active • High Token Usage' : 'Nexus Core Active'}
+                   {isRoundtableMode ? 'Cluster Processing Active • High Token Usage' : 'Nova v∞ Core Active'}
                 </p>
              </div>
           </div>

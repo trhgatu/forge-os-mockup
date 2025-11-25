@@ -23,7 +23,9 @@ import { IdentityView } from './components/IdentityView';
 import { LifeThemesView } from './components/LifeThemesView';
 import { ShadowWorkView } from './components/ShadowWorkView';
 import { CompassView } from './components/CompassView';
+import { MasterplanView } from './components/MasterplanView';
 import { SettingsView } from './components/SettingsView';
+import { NovaGuide } from './components/NovaGuide';
 import { View } from './types';
 import { GlassCard } from './components/GlassCard';
 import { Hammer } from 'lucide-react';
@@ -37,6 +39,8 @@ const App: React.FC = () => {
         return <Dashboard />;
       case View.FORGE_CHAMBER:
         return <ForgeChamber />;
+      case View.MASTERPLAN:
+        return <MasterplanView />;
       case View.JOURNAL:
         return <JournalView />;
       case View.MEMORY:
@@ -117,6 +121,9 @@ const App: React.FC = () => {
            <div className="flex-1 overflow-hidden">
              {renderContent()}
            </div>
+           
+           {/* Nova Guide Overlay */}
+           <NovaGuide currentView={currentView} />
         </main>
       </div>
     </div>

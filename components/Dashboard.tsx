@@ -105,9 +105,6 @@ export const Dashboard: React.FC = () => {
 
   const timeString = time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   const dateString = time.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' });
-  
-  const hour = time.getHours();
-  const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
 
   return (
     <div className="h-full flex bg-forge-bg overflow-hidden">
@@ -119,15 +116,17 @@ export const Dashboard: React.FC = () => {
          <header className="mb-10 relative">
             <div className="absolute -left-20 -top-20 w-64 h-64 bg-forge-accent/10 rounded-full blur-[80px] pointer-events-none" />
             
-            <h1 className="text-5xl font-display font-bold text-white mb-2 tracking-tight animate-in fade-in slide-in-from-bottom-2 duration-700">
-               {greeting}, <span className="text-transparent bg-clip-text bg-gradient-to-r from-forge-cyan to-forge-accent">Traveler.</span>
+            <h1 className="text-4xl md:text-5xl font-display font-bold text-white mb-2 tracking-tight leading-tight animate-in fade-in slide-in-from-bottom-2">
+               Welcome back, Traveler.
             </h1>
             <div className="flex items-center gap-4 text-gray-400 animate-in fade-in slide-in-from-bottom-3 duration-700 delay-100">
                <span className="flex items-center gap-2 font-light">
                   <Calendar size={14} /> {dateString}
                </span>
                <span className="w-1 h-1 rounded-full bg-gray-600" />
-               <span className="text-forge-cyan font-mono text-xs">Systems Nominal</span>
+               <span className="text-forge-cyan font-mono text-xs flex items-center gap-2">
+                  <Activity size={10} /> Systems Nominal
+               </span>
             </div>
          </header>
 

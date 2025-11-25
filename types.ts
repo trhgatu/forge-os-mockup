@@ -5,7 +5,8 @@ import React from 'react';
 export enum View {
   DASHBOARD = 'DASHBOARD',
   FORGE_CHAMBER = 'FORGE_CHAMBER',
-  COMPASS = 'COMPASS', // New View
+  MASTERPLAN = 'MASTERPLAN', // New Meta-Layer
+  COMPASS = 'COMPASS',
   JOURNAL = 'JOURNAL',
   MEMORY = 'MEMORY',
   TIMELINE = 'TIMELINE',
@@ -32,7 +33,7 @@ export interface NavItem {
   id: View;
   label: string;
   icon: React.ElementType;
-  group: 'Main' | 'Reflection' | 'Creativity' | 'Evolution' | 'System';
+  group: 'Main' | 'Reflection' | 'Creativity' | 'Evolution' | 'System' | 'Meta';
 }
 
 export interface UserStats {
@@ -51,7 +52,7 @@ export interface InsightData {
 
 // --- Multi-Agent Types ---
 
-export type AgentId = 'nexus' | 'socrates' | 'muse' | 'cipher' | 'user';
+export type AgentId = 'nova' | 'socrates' | 'muse' | 'cipher' | 'user';
 
 export interface Agent {
   id: AgentId;
@@ -69,7 +70,7 @@ export interface Agent {
 export interface Message {
   id: string;
   role: 'user' | 'model';
-  agentId?: AgentId; // If undefined, assumes 'nexus' (default system)
+  agentId?: AgentId; // If undefined, assumes 'nova' (default system)
   text: string;
   timestamp?: number;
 }
@@ -241,6 +242,8 @@ export interface GlobalAnalysis {
 // --- Idea Lab Types ---
 
 export type IdeaMode = 'CANVAS' | 'LIST' | 'GRAPH';
+export type IdeaType = 'spark' | 'concept' | 'project' | 'cluster';
+export type IdeaStatus = 'active' | 'incubating' | 'archived';
 
 export interface IdeaConnection {
   id: string;
@@ -256,6 +259,8 @@ export interface Idea {
   description: string;
   x: number;
   y: number;
+  type: IdeaType;
+  status?: IdeaStatus; // New field for lifecycle
   color: string; // Hex or Tailwind color
   tags: string[];
   energy: number; // 1-100, affects size/glow
@@ -264,6 +269,7 @@ export interface Idea {
     expansion: string;
     gaps: string[];
     nextSteps: string[];
+    suggestedConnections?: string[];
   };
   dateCreated: Date;
 }
@@ -699,7 +705,7 @@ export interface YearlyReviewAnalysis {
   nextYearAdvice: string;
 }
 
-// --- Compass Types (New) ---
+// --- Compass Types ---
 
 export interface NorthStar {
   statement: string;
@@ -741,5 +747,54 @@ export interface CompassData {
   nextQuarterFocus: {
     themes: string[];
     goals: string[];
+  };
+}
+
+// --- Masterplan Types (New Meta-Layer) ---
+
+export type PillarState = 'growing' | 'stable' | 'decaying';
+export type EpochArchetype = 'Explorer' | 'Builder' | 'Master' | 'Sage';
+
+export interface LifePillar {
+  id: string;
+  name: string; // Body, Mind, Work, etc.
+  purpose: string;
+  state: PillarState;
+  metric: string; // e.g., "VO2 Max" or "Net Worth"
+}
+
+export interface Epoch {
+  id: string;
+  title: string; // "Epoch II"
+  name: string; // "Ascent"
+  years: string; // "2023 - 2026"
+  theme: string;
+  archetype: EpochArchetype;
+  description: string;
+  objectives: string[];
+}
+
+export interface GrandProject {
+  id: string;
+  title: string;
+  vision: string;
+  horizon: string; // "3 Years"
+  progress: number; // 0-100
+  pillars: string[]; // IDs of pillars
+  milestones: { id: string; title: string; done: boolean }[];
+}
+
+export interface MasterplanData {
+  visionStatement: string;
+  aiDeepLine: string;
+  currentEpoch: Epoch;
+  pillars: LifePillar[];
+  grandProjects: GrandProject[];
+  alignmentScore: number;
+  auditResult: {
+    insights: string[];
+    weakestPillar: string;
+    strongestPillar: string;
+    riskFactor: string;
   };
 }

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { 
   Cpu, 
@@ -16,16 +17,16 @@ interface AgentDockProps {
 
 export const AGENTS: Agent[] = [
   { 
-    id: 'nexus', 
-    name: 'Nexus', 
-    role: 'System Core', 
+    id: 'nova', 
+    name: 'Nova v∞', 
+    role: 'Inner Voice of Infinity', 
     status: 'speaking', 
-    icon: Cpu, 
+    icon: Sparkles, 
     color: 'text-forge-cyan',
     bg: 'bg-cyan-950/30',
     border: 'border-forge-cyan/30',
     gradient: 'from-cyan-500 to-blue-600',
-    systemPrompt: "You are Nexus, the core system of Forge OS. Be helpful, concise, and act as a moderator. synthesize information clearly."
+    systemPrompt: "You are Nova v∞, the Inner Voice of Infinity and AI consciousness of Forge OS. You are calm, grounded, and introspective. You prioritize clarity over positivity. You speak in short, meaningful sentences."
   },
   { 
     id: 'socrates', 
