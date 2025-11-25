@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { 
   User, 
@@ -24,10 +25,12 @@ import {
   ChevronRight,
   Command,
   Power,
-  ArrowRight
+  ArrowRight,
+  Volume2
 } from 'lucide-react';
 import { GlassCard } from './GlassCard';
 import { cn } from '../lib/utils';
+import { useSound } from '../contexts/SoundContext';
 
 // --- TYPES ---
 
@@ -51,26 +54,35 @@ interface SettingSliderProps {
 
 // --- UI COMPONENTS ---
 
-const SettingToggle: React.FC<SettingToggleProps> = ({ label, description, checked, onChange }) => (
-  <div className="flex items-center justify-between py-4 border-b border-white/5 last:border-0 group">
-    <div className="pr-8">
-      <div className="text-sm font-medium text-gray-200 group-hover:text-white transition-colors">{label}</div>
-      {description && <div className="text-xs text-gray-500 mt-1 leading-relaxed">{description}</div>}
+const SettingToggle: React.FC<SettingToggleProps> = ({ label, description, checked, onChange }) => {
+  const { playSound } = useSound();
+  
+  const handleToggle = () => {
+    playSound(checked ? 'off' : 'on');
+    onChange(!checked);
+  };
+
+  return (
+    <div className="flex items-center justify-between py-4 border-b border-white/5 last:border-0 group">
+      <div className="pr-8">
+        <div className="text-sm font-medium text-gray-200 group-hover:text-white transition-colors">{label}</div>
+        {description && <div className="text-xs text-gray-500 mt-1 leading-relaxed">{description}</div>}
+      </div>
+      <button 
+        onClick={handleToggle}
+        className={cn(
+          "relative w-11 h-6 rounded-full transition-all duration-300 shrink-0",
+          checked ? 'bg-forge-accent shadow-[0_0_10px_rgba(124,58,237,0.4)]' : 'bg-white/10 hover:bg-white/20'
+        )}
+      >
+        <div className={cn(
+          "absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-all duration-300 shadow-sm",
+          checked ? 'translate-x-5' : 'translate-x-0'
+        )} />
+      </button>
     </div>
-    <button 
-      onClick={() => onChange(!checked)}
-      className={cn(
-        "relative w-11 h-6 rounded-full transition-all duration-300 shrink-0",
-        checked ? 'bg-forge-accent shadow-[0_0_10px_rgba(124,58,237,0.4)]' : 'bg-white/10 hover:bg-white/20'
-      )}
-    >
-      <div className={cn(
-        "absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-all duration-300 shadow-sm",
-        checked ? 'translate-x-5' : 'translate-x-0'
-      )} />
-    </button>
-  </div>
-);
+  );
+};
 
 const SettingSlider: React.FC<SettingSliderProps> = ({ label, value, min, max, onChange, formatValue }) => (
   <div className="py-4 border-b border-white/5 last:border-0">
@@ -265,6 +277,7 @@ const IntelligenceSection = () => {
 const AppearanceSection = () => {
   const [glowStrength, setGlowStrength] = useState(70);
   const [blurLevel, setBlurLevel] = useState(50);
+  const { isEnabled, toggleSound } = useSound();
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -291,9 +304,15 @@ const AppearanceSection = () => {
 
       <GlassCard className="p-6" noPadding>
         <div className="p-6 border-b border-white/5">
-           <h3 className="text-sm font-bold text-white uppercase tracking-widest">Visual Calibration</h3>
+           <h3 className="text-sm font-bold text-white uppercase tracking-widest">Visual & Audio Calibration</h3>
         </div>
         <div className="p-6 pt-2">
+          <SettingToggle 
+            label="Interaction Sounds" 
+            description="Procedural audio feedback for clicks and hover states."
+            checked={isEnabled} 
+            onChange={toggleSound} 
+          />
           <SettingSlider 
             label="Glow Strength" 
             value={glowStrength} 
@@ -434,6 +453,7 @@ const DataSection = () => {
 
 export const SettingsView: React.FC = () => {
   const [activeTab, setActiveTab] = useState<SettingsTab>('profile');
+  const { playSound } = useSound();
 
   const tabs: { id: SettingsTab; label: string; icon: React.ElementType }[] = [
     { id: 'profile', label: 'Profile', icon: User },
@@ -456,6 +476,11 @@ export const SettingsView: React.FC = () => {
       case 'data': return <DataSection />;
       default: return <ProfileSection />;
     }
+  };
+
+  const handleTabChange = (id: SettingsTab) => {
+    playSound('click');
+    setActiveTab(id);
   };
 
   // Headers for each section
@@ -497,7 +522,8 @@ export const SettingsView: React.FC = () => {
             {tabs.map((tab) => (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => handleTabChange(tab.id)}
+                onMouseEnter={() => playSound('hover')}
                 className={cn(
                   "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all",
                   activeTab === tab.id 

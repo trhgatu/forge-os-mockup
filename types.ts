@@ -1,5 +1,4 @@
 
-// Fix: Import React to resolve "Cannot find namespace 'React'" error
 import React from 'react';
 
 export type Language = 'en' | 'vi';
@@ -690,6 +689,7 @@ export interface NarrativeChapter {
   title: string;
   summary: string;
   mood: MoodType;
+  intensity: number; // 1-10
 }
 
 export interface YearlyReviewAnalysis {
@@ -799,4 +799,21 @@ export interface MasterplanData {
     strongestPillar: string;
     riskFactor: string;
   };
+}
+
+// --- Season Types ---
+
+export type Season = 'Spring' | 'Summer' | 'Autumn' | 'Winter';
+
+export interface SeasonTheme {
+  id: Season;
+  label: string;
+  primary: string;
+  accent: string;
+  border: string;
+  bg: string;
+  gradient: string;
+  particle: 'dust' | 'shimmer' | 'leaves' | 'snow';
+  icon: React.ElementType;
+  description: string;
 }

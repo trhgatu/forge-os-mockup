@@ -499,11 +499,11 @@ export const generateYearlyReview = async (
             { subject: 'Resilience', A: 88, fullMark: 100 },
         ],
         narrativeChapters: [
-            { month: "January", title: "The Fog", summary: "Started with confusion. Energy was low, goals were unclear.", mood: 'anxious' },
-            { month: "March", title: "The Spark", summary: "First breakthrough. The 'Genesis' project began.", mood: 'inspired' },
-            { month: "June", title: "The Grind", summary: "Heavy execution phase. High output, but burnout risk peaked.", mood: 'tired' },
-            { month: "September", title: "The Pivot", summary: "Realized the original path was wrong. Shifted to 'Forge' architecture.", mood: 'focused' },
-            { month: "December", title: "The Arrival", summary: "Systems stabilized. Identity solidified. Peace achieved.", mood: 'calm' }
+            { month: "January", title: "The Fog", summary: "Started with confusion. Energy was low, goals were unclear.", mood: 'anxious', intensity: 4 },
+            { month: "March", title: "The Spark", summary: "First breakthrough. The 'Genesis' project began.", mood: 'inspired', intensity: 8 },
+            { month: "June", title: "The Grind", summary: "Heavy execution phase. High output, but burnout risk peaked.", mood: 'tired', intensity: 6 },
+            { month: "September", title: "The Pivot", summary: "Realized the original path was wrong. Shifted to 'Forge' architecture.", mood: 'focused', intensity: 7 },
+            { month: "December", title: "The Arrival", summary: "Systems stabilized. Identity solidified. Peace achieved.", mood: 'calm', intensity: 5 }
         ],
         highlights: ["Career pivot success", "Physical transformation (gym streak > 100 days)", "Mastered a new language"],
         lowlights: ["Q1 burnout", "Lost touch with some friends", "Failed Project 'Drift'"],

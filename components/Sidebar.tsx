@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { View, NavItem } from '../types';
 import { cn } from '../lib/utils';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useSound } from '../contexts/SoundContext';
 import { 
   LayoutDashboard, 
   BrainCircuit, 
@@ -70,39 +71,49 @@ const NAV_ITEMS: NavItem[] = [
 export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate }) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const { language, setLanguage, t } = useLanguage();
+  const { playSound } = useSound();
 
   const toggleLanguage = () => {
+    playSound('click');
     setLanguage(language === 'en' ? 'vi' : 'en');
+  };
+
+  const handleNavigate = (view: View) => {
+    if (currentView !== view) {
+      playSound('click');
+      onNavigate(view);
+    }
+  };
+
+  const handleToggleExpand = () => {
+    playSound('click');
+    setIsExpanded(!isExpanded);
   };
 
   return (
     <aside 
       className={cn(
         "relative h-full z-50 flex flex-col",
-        "border-r border-forge-border bg-forge-bg/60 backdrop-blur-2xl",
+        "border-r border-white/5 bg-black/40 backdrop-blur-2xl",
         "transition-[width] duration-500 ease-spring-out will-change-[width, transform]",
         isExpanded ? 'w-72' : 'w-20'
       )}
     >
-      {/* Background Gradient Glow (Subtle) */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className={cn(
-          "absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-forge-accent/10 to-transparent transition-opacity duration-500",
-          isExpanded ? 'opacity-100' : 'opacity-0'
-        )} />
-      </div>
-
       {/* Header */}
       <div className={cn(
         "flex items-center p-6 mb-2 transition-all duration-500",
         isExpanded ? 'justify-start gap-3' : 'justify-center'
       )}>
-        <div className="relative group shrink-0 cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-forge-accent to-forge-cyan flex items-center justify-center shadow-[0_0_20px_rgba(124,58,237,0.3)] relative z-10 transition-transform duration-300 hover:scale-105">
-            <Cpu className="text-white w-5 h-5" />
+        <div 
+          className="relative group shrink-0 cursor-pointer" 
+          onClick={handleToggleExpand}
+          onMouseEnter={() => playSound('hover')}
+        >
+          <div className={cn(
+            "w-10 h-10 rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(0,0,0,0.5)] relative z-10 transition-all duration-300 hover:scale-105 border border-white/10 bg-black"
+          )}>
+            <Cpu className="w-5 h-5 text-forge-cyan" />
           </div>
-          {/* Glow Effect behind logo */}
-          <div className="absolute inset-0 bg-white/50 blur-lg rounded-xl opacity-0 group-hover:opacity-30 transition-opacity duration-500" />
         </div>
         
         <div className={cn(
@@ -110,7 +121,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate }) => 
           isExpanded ? 'opacity-100 translate-x-0 w-auto' : 'opacity-0 -translate-x-4 w-0'
         )}>
           <span className="font-display font-bold text-lg tracking-wide text-white leading-none">FORGE OS</span>
-          <span className="text-[10px] font-mono text-forge-cyan mt-1">v2.5.0-beta</span>
+          <span className="text-[10px] font-mono mt-1 text-forge-cyan">v2.5.0-beta</span>
         </div>
       </div>
 
@@ -135,18 +146,19 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate }) => 
                 return (
                   <button
                     key={item.id}
-                    onClick={() => onNavigate(item.id)}
+                    onClick={() => handleNavigate(item.id)}
+                    onMouseEnter={() => playSound('hover')}
                     className={cn(
                       "group relative w-full flex items-center p-3 rounded-xl text-sm font-medium transition-all duration-200",
                       isActive 
-                        ? 'bg-white/10 text-white shadow-inner border border-white/5' 
+                        ? `bg-white/10 text-white shadow-inner border border-white/5` 
                         : 'text-gray-400 hover:text-white hover:bg-white/5 border border-transparent',
                       isExpanded ? 'justify-start gap-3' : 'justify-center'
                     )}
                   >
-                    {/* Active Indicator Pill (Left) */}
+                    {/* Active Indicator Pill */}
                     {isActive && (
-                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-forge-cyan rounded-r-full shadow-[0_0_10px_#22D3EE] transition-all duration-300" />
+                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full bg-forge-cyan shadow-[0_0_10px_#22D3EE] transition-all duration-700" />
                     )}
 
                     {/* Icon */}
@@ -159,7 +171,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate }) => 
                       )} 
                     />
 
-                    {/* Label with Staggered Entry */}
+                    {/* Label */}
                     <span 
                       className={cn(
                         "whitespace-nowrap transition-all duration-300 ease-spring-out origin-left",
@@ -169,18 +181,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate }) => 
                     >
                       {label}
                     </span>
-
-                    {/* Active Dot (Right) - Only when expanded */}
-                    {isActive && isExpanded && (
-                      <div className="ml-auto w-1.5 h-1.5 rounded-full bg-forge-cyan shadow-[0_0_8px_#22D3EE] animate-pulse" />
-                    )}
-                    
-                    {/* Tooltip for Collapsed State */}
-                    {!isExpanded && (
-                      <div className="absolute left-full ml-4 px-3 py-1.5 bg-gray-900 border border-white/10 rounded-lg text-xs text-white whitespace-nowrap opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 transition-all duration-200 pointer-events-none z-50 shadow-xl backdrop-blur-xl">
-                        {label}
-                      </div>
-                    )}
                   </button>
                 );
               })}
@@ -189,21 +189,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate }) => 
         ))}
       </nav>
 
-      {/* Collapse Toggle Button (Floating) */}
-      <div className="absolute -right-3 top-1/2 -translate-y-1/2 opacity-0 hover:opacity-100 transition-opacity duration-300 z-50">
-        <button 
-          onClick={() => setIsExpanded(!isExpanded)}
-          className="w-6 h-12 bg-forge-bg border border-forge-border rounded-full flex items-center justify-center text-gray-400 hover:text-white hover:border-forge-cyan transition-all shadow-xl backdrop-blur-xl"
-        >
-          {isExpanded ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
-        </button>
-      </div>
-
-      {/* User Status & Settings */}
-      <div className="p-4 mt-auto border-t border-forge-border bg-black/20 space-y-2">
+      {/* Footer Controls */}
+      <div className="p-4 mt-auto border-t border-white/5 bg-black/20 space-y-2">
+        
         {/* Language Toggle */}
         <button 
           onClick={toggleLanguage}
+          onMouseEnter={() => playSound('hover')}
           className={cn(
             "w-full flex items-center rounded-lg hover:bg-white/5 transition-all border border-transparent hover:border-white/5 group",
             isExpanded ? 'p-2 gap-3' : 'p-2 justify-center'
@@ -216,36 +208,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate }) => 
              <div className="flex-1 flex items-center justify-between">
                 <span className="text-xs font-medium text-gray-400">Language</span>
                 <div className="flex bg-black/40 rounded-md p-0.5 border border-white/10">
-                   <span className={cn("px-2 py-0.5 text-[10px] rounded font-bold transition-all", language === 'en' ? 'bg-forge-cyan text-black' : 'text-gray-500')}>EN</span>
-                   <span className={cn("px-2 py-0.5 text-[10px] rounded font-bold transition-all", language === 'vi' ? 'bg-forge-cyan text-black' : 'text-gray-500')}>VI</span>
+                   <span className={cn("px-2 py-0.5 text-[10px] rounded font-bold transition-all", language === 'en' ? 'bg-white text-black' : 'text-gray-500')}>EN</span>
+                   <span className={cn("px-2 py-0.5 text-[10px] rounded font-bold transition-all", language === 'vi' ? 'bg-white text-black' : 'text-gray-500')}>VI</span>
                 </div>
              </div>
            )}
         </button>
-
-        <div className={cn(
-          "flex items-center rounded-xl transition-all duration-300",
-          isExpanded ? 'p-2 gap-3 bg-white/5 border border-white/5' : 'p-0 justify-center bg-transparent border-none'
-        )}>
-          <div className="relative">
-            <div className="w-9 h-9 rounded-lg bg-gradient-to-r from-gray-700 to-gray-600 flex items-center justify-center border border-white/10 shadow-lg">
-               <span className="text-xs font-bold">U</span>
-            </div>
-            <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-forge-bg rounded-full flex items-center justify-center">
-               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-            </div>
-          </div>
-          
-          <div className={cn(
-             "flex-1 min-w-0 overflow-hidden transition-all duration-300",
-             isExpanded ? 'opacity-100 w-auto' : 'opacity-0 w-0'
-          )}>
-            <div className="text-sm font-medium text-white truncate">User_01</div>
-            <div className="text-xs text-forge-cyan flex items-center gap-1">
-               <Activity size={10} /> Online
-            </div>
-          </div>
-        </div>
       </div>
     </aside>
   );

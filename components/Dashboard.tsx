@@ -56,37 +56,40 @@ interface WidgetProps {
   noPadding?: boolean;
 }
 
-const WidgetShell: React.FC<WidgetProps> = ({ children, className, title, delay = 0, noPadding = false }) => (
-  <div 
-    className={cn(
-      "relative group flex flex-col",
-      "bg-white/[0.02] backdrop-blur-xl border border-white/5 rounded-[20px]",
-      "hover:bg-white/[0.04] hover:border-white/10 hover:-translate-y-1 hover:shadow-2xl hover:shadow-forge-accent/5",
-      "transition-all duration-500 ease-spring-out",
-      "overflow-hidden",
-      "animate-in fade-in slide-in-from-bottom-4 fill-mode-backwards",
-      className
-    )}
-    style={{ animationDelay: `${delay}ms` }}
-  >
-    {/* Glow Gradient Top */}
-    <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+const WidgetShell: React.FC<WidgetProps> = ({ children, className, title, delay = 0, noPadding = false }) => {
+  
+  return (
+    <div 
+      className={cn(
+        "relative group flex flex-col",
+        "bg-white/[0.02] backdrop-blur-xl rounded-[20px]",
+        "hover:bg-white/[0.04] hover:-translate-y-1 hover:shadow-2xl",
+        "transition-all duration-500 ease-spring-out",
+        "overflow-hidden border border-white/5",
+        "animate-in fade-in slide-in-from-bottom-4 fill-mode-backwards",
+        className
+      )}
+      style={{ animationDelay: `${delay}ms` }}
+    >
+      {/* Glow Gradient Top */}
+      <div className={cn("absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700")} />
 
-    {title && (
-      <div className="flex items-center justify-between px-5 pt-5 pb-2">
-         <div className="text-xs font-mono text-gray-500 uppercase tracking-widest flex items-center gap-2">
-            {title}
-         </div>
-         <button className="text-gray-600 hover:text-white transition-colors opacity-0 group-hover:opacity-100">
-            <Maximize2 size={12} />
-         </button>
+      {title && (
+        <div className="flex items-center justify-between px-5 pt-5 pb-2">
+           <div className="text-xs font-mono text-gray-500 uppercase tracking-widest flex items-center gap-2">
+              {title}
+           </div>
+           <button className="text-gray-600 hover:text-white transition-colors opacity-0 group-hover:opacity-100">
+              <Maximize2 size={12} />
+           </button>
+        </div>
+      )}
+      <div className={cn("flex-1", noPadding ? "" : "p-5 pt-2")}>
+         {children}
       </div>
-    )}
-    <div className={cn("flex-1", noPadding ? "" : "p-5 pt-2")}>
-       {children}
     </div>
-  </div>
-);
+  );
+};
 
 // --- MAIN DASHBOARD ---
 
@@ -109,14 +112,14 @@ export const Dashboard: React.FC = () => {
   const dateString = time.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' });
 
   return (
-    <div className="h-full flex bg-forge-bg overflow-hidden">
+    <div className="h-full flex overflow-hidden bg-[#09090b]">
       
       {/* CENTER: Main Scrollable Content */}
       <div className="flex-1 h-full overflow-y-auto overflow-x-hidden scrollbar-hide p-6 md:p-8 pb-32">
          
          {/* 1. Greeting Block */}
          <header className="mb-10 relative">
-            <div className="absolute -left-20 -top-20 w-64 h-64 bg-forge-accent/10 rounded-full blur-[80px] pointer-events-none" />
+            <div className="absolute -left-20 -top-20 w-64 h-64 bg-forge-accent/20 rounded-full blur-[80px] pointer-events-none opacity-20" />
             
             <h1 className="text-4xl md:text-5xl font-display font-bold text-white mb-2 tracking-tight leading-tight animate-in fade-in slide-in-from-bottom-2">
                {t('dashboard.welcome')}
@@ -126,8 +129,8 @@ export const Dashboard: React.FC = () => {
                   <Calendar size={14} /> {dateString}
                </span>
                <span className="w-1 h-1 rounded-full bg-gray-600" />
-               <span className="text-forge-cyan font-mono text-xs flex items-center gap-2">
-                  <Activity size={10} /> {t('dashboard.systems_nominal')}
+               <span className="font-mono text-xs flex items-center gap-2 text-forge-cyan">
+                  <Activity size={12} /> {t('dashboard.systems_nominal')}
                </span>
             </div>
          </header>
@@ -136,7 +139,7 @@ export const Dashboard: React.FC = () => {
          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 auto-rows-min">
             
             {/* A. Time & Focus Widget */}
-            <WidgetShell className="col-span-1 md:col-span-2 row-span-1 min-h-[220px] relative overflow-hidden" delay={0}>
+            <WidgetShell className="col-span-1 md:col-span-2 row-span-1 min-h-[220px] relative overflow-hidden border-white/10" delay={0}>
                <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/4 w-64 h-64 border border-white/5 rounded-full opacity-20 animate-[spin_60s_linear_infinite]">
                   <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2 h-2 bg-white rounded-full shadow-[0_0_10px_white]" />
                </div>
@@ -168,7 +171,7 @@ export const Dashboard: React.FC = () => {
             </WidgetShell>
 
             {/* B. Daily Insight Widget */}
-            <WidgetShell className="col-span-1 md:col-span-2 lg:col-span-2 row-span-1 bg-gradient-to-br from-forge-accent/5 to-transparent" delay={100} title={<><Quote size={12}/> {t('dashboard.wisdom')}</>}>
+            <WidgetShell className="col-span-1 md:col-span-2 lg:col-span-2 row-span-1 bg-gradient-to-br from-white/[0.02] to-transparent" delay={100} title={<><Quote size={12}/> {t('dashboard.wisdom')}</>}>
                <div className="h-full flex flex-col justify-center">
                   {insight ? (
                      <>
@@ -176,13 +179,13 @@ export const Dashboard: React.FC = () => {
                            "{insight.quote}"
                         </blockquote>
                         <div className="flex items-center justify-between">
-                           <cite className="text-sm text-forge-cyan font-mono not-italic">— {insight.author}</cite>
+                           <cite className="text-sm font-mono text-forge-cyan not-italic">— {insight.author}</cite>
                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/5 border border-white/5 text-gray-400">{insight.theme}</span>
                         </div>
                         <div className="mt-4 pt-3 border-t border-white/5">
                            <p className="text-xs text-gray-500 italic flex items-center gap-2">
                               <Sparkles size={10} className="text-forge-accent" />
-                              AI: This resonates with your recent focus on mindfulness.
+                              AI: This resonates with your recent focus.
                            </p>
                         </div>
                      </>
@@ -202,8 +205,8 @@ export const Dashboard: React.FC = () => {
                      <AreaChart data={MOOD_DATA}>
                         <defs>
                            <linearGradient id="colorVal" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="5%" stopColor="#22D3EE" stopOpacity={0.3}/>
-                              <stop offset="95%" stopColor="#22D3EE" stopOpacity={0}/>
+                              <stop offset="5%" stopColor="#7C3AED" stopOpacity={0.3} />
+                              <stop offset="95%" stopColor="#7C3AED" stopOpacity={0} />
                            </linearGradient>
                         </defs>
                         <Tooltip 
@@ -213,7 +216,7 @@ export const Dashboard: React.FC = () => {
                         <Area 
                            type="monotone" 
                            dataKey="value" 
-                           stroke="#22D3EE" 
+                           stroke="#7C3AED" 
                            strokeWidth={2}
                            fillOpacity={1} 
                            fill="url(#colorVal)" 
@@ -239,7 +242,7 @@ export const Dashboard: React.FC = () => {
                   <div className="w-full relative">
                      <input 
                         placeholder={t('dashboard.ask_chamber')}
-                        className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-forge-accent transition-colors"
+                        className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:border-forge-cyan/50 focus:outline-none transition-colors"
                      />
                      <button className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white">
                         <ChevronRight size={14} />
@@ -308,8 +311,11 @@ export const Dashboard: React.FC = () => {
                      { label: "Disconnect for 20 mins", checked: false }
                   ].map((task, i) => (
                      <div key={i} className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors cursor-pointer group">
-                        <div className={cn("w-4 h-4 rounded-full border flex items-center justify-center transition-colors", task.checked ? 'bg-forge-accent border-forge-accent' : 'border-gray-600 group-hover:border-white')}>
-                           {task.checked && <CheckCircle2 size={10} className="text-white" />}
+                        <div className={cn(
+                          "w-4 h-4 rounded-full border flex items-center justify-center transition-colors", 
+                          task.checked ? 'bg-green-500 border-green-500' : 'border-gray-600 group-hover:border-white'
+                        )}>
+                           {task.checked && <CheckCircle2 size={10} className="text-black" />}
                         </div>
                         <span className={cn("text-sm", task.checked ? 'text-gray-500 line-through' : 'text-gray-300')}>{task.label}</span>
                      </div>

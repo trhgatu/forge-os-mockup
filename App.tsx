@@ -30,60 +30,37 @@ import { View } from './types';
 import { GlassCard } from './components/GlassCard';
 import { Hammer } from 'lucide-react';
 import { LanguageProvider } from './contexts/LanguageContext';
+import { SoundProvider } from './contexts/SoundContext';
 
 const AppContent: React.FC = () => {
   const [currentView, setCurrentView] = useState<View>(View.DASHBOARD);
 
   const renderContent = () => {
     switch (currentView) {
-      case View.DASHBOARD:
-        return <Dashboard />;
-      case View.FORGE_CHAMBER:
-        return <ForgeChamber />;
-      case View.MASTERPLAN:
-        return <MasterplanView />;
-      case View.JOURNAL:
-        return <JournalView />;
-      case View.MEMORY:
-        return <MemoryView />;
-      case View.TIMELINE:
-        return <TimelineView />;
-      case View.QUOTES:
-        return <QuoteView />;
-      case View.MOOD:
-        return <MoodView />;
-      case View.INSIGHTS:
-        return <InsightView />;
-      case View.IDEAS:
-        return <IdeasView />;
-      case View.GOALS:
-        return <GoalsView />;
-      case View.HABITS:
-        return <HabitsView />;
-      case View.ROUTINES:
-        return <RoutinesView />;
-      case View.MILESTONES:
-        return <MilestoneView />;
-      case View.ACHIEVEMENTS:
-        return <AchievementsView />;
-      case View.IDENTITY:
-        return <IdentityView />;
-      case View.THEMES:
-        return <LifeThemesView />;
-      case View.SHADOW_WORK:
-        return <ShadowWorkView />;
-      case View.COMPASS:
-        return <CompassView />;
-      case View.ENERGY:
-        return <EnergyView />;
-      case View.WEEKLY_REVIEW:
-        return <WeeklyReviewView />;
-      case View.MONTHLY_REVIEW:
-        return <MonthlyReviewView />;
-      case View.YEARLY_REVIEW:
-        return <YearlyReviewView />;
-      case View.SETTINGS:
-        return <SettingsView />;
+      case View.DASHBOARD: return <Dashboard />;
+      case View.FORGE_CHAMBER: return <ForgeChamber />;
+      case View.MASTERPLAN: return <MasterplanView />;
+      case View.JOURNAL: return <JournalView />;
+      case View.MEMORY: return <MemoryView />;
+      case View.TIMELINE: return <TimelineView />;
+      case View.QUOTES: return <QuoteView />;
+      case View.MOOD: return <MoodView />;
+      case View.INSIGHTS: return <InsightView />;
+      case View.IDEAS: return <IdeasView />;
+      case View.GOALS: return <GoalsView />;
+      case View.HABITS: return <HabitsView />;
+      case View.ROUTINES: return <RoutinesView />;
+      case View.MILESTONES: return <MilestoneView />;
+      case View.ACHIEVEMENTS: return <AchievementsView />;
+      case View.IDENTITY: return <IdentityView />;
+      case View.THEMES: return <LifeThemesView />;
+      case View.SHADOW_WORK: return <ShadowWorkView />;
+      case View.COMPASS: return <CompassView />;
+      case View.ENERGY: return <EnergyView />;
+      case View.WEEKLY_REVIEW: return <WeeklyReviewView />;
+      case View.MONTHLY_REVIEW: return <MonthlyReviewView />;
+      case View.YEARLY_REVIEW: return <YearlyReviewView />;
+      case View.SETTINGS: return <SettingsView />;
       default:
         return (
           <div className="h-full flex flex-col items-center justify-center p-8 text-center">
@@ -108,22 +85,13 @@ const AppContent: React.FC = () => {
   };
 
   return (
-    <div className="flex h-screen w-screen bg-forge-bg text-white overflow-hidden selection:bg-forge-accent selection:text-white font-sans bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gray-900 via-[#09090b] to-[#050505]">
-      
-      {/* Ambient Background Glows */}
-      <div className="fixed top-0 left-0 w-[500px] h-[500px] bg-forge-accent/10 rounded-full blur-[120px] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-0" />
-      <div className="fixed bottom-0 right-0 w-[600px] h-[600px] bg-forge-cyan/5 rounded-full blur-[150px] translate-x-1/3 translate-y-1/3 pointer-events-none z-0" />
-
-      {/* Layout Container */}
+    <div className="flex h-screen w-screen bg-[#09090b] text-white overflow-hidden font-sans">
       <div className="relative z-10 flex w-full h-full">
         <Sidebar currentView={currentView} onNavigate={setCurrentView} />
-        
         <main className="flex-1 h-full relative overflow-hidden flex flex-col">
            <div className="flex-1 overflow-hidden">
              {renderContent()}
            </div>
-           
-           {/* Nova Guide Overlay */}
            <NovaGuide currentView={currentView} />
         </main>
       </div>
@@ -133,7 +101,9 @@ const AppContent: React.FC = () => {
 
 const App: React.FC = () => (
   <LanguageProvider>
-    <AppContent />
+    <SoundProvider>
+      <AppContent />
+    </SoundProvider>
   </LanguageProvider>
 );
 
