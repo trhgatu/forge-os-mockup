@@ -1,12 +1,112 @@
 
-import React, { useState, useRef } from 'react';
-import { Search, Filter, Plus, Calendar, Tag, Sparkles, X, Image as ImageIcon, Clock, Upload } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { 
+  Search, Plus, Sparkles, X, Image as ImageIcon, 
+  Sun, CloudRain, Snowflake, Leaf, Sprout, 
+  Wind, Mic, Maximize2, Calendar, Tag, Heart
+} from 'lucide-react';
 import { GlassCard } from './GlassCard';
-import { Memory, MemoryType, MoodType } from '../types';
+import { Memory, MoodType } from '../types';
 import { analyzeMemory } from '../services/geminiService';
 import { cn } from '../lib/utils';
 
-// --- MOCK DATA & CONFIG ---
+// --- SEASONAL SYSTEM CORE ---
+
+type InnerSeason = 'Spring' | 'Summer' | 'Autumn' | 'Winter';
+
+interface SeasonConfig {
+  id: InnerSeason;
+  label: string; // "Awakening", "Drive", etc.
+  icon: React.ElementType;
+  gradient: string;
+  border: string;
+  accent: string;
+  bg: string; // Solid-ish bg for cards
+  whisper: string; // Nova's poetic voice
+  texture: 'dust' | 'shimmer' | 'leaves' | 'snow';
+  particleColor: string;
+}
+
+const SEASON_CONFIG: Record<InnerSeason, SeasonConfig> = {
+  Spring: {
+    id: 'Spring',
+    label: 'Awakening',
+    icon: Sprout,
+    gradient: 'from-emerald-900/40 via-teal-900/20 to-slate-900/40',
+    bg: 'bg-[#051111]',
+    border: 'border-emerald-500/30',
+    accent: 'text-emerald-200',
+    whisper: "Có thứ gì đó đang mở ra trong mày.",
+    texture: 'dust',
+    particleColor: 'bg-emerald-200'
+  },
+  Summer: {
+    id: 'Summer',
+    label: 'Drive',
+    icon: Sun,
+    gradient: 'from-amber-900/40 via-orange-900/20 to-slate-900/40',
+    bg: 'bg-[#110c05]',
+    border: 'border-amber-500/30',
+    accent: 'text-amber-200',
+    whisper: "Khoảnh khắc này vẫn mang hơi ấm và sức đẩy.",
+    texture: 'shimmer',
+    particleColor: 'bg-amber-100'
+  },
+  Autumn: {
+    id: 'Autumn',
+    label: 'Depth',
+    icon: Leaf,
+    gradient: 'from-orange-950/40 via-rose-950/20 to-slate-900/40',
+    bg: 'bg-[#110805]',
+    border: 'border-orange-400/30',
+    accent: 'text-orange-200',
+    whisper: "Chiều sâu của ký ức này chạm vào một phần trưởng thành của mày.",
+    texture: 'leaves',
+    particleColor: 'bg-orange-300'
+  },
+  Winter: {
+    id: 'Winter',
+    label: 'Stillness',
+    icon: Snowflake,
+    gradient: 'from-slate-900/60 via-indigo-950/20 to-slate-950/60',
+    bg: 'bg-[#050508]',
+    border: 'border-indigo-300/20',
+    accent: 'text-indigo-200',
+    whisper: "Im lặng trong ký ức này nói nhiều hơn bất cứ lời nào.",
+    texture: 'snow',
+    particleColor: 'bg-white'
+  }
+};
+
+// Mapping Mood -> Season
+const getSeason = (mood: MoodType): InnerSeason => {
+  switch (mood) {
+    case 'calm':
+    case 'sad':
+    case 'lonely':
+      return 'Spring'; // Vulnerability, Rain, Growth
+    
+    case 'joy':
+    case 'energetic':
+    case 'angry':
+    case 'stressed':
+      return 'Summer'; // Heat, Intensity
+    
+    case 'inspired':
+    case 'anxious':
+      return 'Autumn'; // Change, Wind, Harvest
+    
+    case 'neutral':
+    case 'focused':
+    case 'tired':
+    case 'empty':
+    default:
+      return 'Winter'; // Cold, Stasis, Crystallization
+  }
+};
+
+// --- MOCK DATA ---
+
 const MOCK_MEMORIES: Memory[] = [
   {
     id: '1',
@@ -14,7 +114,7 @@ const MOCK_MEMORIES: Memory[] = [
     description: 'Reached the peak just as the sun broke the horizon. The physical exhaustion vanished instantly, replaced by a profound sense of smallness and connection. The world below looked like a circuit board.',
     date: new Date('2023-11-15'),
     type: 'milestone',
-    mood: 'inspired',
+    mood: 'inspired', // Autumn
     tags: ['Nature', 'Achievement', 'Perspective'],
     imageUrl: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=800',
     reflectionDepth: 9,
@@ -27,11 +127,11 @@ const MOCK_MEMORIES: Memory[] = [
   },
   {
     id: '2',
-    title: 'Late Night Coding',
-    description: '3 AM. The bug is fixed. The music is perfect. Flow state achieved. It felt like I was speaking directly to the machine.',
+    title: 'Deep Code Flow',
+    description: '3 AM. The bug is fixed. The music is perfect. Flow state achieved. It felt like I was speaking directly to the machine. Silence in the room, loud in the mind.',
     date: new Date('2023-10-22'),
     type: 'moment',
-    mood: 'focused',
+    mood: 'focused', // Winter
     tags: ['Code', 'Flow', 'Night'],
     reflectionDepth: 7,
     analysis: {
@@ -44,216 +144,263 @@ const MOCK_MEMORIES: Memory[] = [
   {
     id: '3',
     title: 'Rainy Cafe Reflection',
-    description: 'Watching the rain hit the window. Realized I have been running too fast. Need to slow down.',
+    description: 'Watching the rain hit the window. Realized I have been running too fast. Need to slow down. The coffee was warm, but my hands were cold.',
     date: new Date('2023-09-10'),
     type: 'insight',
-    mood: 'calm',
+    mood: 'calm', // Spring
     tags: ['Rest', 'City', 'Rain'],
     imageUrl: 'https://images.unsplash.com/photo-1493857671505-72967e2e2760?auto=format&fit=crop&q=80&w=800',
     reflectionDepth: 8,
   },
   {
     id: '4',
-    title: 'First Public Speech',
-    description: 'Terrified beforehand. Exhilarated afterwards. The fear is just energy waiting to be transmuted.',
+    title: 'Startup Pitch',
+    description: 'The lights were too bright. My heart was racing. But when I started speaking, the fire took over.',
     date: new Date('2023-08-05'),
     type: 'challenge',
-    mood: 'anxious',
-    tags: ['Growth', 'Fear', 'Public Speaking'],
+    mood: 'energetic', // Summer
+    tags: ['Growth', 'Fear', 'Work'],
     reflectionDepth: 8,
   }
 ];
 
-const MOOD_CONFIG: Record<MoodType, { color: string, border: string, glow: string }> = {
-  inspired: { color: 'text-fuchsia-400', border: 'border-fuchsia-500/30', glow: 'shadow-fuchsia-500/20' },
-  calm: { color: 'text-cyan-400', border: 'border-cyan-500/30', glow: 'shadow-cyan-500/20' },
-  anxious: { color: 'text-orange-400', border: 'border-orange-500/30', glow: 'shadow-orange-500/20' },
-  tired: { color: 'text-gray-400', border: 'border-gray-500/30', glow: 'shadow-gray-500/20' },
-  focused: { color: 'text-emerald-400', border: 'border-emerald-500/30', glow: 'shadow-emerald-500/20' },
-  neutral: { color: 'text-white', border: 'border-white/30', glow: 'shadow-white/10' },
-  joy: { color: 'text-yellow-400', border: 'border-yellow-500/30', glow: 'shadow-yellow-500/20' },
-  sad: { color: 'text-indigo-400', border: 'border-indigo-500/30', glow: 'shadow-indigo-500/20' },
-  stressed: { color: 'text-red-400', border: 'border-red-500/30', glow: 'shadow-red-500/20' },
-  lonely: { color: 'text-blue-400', border: 'border-blue-500/30', glow: 'shadow-blue-500/20' },
-  angry: { color: 'text-rose-500', border: 'border-rose-500/30', glow: 'shadow-rose-500/20' },
-  energetic: { color: 'text-lime-400', border: 'border-lime-500/30', glow: 'shadow-lime-500/20' },
-  empty: { color: 'text-stone-400', border: 'border-stone-500/30', glow: 'shadow-stone-500/20' },
-};
+// --- VISUAL FX COMPONENTS ---
 
-const MemoryCard: React.FC<{ 
-  memory: Memory; 
-  onClick: () => void;
-  variant?: 'default' | 'cinematic'; 
-}> = ({ memory, onClick, variant = 'default' }) => {
-  const moodStyle = MOOD_CONFIG[memory.mood];
-  const isCinematic = variant === 'cinematic' || (!!memory.imageUrl && memory.reflectionDepth > 8);
-
+const Particles: React.FC<{ type: SeasonConfig['texture']; color: string }> = ({ type, color }) => {
+  // Generate random particles
+  const particles = useMemo(() => Array.from({ length: 8 }), []);
+  
   return (
-    <div 
-      onClick={onClick}
-      className={cn(
-        "group relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-500 ease-spring-out border hover:scale-[1.02] hover:z-10",
-        isCinematic 
-          ? 'md:col-span-2 md:row-span-2 min-h-[300px] border-transparent shadow-2xl' 
-          : 'min-h-[200px] bg-white/[0.02] border-white/5 hover:bg-white/[0.05] hover:border-white/10 shadow-lg'
-      )}
-    >
-      {memory.imageUrl && (
-        <div className="absolute inset-0 z-0">
-          <img 
-            src={memory.imageUrl} 
-            alt={memory.title} 
-            className="w-full h-full object-cover opacity-60 group-hover:opacity-40 group-hover:scale-110 transition-all duration-700 ease-out"
+    <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-40">
+      {particles.map((_, i) => {
+        const left = `${Math.random() * 100}%`;
+        const top = `${Math.random() * 100}%`;
+        const delay = `${Math.random() * 5}s`;
+        const duration = `${5 + Math.random() * 10}s`;
+        
+        let animationClass = '';
+        if (type === 'dust' || type === 'shimmer') animationClass = 'animate-float'; // Gentle up/down
+        if (type === 'snow') animationClass = 'animate-[fall_10s_linear_infinite]'; // Downward
+        if (type === 'leaves') animationClass = 'animate-[sway_8s_ease-in-out_infinite]'; // Side sway
+
+        return (
+          <div
+            key={i}
+            className={cn("absolute rounded-full opacity-60", animationClass, color)}
+            style={{
+              left,
+              top,
+              width: Math.random() * 3 + 1 + 'px',
+              height: Math.random() * 3 + 1 + 'px',
+              animationDelay: delay,
+              animationDuration: duration
+            }}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
-        </div>
-      )}
-
-      <div className="relative z-10 p-6 h-full flex flex-col justify-between">
-        <div className="flex justify-between items-start">
-          <div className={cn(
-            "px-2 py-1 rounded-lg backdrop-blur-md text-[10px] font-mono uppercase tracking-wider border",
-            isCinematic ? 'bg-black/40 border-white/10 text-white' : 'bg-white/5 border-white/5 text-gray-400'
-          )}>
-            {memory.type}
-          </div>
-          <div className={cn("w-2 h-2 rounded-full shadow-[0_0_8px_currentColor]", moodStyle.color.replace('text-', 'bg-'))} />
-        </div>
-
-        <div className="mt-auto">
-          <h3 className={cn("font-display font-bold mb-2 leading-tight", isCinematic ? 'text-2xl text-white' : 'text-lg text-gray-100')}>
-            {memory.title}
-          </h3>
-          <p className={cn("text-sm line-clamp-3 mb-4", isCinematic ? 'text-gray-200' : 'text-gray-500')}>
-            {memory.description}
-          </p>
-          
-          <div className="flex items-center gap-4 text-xs text-gray-500 font-mono opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform translate-y-2 group-hover:translate-y-0">
-            <span className="flex items-center gap-1">
-              <Calendar size={12} /> {memory.date.toLocaleDateString()}
-            </span>
-            {memory.analysis && (
-               <span className="flex items-center gap-1 text-forge-accent">
-                  <Sparkles size={12} /> Analyzed
-               </span>
-            )}
-          </div>
-        </div>
-      </div>
-
-      <div className={cn("absolute inset-0 border-2 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl pointer-events-none", moodStyle.border)} />
+        );
+      })}
     </div>
   );
 };
 
-const DetailPanel: React.FC<{
+// --- CARD COMPONENT ---
+
+const SeasonalCard: React.FC<{ 
+  memory: Memory; 
+  onClick: () => void; 
+}> = ({ memory, onClick }) => {
+  const season = getSeason(memory.mood);
+  const config = SEASON_CONFIG[season];
+  
+  return (
+    <div 
+      onClick={onClick}
+      className={cn(
+        "group relative overflow-hidden rounded-2xl cursor-pointer transition-all duration-700 ease-out",
+        "hover:-translate-y-2 hover:shadow-2xl",
+        "min-h-[280px] flex flex-col border backdrop-blur-md",
+        config.bg,
+        config.border
+      )}
+    >
+      {/* Atmospheric Background */}
+      <div className={cn("absolute inset-0 bg-gradient-to-br opacity-40 transition-opacity duration-700 group-hover:opacity-60", config.gradient)} />
+      
+      {/* Particles Layer */}
+      <Particles type={config.texture} color={config.particleColor} />
+
+      {/* Image Layer (if exists) - Blends with season */}
+      {memory.imageUrl && (
+        <div className="absolute inset-0 z-0">
+          <img 
+            src={memory.imageUrl} 
+            alt="" 
+            className="w-full h-full object-cover opacity-30 group-hover:opacity-40 group-hover:scale-105 transition-all duration-1000 grayscale group-hover:grayscale-[50%]"
+          />
+          <div className={cn("absolute inset-0 bg-gradient-to-t", `from-[${config.bg.replace('bg-', '')}]`, "via-transparent to-transparent")} />
+        </div>
+      )}
+
+      {/* Content Layer */}
+      <div className="relative z-10 p-6 flex flex-col h-full">
+        
+        {/* Top Indicator */}
+        <div className="flex justify-between items-start mb-6 opacity-80 group-hover:opacity-100 transition-opacity">
+          <div className={cn(
+            "flex items-center gap-2 px-3 py-1 rounded-full text-[10px] uppercase tracking-[0.2em] font-bold border bg-black/20 backdrop-blur-md",
+            config.accent, config.border
+          )}>
+            <config.icon size={12} />
+            {config.label}
+          </div>
+          {memory.analysis && <Sparkles size={14} className={cn("animate-pulse", config.accent)} />}
+        </div>
+
+        {/* Middle - Spacer */}
+        <div className="flex-1" />
+
+        {/* Title & Description */}
+        <div className="mt-auto">
+          <h3 className={cn("text-2xl font-display font-medium text-white leading-tight mb-3 group-hover:translate-x-1 transition-transform duration-500")}>
+            {memory.title}
+          </h3>
+          
+          <div className={cn("h-px w-12 mb-4 transition-all duration-700 group-hover:w-full opacity-50", config.particleColor.replace('bg-', 'bg-'))} />
+
+          <p className="text-sm text-gray-400 font-light leading-relaxed line-clamp-2 opacity-80 group-hover:opacity-100 transition-opacity font-serif">
+            {memory.description}
+          </p>
+        </div>
+
+        {/* Footer Meta */}
+        <div className="mt-4 pt-4 border-t border-white/5 flex justify-between items-center text-[10px] font-mono text-gray-500">
+          <span>{memory.date.toLocaleDateString(undefined, { month: 'long', day: 'numeric' })}</span>
+          <span className="uppercase tracking-wider opacity-50">#{memory.mood}</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// --- DETAIL PANEL (Standardized) ---
+
+const MemoryDetailPanel: React.FC<{
   memory: Memory | null;
   onClose: () => void;
   onAnalyze: (id: string) => void;
   isAnalyzing: boolean;
 }> = ({ memory, onClose, onAnalyze, isAnalyzing }) => {
   if (!memory) return null;
-  const moodStyle = MOOD_CONFIG[memory.mood];
+  const season = getSeason(memory.mood);
+  const config = SEASON_CONFIG[season];
 
   return (
-    <div className="absolute inset-y-0 right-0 w-full md:w-[450px] bg-black/80 backdrop-blur-2xl border-l border-white/10 shadow-2xl z-50 overflow-y-auto transform transition-transform duration-500 ease-spring-out">
-      {memory.imageUrl && (
-        <div className="relative h-64 w-full">
-           <img src={memory.imageUrl} alt={memory.title} className="w-full h-full object-cover" />
-           <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black" />
-           <button 
-             onClick={onClose}
-             className="absolute top-4 right-4 p-2 rounded-full bg-black/40 backdrop-blur border border-white/10 text-white hover:bg-white/10 transition-all"
-           >
-             <X size={18} />
-           </button>
-        </div>
-      )}
+    <div className="fixed inset-y-0 right-0 w-full md:w-[500px] bg-black/80 backdrop-blur-2xl border-l border-white/10 shadow-2xl z-[100] flex flex-col animate-in slide-in-from-right duration-500">
+       {/* Header */}
+       <div className="p-6 border-b border-white/5 flex justify-between items-start bg-black/40 shrink-0">
+          <div>
+             <div className={cn("flex items-center gap-2 mb-2 text-xs font-bold uppercase tracking-widest", config.accent)}>
+               <config.icon size={14} /> Season of {config.label}
+             </div>
+             <h2 className="text-2xl font-display font-bold text-white leading-tight">{memory.title}</h2>
+          </div>
+          <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full text-gray-400 hover:text-white transition-colors">
+             <X size={20} />
+          </button>
+       </div>
 
-      <div className={cn("p-8", memory.imageUrl ? '-mt-12 relative z-10' : 'mt-0')}>
-        {!memory.imageUrl && (
-           <div className="flex justify-end mb-4">
-              <button onClick={onClose} className="p-2 rounded-full hover:bg-white/10 text-gray-400"><X size={18}/></button>
-           </div>
-        )}
+       {/* Scrollable Content */}
+       <div className="flex-1 overflow-y-auto p-6 space-y-8">
+          
+          {/* Image Section */}
+          {memory.imageUrl && (
+             <div className="rounded-xl overflow-hidden border border-white/10 relative aspect-video">
+                <img src={memory.imageUrl} alt={memory.title} className="w-full h-full object-cover" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
+             </div>
+          )}
 
-        <div className="flex items-center gap-3 mb-4">
-           <span className={cn("px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider border bg-transparent", moodStyle.color, moodStyle.border)}>
-              {memory.mood}
-           </span>
-           <span className="text-xs text-gray-500 font-mono flex items-center gap-1">
-              <Clock size={12} /> {memory.date.toLocaleDateString()}
-           </span>
-        </div>
+          {/* Metadata Strip */}
+          <div className="flex items-center gap-4 text-xs text-gray-400 font-mono border-b border-white/5 pb-6">
+             <span className="flex items-center gap-2"><Calendar size={12} /> {memory.date.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+             <span className="w-px h-3 bg-white/10" />
+             <span className="flex items-center gap-2 capitalize"><Heart size={12} /> {memory.mood}</span>
+          </div>
 
-        <h2 className="text-3xl font-display font-bold text-white mb-6">{memory.title}</h2>
+          {/* Body Content */}
+          <div className="prose prose-invert prose-sm max-w-none">
+             <p className="text-base text-gray-200 leading-relaxed font-serif whitespace-pre-line">
+                {memory.description}
+             </p>
+          </div>
 
-        <div className="prose prose-invert prose-sm max-w-none text-gray-300 leading-relaxed mb-8">
-           <p>{memory.description}</p>
-        </div>
+          {/* Tags */}
+          <div className="flex flex-wrap gap-2">
+             {memory.tags.map(t => (
+                <span key={t} className="px-3 py-1 rounded-lg bg-white/5 border border-white/10 text-xs text-gray-400 flex items-center gap-1">
+                   <Tag size={10} /> {t}
+                </span>
+             ))}
+          </div>
 
-        <div className="flex flex-wrap gap-2 mb-8">
-           {memory.tags.map(tag => (
-              <span key={tag} className="px-2 py-1 rounded-md bg-white/5 text-xs text-gray-400 border border-white/5 flex items-center gap-1">
-                 <Tag size={10} /> {tag}
-              </span>
-           ))}
-        </div>
+          {/* AI Analysis Section */}
+          <div className="border-t border-white/5 pt-8">
+             <div className="flex items-center justify-between mb-6">
+                <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                   <Sparkles size={14} className="text-forge-accent" /> Neural Reflection
+                </h3>
+                {!memory.analysis && (
+                   <button 
+                      onClick={() => onAnalyze(memory.id)}
+                      disabled={isAnalyzing}
+                      className="text-xs bg-white/5 hover:bg-forge-accent hover:text-white px-3 py-1.5 rounded-lg transition-all disabled:opacity-50 flex items-center gap-2"
+                   >
+                      {isAnalyzing ? <Sparkles size={12} className="animate-spin"/> : <Mic size={12} />}
+                      {isAnalyzing ? 'Analyzing...' : 'Analyze'}
+                   </button>
+                )}
+             </div>
 
-        <div className="border-t border-white/10 pt-8">
-           <div className="flex items-center justify-between mb-6">
-              <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                 <Sparkles size={14} className="text-forge-accent" /> Neural Analysis
-              </h3>
-              {!memory.analysis && (
-                <button 
-                   onClick={() => onAnalyze(memory.id)}
-                   disabled={isAnalyzing}
-                   className="text-xs bg-white/5 hover:bg-forge-accent hover:text-white px-3 py-1.5 rounded-lg transition-all disabled:opacity-50"
-                >
-                   {isAnalyzing ? 'Processing...' : 'Generate Insight'}
-                </button>
-              )}
-           </div>
-
-           {memory.analysis ? (
-             <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                <GlassCard className="bg-gradient-to-br from-forge-accent/10 to-transparent border-forge-accent/20" noPadding>
-                   <div className="p-4">
-                      <div className="text-[10px] text-forge-accent font-mono uppercase tracking-widest mb-2">Core Meaning</div>
-                      <p className="text-sm text-white italic">"{memory.analysis.coreMeaning}"</p>
+             {memory.analysis ? (
+                <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4">
+                   {/* Nova Whisper Card */}
+                   <div className={cn("p-5 rounded-xl border bg-white/[0.02] relative overflow-hidden", config.border)}>
+                      <div className={cn("absolute inset-0 opacity-5 bg-gradient-to-br", config.gradient)} />
+                      <div className="relative z-10">
+                         <div className={cn("text-[10px] font-mono uppercase tracking-widest mb-2", config.accent)}>Nova Whisper</div>
+                         <p className="text-sm text-gray-300 italic">"{config.whisper}"</p>
+                      </div>
                    </div>
-                </GlassCard>
 
-                <div className="grid grid-cols-2 gap-4">
+                   {/* Meaning */}
                    <div className="p-4 rounded-xl bg-white/5 border border-white/5">
-                      <div className="text-[10px] text-gray-500 font-mono uppercase tracking-widest mb-2">Pattern</div>
-                      <p className="text-xs text-gray-300">{memory.analysis.emotionalPattern}</p>
+                      <div className="text-[10px] text-gray-500 uppercase tracking-widest mb-2">Core Meaning</div>
+                      <p className="text-sm text-white">{memory.analysis.coreMeaning}</p>
                    </div>
+
+                   {/* Pattern */}
                    <div className="p-4 rounded-xl bg-white/5 border border-white/5">
-                      <div className="text-[10px] text-gray-500 font-mono uppercase tracking-widest mb-2">Timeline</div>
-                      <p className="text-xs text-gray-300">{memory.analysis.timelineConnection}</p>
+                      <div className="text-[10px] text-gray-500 uppercase tracking-widest mb-2">Detected Pattern</div>
+                      <p className="text-sm text-gray-300">{memory.analysis.emotionalPattern}</p>
                    </div>
                 </div>
-             </div>
-           ) : (
-             <div className="p-8 rounded-xl border border-dashed border-white/10 text-center">
-                <p className="text-sm text-gray-500 mb-2">No deep analysis generated yet.</p>
-                <p className="text-xs text-gray-600">Activate the Neural Core to extract hidden patterns.</p>
-             </div>
-           )}
-        </div>
-      </div>
+             ) : (
+                <div className="text-center py-8 border border-dashed border-white/10 rounded-xl bg-white/[0.01]">
+                   <p className="text-xs text-gray-500">Analyze this memory to reveal hidden patterns and connections.</p>
+                </div>
+             )}
+          </div>
+       </div>
     </div>
   );
 };
+
+// --- CREATE MODAL ---
 
 const CreateMemoryModal: React.FC<{ onClose: () => void; onSave: (m: Memory) => void }> = ({ onClose, onSave }) => {
    const [title, setTitle] = useState('');
    const [desc, setDesc] = useState('');
    const [mood, setMood] = useState<MoodType>('neutral');
    const [imageUrl, setImageUrl] = useState<string | undefined>(undefined);
-   const fileInputRef = useRef<HTMLInputElement>(null);
 
    const handleSave = () => {
       if (!title || !desc) return;
@@ -272,86 +419,43 @@ const CreateMemoryModal: React.FC<{ onClose: () => void; onSave: (m: Memory) => 
       onClose();
    };
 
-   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (file) {
-         const reader = new FileReader();
-         reader.onloadend = () => {
-            setImageUrl(reader.result as string);
-         };
-         reader.readAsDataURL(file);
-      }
-   };
-
    return (
-      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-         <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={onClose} />
-         <div className="relative w-full max-w-lg bg-[#09090b] border border-white/10 rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 max-h-[90vh] flex flex-col">
-            <div className="p-6 border-b border-white/5 flex justify-between items-center shrink-0">
-               <h3 className="font-display font-bold text-white">Capture Memory</h3>
+      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+         <div className="w-full max-w-lg bg-[#09090b] border border-white/10 rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
+            <div className="p-6 border-b border-white/5 flex justify-between items-center">
+               <h3 className="font-display font-bold text-white tracking-wide">Preserve Moment</h3>
                <button onClick={onClose} className="text-gray-500 hover:text-white"><X size={18}/></button>
             </div>
-            <div className="p-6 space-y-6 overflow-y-auto">
+            <div className="p-6 space-y-6">
                <div>
-                  <label className="block text-xs text-gray-500 font-mono uppercase mb-2">Title</label>
+                  <label className="block text-[10px] text-gray-500 font-mono uppercase tracking-widest mb-2">Artifact Name</label>
                   <input 
-                     className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-forge-accent focus:outline-none"
-                     placeholder="Name this moment..."
+                     className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-white/20 focus:outline-none font-display"
+                     placeholder="Untitled Memory"
                      value={title}
                      onChange={e => setTitle(e.target.value)}
                      autoFocus
                   />
                </div>
-
                <div>
-                  <label className="block text-xs text-gray-500 font-mono uppercase mb-2">Visual Artifact</label>
-                  <div className="w-full">
-                     {imageUrl ? (
-                        <div className="relative rounded-lg overflow-hidden border border-white/10 group">
-                           <img src={imageUrl} alt="Preview" className="w-full h-48 object-cover" />
-                           <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                              <button 
-                                 onClick={() => setImageUrl(undefined)}
-                                 className="px-3 py-1.5 bg-red-500/20 border border-red-500/50 text-red-200 rounded-lg hover:bg-red-500/40 transition-colors text-xs"
-                              >
-                                 Remove Image
-                              </button>
-                           </div>
-                        </div>
-                     ) : (
-                        <div 
-                           onClick={() => fileInputRef.current?.click()}
-                           className="w-full h-32 border-2 border-dashed border-white/10 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-forge-accent/50 hover:bg-white/5 transition-all group"
-                        >
-                           <div className="p-3 rounded-full bg-white/5 text-gray-400 group-hover:text-white mb-2 transition-colors">
-                              <Upload size={20} />
-                           </div>
-                           <span className="text-xs text-gray-500 group-hover:text-gray-300">Upload Image</span>
-                        </div>
-                     )}
-                     <input type="file" ref={fileInputRef} onChange={handleImageUpload} className="hidden" accept="image/*" />
-                  </div>
-               </div>
-
-               <div>
-                  <label className="block text-xs text-gray-500 font-mono uppercase mb-2">Description</label>
+                  <label className="block text-[10px] text-gray-500 font-mono uppercase tracking-widest mb-2">Atmosphere</label>
                   <textarea 
-                     className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-forge-accent focus:outline-none h-32 resize-none"
-                     placeholder="What happened? How did it feel?"
+                     className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-white/20 focus:outline-none h-32 resize-none leading-relaxed"
+                     placeholder="What is the texture of this moment?"
                      value={desc}
                      onChange={e => setDesc(e.target.value)}
                   />
                </div>
                <div>
-                  <label className="block text-xs text-gray-500 font-mono uppercase mb-2">Emotional Resonance</label>
-                  <div className="flex gap-2 flex-wrap">
-                     {Object.keys(MOOD_CONFIG).map(m => (
+                  <label className="block text-[10px] text-gray-500 font-mono uppercase tracking-widest mb-2">Emotional Charge</label>
+                  <div className="flex flex-wrap gap-2">
+                     {['joy', 'calm', 'inspired', 'neutral', 'sad', 'anxious', 'focused'].map((m) => (
                         <button 
                            key={m}
                            onClick={() => setMood(m as MoodType)}
                            className={cn(
-                             "px-3 py-1 rounded-full text-xs border transition-all capitalize",
-                             mood === m ? cn(MOOD_CONFIG[m as MoodType].color, 'border-current') : 'text-gray-500 border-transparent hover:bg-white/5'
+                             "px-3 py-1 rounded text-xs border transition-all capitalize",
+                             mood === m ? 'bg-white text-black border-white font-bold' : 'text-gray-500 border-white/10 hover:border-white/30'
                            )}
                         >
                            {m}
@@ -360,23 +464,36 @@ const CreateMemoryModal: React.FC<{ onClose: () => void; onSave: (m: Memory) => 
                   </div>
                </div>
             </div>
-            <div className="p-6 border-t border-white/5 flex justify-end gap-3 shrink-0">
-               <button onClick={onClose} className="px-4 py-2 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-white/5">Cancel</button>
-               <button onClick={handleSave} className="px-4 py-2 rounded-lg text-sm bg-forge-accent text-white hover:bg-forge-accent/80 shadow-lg shadow-forge-accent/20">Save to Archive</button>
+            <div className="p-6 border-t border-white/5 flex justify-end gap-3">
+               <button onClick={onClose} className="px-4 py-2 rounded-lg text-xs text-gray-400 hover:text-white hover:bg-white/5 transition-all">Discard</button>
+               <button onClick={handleSave} className="px-6 py-2 rounded-lg text-xs bg-white text-black font-bold hover:bg-gray-200 shadow-[0_0_15px_rgba(255,255,255,0.2)] transition-all">Crystallize</button>
             </div>
          </div>
       </div>
    );
 };
 
+// --- MAIN VIEW ---
+
 export const MemoryView: React.FC = () => {
   const [memories, setMemories] = useState<Memory[]>(MOCK_MEMORIES);
-  const [filter, setFilter] = useState<string | null>(null);
   const [selectedMemoryId, setSelectedMemoryId] = useState<string | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [activeFilter, setActiveFilter] = useState<InnerSeason | 'All'>('All');
 
-  const filteredMemories = filter ? memories.filter(m => m.type === filter) : memories;
+  const filteredMemories = useMemo(() => {
+    let filtered = memories.filter(m => 
+      m.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      m.description.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    if (activeFilter !== 'All') {
+      filtered = filtered.filter(m => getSeason(m.mood) === activeFilter);
+    }
+    return filtered;
+  }, [memories, searchTerm, activeFilter]);
+
   const selectedMemory = memories.find(m => m.id === selectedMemoryId) || null;
 
   const handleAnalyze = async (id: string) => {
@@ -396,54 +513,113 @@ export const MemoryView: React.FC = () => {
   const handleSaveNew = (newMem: Memory) => setMemories([newMem, ...memories]);
 
   return (
-    <div className="h-full flex bg-forge-bg text-white relative overflow-hidden animate-in fade-in duration-700">
-      <div className="w-64 flex-shrink-0 border-r border-white/5 bg-black/20 p-4 hidden lg:block">
-        <h3 className="text-xs font-mono text-gray-500 uppercase tracking-widest mb-4 px-2">Archive Index</h3>
-        <div className="space-y-1">
-          {[{id:'all', label:'All Memories'}, {id:'milestone', label:'Milestones'}, {id:'moment', label:'Moments'}, {id:'insight', label:'Insights'}].map(cat => (
-            <button
-              key={cat.id}
-              onClick={() => setFilter(cat.id === 'all' ? null : cat.id)}
-              className={cn(
-                "w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-all",
-                (filter === cat.id) || (filter === null && cat.id === 'all') ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white hover:bg-white/5'
-              )}
+    <div className={cn(
+      "h-full flex flex-col relative overflow-hidden animate-in fade-in duration-1000 selection:bg-white/20",
+      // Subtle global tint based on filter
+      activeFilter === 'Spring' ? 'bg-[#020a0a]' :
+      activeFilter === 'Summer' ? 'bg-[#0c0804]' :
+      activeFilter === 'Autumn' ? 'bg-[#0c0505]' :
+      activeFilter === 'Winter' ? 'bg-[#02030a]' :
+      'bg-[#020204]'
+    )}>
+      
+      {/* Global Ambient Effects */}
+      <div className="absolute inset-0 pointer-events-none transition-all duration-1000">
+        <div className={cn(
+          "absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b opacity-30 transition-colors duration-1000",
+          activeFilter === 'Spring' ? 'from-emerald-900/30' :
+          activeFilter === 'Summer' ? 'from-amber-900/30' :
+          activeFilter === 'Autumn' ? 'from-orange-900/30' :
+          'from-slate-900/30'
+        )} />
+      </div>
+
+      {/* Header */}
+      <div className="shrink-0 px-8 py-8 flex items-end justify-between z-20 sticky top-0 backdrop-blur-sm border-b border-white/5">
+         <div>
+            <div className="flex items-center gap-2 text-xs font-mono text-gray-500 uppercase tracking-widest mb-2">
+              <Wind size={14} /> Mnemosyne Engine
+            </div>
+            <h1 className="text-3xl font-display font-bold text-white tracking-tight">Memory Landscape</h1>
+         </div>
+         
+         <div className="flex items-center gap-4">
+            <div className="relative group">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-white transition-colors" size={14} />
+              <input 
+                type="text" 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search echoes..."
+                className="bg-white/5 border border-white/10 rounded-full pl-9 pr-4 py-2 text-xs text-white focus:outline-none focus:border-white/20 w-48 transition-all placeholder-gray-600"
+              />
+            </div>
+            <button 
+              onClick={() => setIsCreating(true)} 
+              className="flex items-center gap-2 px-5 py-2 bg-white text-black rounded-full text-xs font-bold hover:scale-105 transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)]"
             >
-              {cat.label}
+              <Plus size={14} /> Preserve
             </button>
-          ))}
-        </div>
+         </div>
       </div>
 
-      <div className="flex-1 h-full flex flex-col relative z-0">
-        <div className="shrink-0 px-8 py-6 flex items-center justify-between bg-gradient-to-b from-forge-bg to-transparent z-20 sticky top-0">
-           <div>
-              <h1 className="text-2xl font-display font-bold text-white">Memory Archive</h1>
-              <p className="text-xs text-gray-500 mt-1 font-mono">{memories.length} Artifacts Stored</p>
-           </div>
-           <button onClick={() => setIsCreating(true)} className="flex items-center gap-2 px-4 py-2 bg-white text-black rounded-xl font-medium hover:bg-gray-200 transition-colors shadow-lg shadow-white/10">
-              <Plus size={16} /> <span className="hidden md:inline">Add Memory</span>
-           </button>
-        </div>
-
-        <div className="flex-1 overflow-y-auto p-8 pt-0 scrollbar-hide">
-           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-20">
-              {filteredMemories.map((memory, index) => (
-                 <MemoryCard key={memory.id} memory={memory} onClick={() => setSelectedMemoryId(memory.id)} variant={index === 0 ? 'cinematic' : 'default'} />
-              ))}
-              {filteredMemories.length === 0 && (
-                 <div className="col-span-full flex flex-col items-center justify-center py-20 text-gray-500">
-                    <ImageIcon size={24} className="mb-4 opacity-20" />
-                    <p>No memories found in this sector.</p>
-                 </div>
-              )}
-           </div>
-        </div>
+      {/* Filter Bar */}
+      <div className="px-8 py-4 flex gap-2 overflow-x-auto scrollbar-hide z-20">
+        {['All', 'Spring', 'Summer', 'Autumn', 'Winter'].map((season) => {
+           const config = SEASON_CONFIG[season as InnerSeason];
+           const isActive = activeFilter === season;
+           return (
+             <button
+               key={season}
+               onClick={() => setActiveFilter(season as any)}
+               className={cn(
+                 "px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider border transition-all flex items-center gap-2",
+                 isActive 
+                   ? "bg-white/10 text-white border-white/20 shadow-lg" 
+                   : "bg-transparent text-gray-500 border-transparent hover:bg-white/5 hover:text-gray-300"
+               )}
+             >
+               {config && <config.icon size={12} className={isActive ? config.accent : 'text-gray-600'} />}
+               {season}
+             </button>
+           );
+        })}
       </div>
 
+      {/* Seasonal Feed */}
+      <div className="flex-1 overflow-y-auto px-8 pb-32 scrollbar-hide relative z-10">
+         <div className="max-w-7xl mx-auto pt-8">
+            
+            {filteredMemories.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-in slide-in-from-bottom-8 duration-700">
+                {filteredMemories.map(memory => (
+                  <SeasonalCard 
+                    key={memory.id} 
+                    memory={memory} 
+                    onClick={() => setSelectedMemoryId(memory.id)} 
+                  />
+                ))}
+              </div>
+            ) : (
+               <div className="py-32 text-center opacity-40">
+                  <ImageIcon size={32} className="mx-auto mb-4 text-white" />
+                  <p className="text-sm font-mono text-gray-500">The landscape is silent.</p>
+               </div>
+            )}
+         </div>
+      </div>
+
+      {/* Detail View (Side Panel) */}
       {selectedMemory && (
-        <DetailPanel memory={selectedMemory} onClose={() => setSelectedMemoryId(null)} onAnalyze={handleAnalyze} isAnalyzing={isAnalyzing} />
+        <MemoryDetailPanel 
+          memory={selectedMemory} 
+          onClose={() => setSelectedMemoryId(null)} 
+          onAnalyze={handleAnalyze} 
+          isAnalyzing={isAnalyzing} 
+        />
       )}
+
+      {/* Create Modal */}
       {isCreating && (
          <CreateMemoryModal onClose={() => setIsCreating(false)} onSave={handleSaveNew} />
       )}

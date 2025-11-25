@@ -138,7 +138,7 @@ export const YearlyReviewView: React.FC = () => {
             </div>
 
             <div className="flex-1 h-full overflow-y-auto scrollbar-hide relative z-10">
-                <div className="max-w-6xl mx-auto p-12 pb-40">
+                <div className="max-w-6xl mx-auto p-6 md:p-10 pb-32">
                     
                     {/* Hero Header */}
                     <div className="text-center mb-32 relative">

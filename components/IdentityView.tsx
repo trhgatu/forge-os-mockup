@@ -221,7 +221,7 @@ export const IdentityView: React.FC = () => {
             <div className="absolute bottom-0 left-0 w-[800px] h-[800px] bg-cyan-900/10 rounded-full blur-[150px] pointer-events-none" />
 
             <div className="flex-1 h-full overflow-y-auto scrollbar-hide relative z-10">
-                <div className="max-w-6xl mx-auto p-8 md:p-12 pb-40">
+                <div className="max-w-6xl mx-auto p-6 md:p-10 pb-32">
                     
                     {/* Header */}
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-6">

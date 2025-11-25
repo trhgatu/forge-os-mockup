@@ -129,7 +129,7 @@ export const MonthlyReviewView: React.FC = () => {
             </div>
 
             <div className="flex-1 h-full overflow-y-auto scrollbar-hide relative z-10">
-                <div className="max-w-5xl mx-auto p-12 pb-40">
+                <div className="max-w-5xl mx-auto p-6 md:p-10 pb-32">
                     
                     {/* Header Area */}
                     <div className="text-center mb-20">
@@ -264,7 +264,7 @@ export const MonthlyReviewView: React.FC = () => {
                                             </div>
                                             <div className="text-xl font-bold text-white">{habit.consistency}%</div>
                                             <div className="w-full bg-white/10 h-1 mt-2 rounded-full overflow-hidden">
-                                                <div className={cn("h-full", habit.consistency > 80 ? 'bg-green-500' : habit.consistency > 50 ? 'bg-yellow-500' : 'bg-red-500')} style={{ width: `${habit.consistency}%` }} />
+                                                <div className="h-full" style={{ backgroundColor: habit.consistency > 80 ? '#10B981' : habit.consistency > 50 ? '#F59E0B' : '#EF4444', width: `${habit.consistency}%` }} />
                                             </div>
                                         </div>
                                     ))}
@@ -311,7 +311,7 @@ export const MonthlyReviewView: React.FC = () => {
 
                         </div>
                     ) : (
-                        <div className="h-96 flex flex-col items-center justify-center border border-dashed border-white/10 rounded-3xl">
+                        <div className="h-96 flex flex-col items-center justify-center border border-dashed border-white/10 rounded-3xl bg-white/[0.01]">
                             <Moon className="text-white/20 mb-4 animate-pulse" size={48} />
                             <p className="text-gray-500">Consulting the Cosmic Biographer...</p>
                         </div>

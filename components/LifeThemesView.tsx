@@ -287,7 +287,7 @@ export const LifeThemesView: React.FC = () => {
             </div>
 
             <div className="flex-1 h-full overflow-y-auto scrollbar-hide relative z-10">
-                <div className="max-w-7xl mx-auto p-8 md:p-12 pb-40">
+                <div className="max-w-7xl mx-auto p-6 md:p-10 pb-32">
                     
                     {/* Header */}
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-6">

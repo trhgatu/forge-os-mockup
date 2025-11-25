@@ -344,7 +344,7 @@ export const MasterplanView: React.FC = () => {
             </div>
 
             <div className="flex-1 h-full overflow-y-auto scrollbar-hide relative z-10">
-                <div className="max-w-7xl mx-auto p-8 md:p-12 pb-40">
+                <div className="max-w-7xl mx-auto p-6 md:p-10 pb-32">
                     
                     {/* Header Info */}
                     <div className="flex justify-between items-center mb-8 opacity-60 hover:opacity-100 transition-opacity">

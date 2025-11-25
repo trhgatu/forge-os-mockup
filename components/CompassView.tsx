@@ -262,7 +262,7 @@ export const CompassView: React.FC = () => {
 
             {/* Main Content */}
             <div className="flex-1 h-full overflow-y-auto scrollbar-hide relative z-10">
-                <div className="max-w-7xl mx-auto p-8 md:p-12 pb-40">
+                <div className="max-w-7xl mx-auto p-6 md:p-10 pb-32">
                     
                     {/* Header Section */}
                     <div className="flex justify-between items-start mb-12">

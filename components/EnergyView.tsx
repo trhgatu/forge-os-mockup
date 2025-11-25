@@ -61,7 +61,7 @@ export const EnergyView: React.FC = () => {
     return (
         <div className="h-full flex bg-forge-bg text-white relative overflow-hidden animate-in fade-in duration-700">
             <div className="flex-1 h-full overflow-y-auto scrollbar-hide">
-                <div className="p-8 pb-24 max-w-5xl mx-auto">
+                <div className="p-6 md:p-8 pb-32 max-w-5xl mx-auto">
                     <div className="flex flex-col md:flex-row items-center gap-12 mb-12">
                         <div className="flex-1 w-full space-y-6">
                             <div><h1 className="text-3xl font-display font-bold text-white mb-2">Energy Landscape</h1><p className="text-sm text-gray-500">Real-time bio-rhythm monitoring active.</p></div>

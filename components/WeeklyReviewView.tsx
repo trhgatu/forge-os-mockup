@@ -17,7 +17,7 @@ const StatCard: React.FC<{ label: string; value: string | number; icon: React.El
     <div className="p-4 rounded-xl bg-white/5 border border-white/5 flex flex-col justify-between h-full">
         <div className="flex justify-between items-start mb-2">
             <div className="p-2 rounded-lg bg-white/5 text-gray-300"><Icon size={16} /></div>
-            {trend && (<div className={cn("text-xs font-bold", trend === 'up' ? 'text-green-400' : trend === 'down' ? 'text-red-400' : 'text-gray-400')}>{trend === 'up' ? <ArrowUpRight size={14} /> : trend === 'down' ? <ArrowDownRight size={14} /> : <Minus size={14} />}</div>)}
+            {trend && (<div className="text-xs font-bold text-gray-400 flex items-center">{trend === 'up' ? <ArrowUpRight size={14} className="text-green-400" /> : trend === 'down' ? <ArrowDownRight size={14} className="text-red-400" /> : <Minus size={14} />}</div>)}
         </div>
         <div><div className="text-2xl font-bold text-white">{value}</div><div className="text-[10px] text-gray-500 uppercase tracking-widest">{label}</div></div>
     </div>
@@ -47,7 +47,7 @@ export const WeeklyReviewView: React.FC = () => {
         <div className="h-full flex bg-[#050505] text-white relative overflow-hidden animate-in fade-in duration-700">
             <div className="absolute inset-0 pointer-events-none"><div className="absolute top-[-20%] left-[-10%] w-[800px] h-[800px] bg-purple-900/20 rounded-full blur-[150px]" /><div className="absolute bottom-[-20%] right-[-10%] w-[800px] h-[800px] bg-cyan-900/20 rounded-full blur-[150px]" /></div>
             <div className="flex-1 h-full overflow-y-auto scrollbar-hide relative z-10">
-                <div className="max-w-4xl mx-auto p-8 pb-32">
+                <div className="max-w-4xl mx-auto p-6 md:p-8 pb-32">
                     <div className="flex justify-between items-center mb-12"><div><h1 className="text-4xl font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-white to-white/60 mb-2">Weekly Review</h1><p className="text-sm text-gray-500 font-mono">Oct 23 - Oct 29 • Week 43</p></div><div className="flex gap-2"><button onClick={handleAnalyze} disabled={isAnalyzing} className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-colors"><RefreshCw size={18} className={isAnalyzing ? 'animate-spin' : ''} /></button></div></div>
                     {analysis ? (
                         <div className="mb-12 p-8 rounded-3xl bg-gradient-to-br from-white/[0.03] to-transparent border border-white/10 relative overflow-hidden">

@@ -247,7 +247,7 @@ export const GoalsView: React.FC = () => {
     return (
         <div className="h-full flex bg-forge-bg text-white relative overflow-hidden animate-in fade-in duration-700">
             <div className="flex-1 h-full overflow-y-auto relative scrollbar-hide">
-                <div className="p-8 pb-4 relative z-10">
+                <div className="p-6 md:p-8 pb-4 relative z-10">
                     <div className="flex justify-between items-end">
                         <div><h1 className="text-3xl font-display font-bold text-white flex items-center gap-3"><Target className="text-forge-cyan" /> Evolution Path</h1><p className="text-sm text-gray-500 mt-2 max-w-xl">Turning intention into structural reality.</p></div>
                         <button onClick={() => setIsCreating(true)} className="px-4 py-2 bg-white text-black rounded-xl font-medium hover:bg-gray-200 transition-colors shadow-lg shadow-white/10 flex items-center gap-2"><Plus size={16} /> New Goal</button>
@@ -258,7 +258,7 @@ export const GoalsView: React.FC = () => {
                         <div className="p-4 rounded-xl bg-white/5 border border-white/5 flex items-center gap-3"><div className="p-2 rounded-lg bg-yellow-500/20 text-yellow-400"><Zap size={18} /></div><div><div className="text-xs text-gray-500 uppercase">Energy Load</div><div className="text-lg font-bold text-white">Optimal</div></div></div>
                     </div>
                 </div>
-                <div className="p-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-24">
+                <div className="p-6 md:p-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-32">
                     {goals.map(goal => <GoalCard key={goal.id} goal={goal} onClick={() => setSelectedId(goal.id)} />)}
                 </div>
             </div>

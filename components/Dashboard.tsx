@@ -112,7 +112,7 @@ export const Dashboard: React.FC = () => {
     <div className="h-full flex bg-forge-bg overflow-hidden">
       
       {/* CENTER: Main Scrollable Content */}
-      <div className="flex-1 h-full overflow-y-auto overflow-x-hidden scrollbar-hide p-8 pb-24">
+      <div className="flex-1 h-full overflow-y-auto overflow-x-hidden scrollbar-hide p-6 md:p-8 pb-32">
          
          {/* 1. Greeting Block */}
          <header className="mb-10 relative">

@@ -232,7 +232,7 @@ export const AchievementsView: React.FC = () => {
         <div className="h-full flex bg-[#050505] text-white relative overflow-hidden animate-in fade-in duration-1000">
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-900/20 via-[#09090b] to-black pointer-events-none" />
             <div className="flex-1 h-full overflow-y-auto scrollbar-hide relative z-10 flex flex-col">
-                <div className="p-8 pb-0">
+                <div className="p-6 md:p-8 pb-0">
                     <div className="flex justify-between items-end mb-8">
                         <div>
                             <div className="text-xs font-mono text-forge-cyan uppercase tracking-widest mb-2">Personal Evolution</div>
@@ -258,7 +258,7 @@ export const AchievementsView: React.FC = () => {
                 </div>
 
                 {/* Grid View */}
-                <div className="flex-1 px-8 pb-24">
+                <div className="flex-1 px-6 md:px-8 pb-32">
                     <div className="flex items-center justify-between mb-6">
                          <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2"><Trophy size={16} className="text-yellow-500" /> Vault</h3>
                          <div className="flex gap-2">
