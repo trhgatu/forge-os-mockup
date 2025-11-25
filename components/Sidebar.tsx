@@ -33,7 +33,8 @@ import {
   Ghost,
   Navigation,
   Globe,
-  Languages
+  Languages,
+  Disc // Soundtrack Icon
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -51,6 +52,7 @@ const NAV_ITEMS: NavItem[] = [
   { id: View.SHADOW_WORK, labelKey: 'nav.shadow_work', icon: Ghost, group: 'Reflection' },
   { id: View.MOOD, labelKey: 'nav.mood', icon: Smile, group: 'Reflection' },
   { id: View.QUOTES, labelKey: 'nav.quotes', icon: Quote, group: 'Reflection' },
+  { id: View.SOUNDTRACK, labelKey: 'nav.soundtrack', icon: Disc, group: 'Reflection' }, // NEW
   { id: View.COMPASS, labelKey: 'nav.compass', icon: Navigation, group: 'Evolution' },
   { id: View.GOALS, labelKey: 'nav.goals', icon: Target, group: 'Evolution' },
   { id: View.IDENTITY, labelKey: 'nav.identity', icon: Fingerprint, group: 'Evolution' },

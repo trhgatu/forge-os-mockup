@@ -6,7 +6,7 @@ export type Language = 'en' | 'vi';
 export enum View {
   DASHBOARD = 'DASHBOARD',
   FORGE_CHAMBER = 'FORGE_CHAMBER',
-  MASTERPLAN = 'MASTERPLAN', // New Meta-Layer
+  MASTERPLAN = 'MASTERPLAN', 
   COMPASS = 'COMPASS',
   JOURNAL = 'JOURNAL',
   MEMORY = 'MEMORY',
@@ -24,6 +24,7 @@ export enum View {
   THEMES = 'THEMES',
   SHADOW_WORK = 'SHADOW_WORK', 
   ENERGY = 'ENERGY',
+  SOUNDTRACK = 'SOUNDTRACK', // New View
   WEEKLY_REVIEW = 'WEEKLY_REVIEW',
   MONTHLY_REVIEW = 'MONTHLY_REVIEW',
   YEARLY_REVIEW = 'YEARLY_REVIEW',
@@ -32,7 +33,7 @@ export enum View {
 
 export interface NavItem {
   id: View;
-  labelKey: string; // Changed from label to labelKey for i18n
+  labelKey: string; 
   icon: React.ElementType;
   group: 'Main' | 'Reflection' | 'Creativity' | 'Evolution' | 'System' | 'Meta';
 }
@@ -61,17 +62,17 @@ export interface Agent {
   role: string;
   status: 'idle' | 'thinking' | 'speaking' | 'offline';
   icon: React.ElementType;
-  color: string; // Tailwind text class (e.g., 'text-amber-400')
-  bg: string; // Tailwind bg class for bubbles
-  border: string; // Tailwind border class
-  gradient: string; // Tailwind gradient classes for avatar
-  systemPrompt: string; // Personality instruction
+  color: string; 
+  bg: string; 
+  border: string; 
+  gradient: string; 
+  systemPrompt: string; 
 }
 
 export interface Message {
   id: string;
   role: 'user' | 'model';
-  agentId?: AgentId; // If undefined, assumes 'nova' (default system)
+  agentId?: AgentId; 
   text: string;
   timestamp?: number;
 }
@@ -89,12 +90,12 @@ export type MoodType =
   | 'angry' 
   | 'energetic' 
   | 'empty'
-  | 'focused' // Legacy support
-  | 'anxious' // Legacy support
-  | 'tired';  // Legacy support
+  | 'focused' 
+  | 'anxious' 
+  | 'tired';  
 
 export interface JournalAnalysis {
-  sentimentScore: number; // 0 to 10
+  sentimentScore: number; 
   keywords: string[];
   summary: string;
   suggestedAction: string;
@@ -103,7 +104,7 @@ export interface JournalAnalysis {
 export interface JournalEntry {
   id: string;
   title: string;
-  content: string; // Markdown/Text
+  content: string; 
   date: Date;
   mood: MoodType;
   tags: string[];
@@ -132,7 +133,7 @@ export interface Memory {
   tags: string[];
   imageUrl?: string;
   analysis?: MemoryAnalysis;
-  reflectionDepth: number; // 1-10
+  reflectionDepth: number; 
 }
 
 // --- Timeline Types ---
@@ -140,9 +141,9 @@ export interface Memory {
 export type TimelineType = 'memory' | 'journal' | 'quote' | 'mood' | 'milestone' | 'insight';
 
 export interface TimelineAnalysis {
-    significance: string; // Why this moment matters in the timeline
-    pattern: string; // Recurring theme
-    temporalContext: string; // "This happened 2 days after..."
+    significance: string; 
+    pattern: string; 
+    temporalContext: string; 
 }
 
 export interface TimelineItem {
@@ -150,21 +151,21 @@ export interface TimelineItem {
     type: TimelineType;
     date: Date;
     title: string;
-    content: string; // Short snippet or full content
+    content: string; 
     mood: MoodType;
     tags: string[];
     imageUrl?: string;
-    metadata?: any; // Flexible field for specific type data
+    metadata?: any; 
     analysis?: TimelineAnalysis;
 }
 
 // --- Quote Types ---
 
 export interface QuoteAnalysis {
-    meaning: string; // Interpretation of the quote
-    themes: string[]; // Semantic clusters
-    sentimentScore: number; // 1-10
-    reflectionPrompt: string; // Question for the user
+    meaning: string; 
+    themes: string[]; 
+    sentimentScore: number; 
+    reflectionPrompt: string; 
 }
 
 export interface Quote {
@@ -176,9 +177,9 @@ export interface Quote {
     tags: string[];
     isFavorite: boolean;
     dateAdded: Date;
-    reflectionDepth: number; // 1-10 inferred from complexity
+    reflectionDepth: number; 
     analysis?: QuoteAnalysis;
-    imageUrl?: string; // Optional background
+    imageUrl?: string; 
 }
 
 // --- Mood Types ---
@@ -186,17 +187,17 @@ export interface Quote {
 export interface MoodEntry {
   id: string;
   mood: MoodType;
-  intensity: number; // 1-10
+  intensity: number; 
   note: string;
   tags: string[];
   date: Date;
 }
 
 export interface MoodAnalysis {
-  overallTrend: string; // "Rising", "Stable", "Volatile"
-  triggers: string[]; // "Work", "Sleep"
-  prediction: string; // "Likely to feel energetic tomorrow"
-  insight: string; // "You tend to feel anxious on Monday mornings."
+  overallTrend: string; 
+  triggers: string[]; 
+  prediction: string; 
+  insight: string; 
   actionableStep: string;
 }
 
@@ -205,10 +206,10 @@ export interface MoodAnalysis {
 export interface TopicCluster {
   id: string;
   name: string;
-  size: number; // 1-10 relative importance
+  size: number; 
   relatedTopics: string[];
-  x: number; // 0-100% position
-  y: number; // 0-100% position
+  x: number; 
+  y: number; 
 }
 
 export interface Pattern {
@@ -216,14 +217,14 @@ export interface Pattern {
   type: 'behavior' | 'emotional' | 'cognitive';
   title: string;
   description: string;
-  confidence: number; // 0-100
+  confidence: number; 
   impact: 'positive' | 'negative' | 'neutral';
 }
 
 export interface LifeArc {
-  currentPhase: string; // e.g. "Building Foundation"
+  currentPhase: string; 
   description: string;
-  progress: number; // 0-100
+  progress: number; 
   nextPhasePrediction: string;
 }
 
@@ -251,7 +252,7 @@ export interface IdeaConnection {
   fromId: string;
   toId: string;
   type: 'related' | 'parent' | 'child' | 'conflict';
-  strength: number; // 1-5 thickness
+  strength: number; 
 }
 
 export interface Idea {
@@ -261,11 +262,11 @@ export interface Idea {
   x: number;
   y: number;
   type: IdeaType;
-  status?: IdeaStatus; // New field for lifecycle
-  color: string; // Hex or Tailwind color
+  status?: IdeaStatus; 
+  color: string; 
   tags: string[];
-  energy: number; // 1-100, affects size/glow
-  connections: string[]; // IDs of other ideas
+  energy: number; 
+  connections: string[]; 
   aiAnalysis?: {
     expansion: string;
     gaps: string[];
@@ -280,7 +281,7 @@ export interface Idea {
 export type GoalType = 'life' | 'project' | 'micro';
 export type GoalStatus = 'not_started' | 'in_progress' | 'paused' | 'completed';
 
-export interface Milestone { // Legacy interface for Goals module
+export interface Milestone { 
   id: string;
   title: string;
   isCompleted: boolean;
@@ -289,7 +290,7 @@ export interface Milestone { // Legacy interface for Goals module
 
 export interface GoalAnalysis {
   risks: string[];
-  energyLevel: number; // 1-10 estimate
+  energyLevel: number; 
   suggestedHabit: string;
   motivation: string;
 }
@@ -301,8 +302,8 @@ export interface Goal {
   category: string;
   type: GoalType;
   status: GoalStatus;
-  priority: number; // 1-5
-  progress: number; // 0-100
+  priority: number; 
+  progress: number; 
   dueDate?: Date;
   milestones: Milestone[];
   tags: string[];
@@ -322,10 +323,10 @@ export interface SubStep {
 }
 
 export interface MilestoneAnalysis {
-  difficultyScore: number; // 1-10
+  difficultyScore: number; 
   suggestedSubSteps: string[];
   blockerDetection: string;
-  energyRequirement: string; // "High", "Medium", "Low"
+  energyRequirement: string; 
 }
 
 export interface RichMilestone {
@@ -337,9 +338,9 @@ export interface RichMilestone {
   dueDate: Date;
   completedDate?: Date;
   subSteps: SubStep[];
-  progress: number; // 0-100
-  difficulty: number; // 1-5 (User set)
-  linkedEntityId?: string; // ID of related Goal/Habit
+  progress: number; 
+  difficulty: number; 
+  linkedEntityId?: string; 
   tags: string[];
   analysis?: MilestoneAnalysis;
 }
@@ -351,15 +352,15 @@ export type HabitType = 'foundation' | 'growth' | 'micro';
 export type HabitFrequency = 'daily' | 'weekly';
 
 export interface HabitLog {
-  date: string; // ISO Date string "YYYY-MM-DD"
+  date: string; 
   completed: boolean;
 }
 
 export interface HabitAnalysis {
-  identityAlignment: string; // "This reinforces your identity as a writer."
-  suggestedMicroHabit: string; // "Just write 1 sentence."
-  riskAnalysis: string; // "You tend to skip this on weekends."
-  bestTimeOfDay: string; // "Morning"
+  identityAlignment: string; 
+  suggestedMicroHabit: string; 
+  riskAnalysis: string; 
+  bestTimeOfDay: string; 
 }
 
 export interface Habit {
@@ -369,9 +370,9 @@ export interface Habit {
   type: HabitType;
   frequency: HabitFrequency;
   streak: number;
-  logs: HabitLog[]; // History
+  logs: HabitLog[]; 
   linkedGoalId?: string;
-  difficulty: number; // 1-10
+  difficulty: number; 
   analysis?: HabitAnalysis;
   dateCreated: Date;
 }
@@ -384,16 +385,16 @@ export type RoutineBlockType = 'habit' | 'task' | 'reflection' | 'break';
 export interface RoutineBlock {
   id: string;
   title: string;
-  duration: number; // minutes
+  duration: number; 
   type: RoutineBlockType;
-  energyImpact: number; // -10 (draining) to +10 (generating)
+  energyImpact: number; 
   linkedHabitId?: string;
 }
 
 export interface RoutineAnalysis {
   energyScore: number;
-  flowSuggestion: string; // "Move meditation to start to reduce inertia"
-  bottleneck?: string; // "Workout duration might be too ambitious"
+  flowSuggestion: string; 
+  bottleneck?: string; 
   recommendedStartTime: string;
 }
 
@@ -412,7 +413,7 @@ export interface Routine {
 export type EnergyZone = 'Recovery' | 'Calm' | 'Flow' | 'Peak' | 'Low';
 
 export interface EnergyMetrics {
-  mind: number; // 0-100
+  mind: number; 
   body: number;
   emotion: number;
   focus: number;
@@ -421,16 +422,16 @@ export interface EnergyMetrics {
 export interface EnergyInfluence {
   id: string;
   name: string;
-  impact: number; // -10 to +10
+  impact: number; 
   type: 'habit' | 'sleep' | 'mood' | 'routine';
   description: string;
 }
 
 export interface EnergyAnalysis {
   currentZone: EnergyZone;
-  forecast: string; // "Dip expected in 2 hours"
-  recommendation: string; // "Take a break now to sustain peak later"
-  peakTime: string; // "10:00 AM - 11:30 AM"
+  forecast: string; 
+  recommendation: string; 
+  peakTime: string; 
 }
 
 // --- Achievement Archive Types ---
@@ -438,10 +439,10 @@ export interface EnergyAnalysis {
 export type AchievementCategory = 'Work' | 'Health' | 'Personal' | 'Creative' | 'Social' | 'Milestone';
 
 export interface AchievementAnalysis {
-  significanceScore: number; // 1-10
-  identityShift: string; // "From learner to practitioner"
-  growthPattern: string; // "You tend to achieve big leaps after rest periods"
-  emotionalDriver: string; // "Driven by frustration with status quo"
+  significanceScore: number; 
+  identityShift: string; 
+  growthPattern: string; 
+  emotionalDriver: string; 
 }
 
 export interface Achievement {
@@ -452,7 +453,7 @@ export interface Achievement {
   category: AchievementCategory;
   tags: string[];
   moodSnapshot: MoodType;
-  energySnapshot: number; // 1-100
+  energySnapshot: number; 
   linkedGoalId?: string;
   linkedMilestoneId?: string;
   analysis?: AchievementAnalysis;
@@ -472,12 +473,12 @@ export type IdentityArchetype = 'Creator' | 'Strategist' | 'Warrior' | 'Healer' 
 
 export interface IdentityTrait {
   name: string;
-  score: number; // 0-100
+  score: number; 
 }
 
 export interface IdentityPhase {
   id: string;
-  title: string; // e.g., "Era of Building Foundations"
+  title: string; 
   startDate: Date;
   endDate?: Date;
   description: string;
@@ -487,10 +488,10 @@ export interface IdentityPhase {
 
 export interface IdentityShift {
   id: string;
-  title: string; // e.g., "Shift to Sovereignty"
+  title: string; 
   date: Date;
   type: 'Mindset' | 'Behavioral' | 'Emotional' | 'Value';
-  impactScore: number; // 0-100
+  impactScore: number; 
   context: string;
 }
 
@@ -498,21 +499,21 @@ export interface IdentityDriver {
   id: string;
   name: string;
   type: 'Habit' | 'Emotion' | 'Goal' | 'Belief';
-  impact: number; // 0-100
+  impact: number; 
   description: string;
 }
 
 export interface IdentityProfile {
   currentPhase: IdentityPhase;
-  vector: string; // e.g., "Resilient Builder in Emergence"
-  evolutionScore: number; // 0-100
+  vector: string; 
+  evolutionScore: number; 
   archetype: IdentityArchetype;
-  traits: IdentityTrait[]; // For radar chart
+  traits: IdentityTrait[]; 
   topDrivers: IdentityDriver[];
   recentShifts: IdentityShift[];
   futureProjection: {
     trajectory: string;
-    alignment: number; // 0-100
+    alignment: number; 
     nextPhasePrediction: string;
     potentialTraps: string[];
   };
@@ -524,7 +525,7 @@ export type ThemeStatus = 'emerging' | 'dominant' | 'fading' | 'dormant' | 'reso
 
 export interface ThemeBehavior {
   id: string;
-  description: string; // "Waking early"
+  description: string; 
   type: 'habit' | 'decision' | 'avoidance';
 }
 
@@ -532,26 +533,26 @@ export interface ThemeConflict {
   id: string;
   opposingThemeId: string;
   opposingThemeName: string;
-  description: string; // "Stability vs Ambition"
-  tensionLevel: number; // 1-10
+  description: string; 
+  tensionLevel: number; 
   resolutionHint: string;
 }
 
 export interface LifeTheme {
   id: string;
-  title: string; // "The Architect", "Solitude", "Reinvention"
+  title: string; 
   description: string;
   status: ThemeStatus;
-  strength: number; // 0-100
+  strength: number; 
   firstDetected: Date;
   lastActive: Date;
-  relatedMoods: MoodType[]; // Moods that trigger this theme
-  archetypeIcon: 'crown' | 'sword' | 'compass' | 'feather' | 'anchor' | 'flame'; // UI helper
-  colorSignature: string; // hex or tailwind class
-  evidence: string[]; // IDs or titles of journals/memories
+  relatedMoods: MoodType[]; 
+  archetypeIcon: 'crown' | 'sword' | 'compass' | 'feather' | 'anchor' | 'flame'; 
+  colorSignature: string; 
+  evidence: string[]; 
   behaviors: ThemeBehavior[];
   conflicts?: ThemeConflict[];
-  evolutionArc: string; // "Crisis -> Recovery"
+  evolutionArc: string; 
 }
 
 export interface ThemeTimelinePoint {
@@ -561,8 +562,8 @@ export interface ThemeTimelinePoint {
 }
 
 export interface LifeThemeAnalysis {
-  currentSeasonSummary: string; // "This season is about Self-Reliance..."
-  stabilityScore: number; // 0-100
+  currentSeasonSummary: string; 
+  stabilityScore: number; 
   dominantThemes: LifeTheme[];
   emergingThemes: LifeTheme[];
   quietThemes: LifeTheme[];
@@ -574,41 +575,41 @@ export interface LifeThemeAnalysis {
 
 export interface ShadowMask {
   id: string;
-  name: string; // e.g. "Hyper-productivity"
-  protecting: string; // "Fear of worthlessness"
-  triggeredBy: string; // "Silence, Failure"
+  name: string; 
+  protecting: string; 
+  triggeredBy: string; 
   description: string;
   icon: 'shield' | 'mask' | 'wall' | 'clock' | 'smile';
 }
 
 export interface InnerConflict {
   id: string;
-  desire: string; // "Connection"
-  fear: string; // "Vulnerability"
-  manifestation: string; // "Withdrawal"
-  tensionLevel: number; // 1-10
+  desire: string; 
+  fear: string; 
+  manifestation: string; 
+  tensionLevel: number; 
 }
 
 export interface LimitingBelief {
   id: string;
-  statement: string; // "I'm not ready yet"
-  originAge?: string; // "Childhood" or "Early Career"
-  intensity: number; // 1-10
+  statement: string; 
+  originAge?: string; 
+  intensity: number; 
   consequences: string[];
 }
 
 export interface ShadowTransmutation {
-  shadow: string; // "Fear"
-  gift: string; // "Courage"
-  path: string; // "Action despite trembling"
+  shadow: string; 
+  gift: string; 
+  path: string; 
 }
 
 export interface ShadowAnalysis {
-  primaryShadow: string; // "Fear of Inadequacy"
+  primaryShadow: string; 
   supportingShadows: string[];
-  tensionScore: number; // 0-100
-  avoidanceIndex: number; // 0-100
-  emotionalRoots: string[]; // "Unmet need for safety"
+  tensionScore: number; 
+  avoidanceIndex: number; 
+  emotionalRoots: string[]; 
   masks: ShadowMask[];
   conflicts: InnerConflict[];
   limitingBeliefs: LimitingBelief[];
@@ -625,16 +626,16 @@ export interface WeeklyReviewData {
   energyHistory: { date: string, value: number }[];
   goalsCompleted: number;
   goalsInProgress: number;
-  habitsConsistency: number; // 0-100
+  habitsConsistency: number; 
   topHabit: string;
   strugglingHabit: string;
   routinesCompleted: number;
-  highlights: string[]; // Titles of key moments
+  highlights: string[]; 
 }
 
 export interface WeeklyReviewAnalysis {
-  weeklyScore: number; // 0-100
-  identityProgress: string; // "You are becoming a consistent creator."
+  weeklyScore: number; 
+  identityProgress: string; 
   summary: string;
   trend: 'up' | 'stable' | 'down';
   insights: string[];
@@ -644,9 +645,9 @@ export interface WeeklyReviewAnalysis {
 // --- Monthly Review Types ---
 
 export interface MonthlyReviewData {
-  month: string; // "October 2023"
-  moodTrend: { day: number; value: number; label: string }[]; // 1-30
-  energyTrend: { day: number; value: number }[]; // 1-30
+  month: string; 
+  moodTrend: { day: number; value: number; label: string }[]; 
+  energyTrend: { day: number; value: number }[]; 
   habitStats: { name: string; consistency: number; trend: 'up' | 'down' | 'flat' }[];
   goalsCompleted: number;
   goalsTotal: number;
@@ -656,12 +657,12 @@ export interface MonthlyReviewData {
 }
 
 export interface MonthlyReviewAnalysis {
-  theme: string; // "The Month of Grounding"
+  theme: string; 
   summary: string;
   score: number;
-  identityShift: string; // "From scattered to focused"
-  momentumRating: number; // 1-10
-  stabilityRating: number; // 1-10
+  identityShift: string; 
+  momentumRating: number; 
+  stabilityRating: number; 
   highlights: string[];
   lowlights: string[];
   keyInsight: string;
@@ -671,16 +672,16 @@ export interface MonthlyReviewAnalysis {
 // --- Yearly Review Types ---
 
 export interface YearlyReviewData {
-  year: string; // "2023"
-  moodMatrix: { month: string; intensity: number; dominantMood: MoodType }[]; // 12 months
-  energySeasonality: { month: string; value: number }[]; // 12 months
+  year: string; 
+  moodMatrix: { month: string; intensity: number; dominantMood: MoodType }[]; 
+  energySeasonality: { month: string; value: number }[]; 
   topMilestones: { id: string; title: string; month: string; type: MilestoneType }[];
   habitPerformance: { name: string; consistency: number }[];
 }
 
 export interface IdentityAxis {
-  subject: string; // "Discipline", "Clarity", etc.
-  A: number; // Value 0-100
+  subject: string; 
+  A: number; 
   fullMark: number;
 }
 
@@ -689,14 +690,14 @@ export interface NarrativeChapter {
   title: string;
   summary: string;
   mood: MoodType;
-  intensity: number; // 1-10
+  intensity: number; 
 }
 
 export interface YearlyReviewAnalysis {
-  theme: string; // "The Year of Awakening"
+  theme: string; 
   summary: string;
   score: number;
-  identityLabel: string; // "The Sovereign Individual"
+  identityLabel: string; 
   identityRadar: IdentityAxis[];
   narrativeChapters: NarrativeChapter[];
   momentumRating: number;
@@ -712,8 +713,8 @@ export interface YearlyReviewAnalysis {
 export interface NorthStar {
   statement: string;
   whyItMatters: string;
-  timeHorizon: string; // "3-5 years"
-  resonanceScore: number; // 1-10
+  timeHorizon: string; 
+  resonanceScore: number; 
 }
 
 export type HorizonLevel = '1Y' | '3Y' | '5Y';
@@ -722,7 +723,7 @@ export interface CompassHorizon {
   level: HorizonLevel;
   vision: string;
   domains: {
-    name: string; // "Work", "Health", etc.
+    name: string; 
     status: 'on-track' | 'drifting' | 'at-risk';
     anchorGoal: string;
   }[];
@@ -734,17 +735,17 @@ export interface StrategicTrack {
   linkedThemeId: string;
   horizon: HorizonLevel;
   status: 'active' | 'paused' | 'completed';
-  momentum: number; // 0-100
-  progress: number; // 0-100
+  momentum: number; 
+  progress: number; 
 }
 
 export interface CompassData {
   northStar: NorthStar;
   horizons: CompassHorizon[];
   tracks: StrategicTrack[];
-  alignmentScore: number; // 0-100
-  driftScore: number; // 0-100
-  currentPhase: string; // "Foundation"
+  alignmentScore: number; 
+  driftScore: number; 
+  currentPhase: string; 
   driftSources: string[];
   nextQuarterFocus: {
     themes: string[];
@@ -752,24 +753,24 @@ export interface CompassData {
   };
 }
 
-// --- Masterplan Types (New Meta-Layer) ---
+// --- Masterplan Types (Meta-Layer) ---
 
 export type PillarState = 'growing' | 'stable' | 'decaying';
 export type EpochArchetype = 'Explorer' | 'Builder' | 'Master' | 'Sage';
 
 export interface LifePillar {
   id: string;
-  name: string; // Body, Mind, Work, etc.
+  name: string; 
   purpose: string;
   state: PillarState;
-  metric: string; // e.g., "VO2 Max" or "Net Worth"
+  metric: string; 
 }
 
 export interface Epoch {
   id: string;
-  title: string; // "Epoch II"
-  name: string; // "Ascent"
-  years: string; // "2023 - 2026"
+  title: string; 
+  name: string; 
+  years: string; 
   theme: string;
   archetype: EpochArchetype;
   description: string;
@@ -780,9 +781,9 @@ export interface GrandProject {
   id: string;
   title: string;
   vision: string;
-  horizon: string; // "3 Years"
-  progress: number; // 0-100
-  pillars: string[]; // IDs of pillars
+  horizon: string; 
+  progress: number; 
+  pillars: string[]; 
   milestones: { id: string; title: string; done: boolean }[];
 }
 
@@ -816,4 +817,62 @@ export interface SeasonTheme {
   particle: 'dust' | 'shimmer' | 'leaves' | 'snow';
   icon: React.ElementType;
   description: string;
+}
+
+// --- Soundtrack Types (New) ---
+
+export type MusicSeason = Season;
+
+export interface AudioFeatures {
+  energy: number; // 0-1
+  valence: number; // 0-1 (Happiness)
+  tempo: number; // BPM
+  acousticness: number; // 0-1
+  danceability: number; // 0-1
+  instrumentalness: number; // 0-1
+}
+
+export interface Track {
+  id: string;
+  title: string;
+  artist: string;
+  album: string;
+  coverUrl: string;
+  durationMs: number;
+  playedAt: Date;
+  features: AudioFeatures;
+  season: MusicSeason;
+  genre: string;
+}
+
+export interface MusicAnalysis {
+  season: MusicSeason;
+  novaWhisper: string;
+  emotionalResonance: string; // "Melancholy", "Drive", "Peace"
+  memoryLink?: string; // ID of linked memory
+}
+
+// --- Soundtrack Architecture Types ---
+
+export type AmbienceLayer = 'Rain' | 'White Noise' | 'Binaural Beats' | 'Forest' | 'Ocean';
+
+export interface SoundtrackState {
+  currentTrack: Track | null;
+  isPlaying: boolean;
+  volume: number;
+  activeAmbience: AmbienceLayer[];
+  globalSeason: MusicSeason;
+  novaWhisper: string | null;
+  isPlayerVisible: boolean;
+}
+
+export type AudioSignalType = 
+  | 'ENTER_FOCUS' 
+  | 'ENTER_REFLECTION' 
+  | 'ENTER_ENERGY' 
+  | 'SYSTEM_RESET';
+
+export interface AudioSignal {
+  type: AudioSignalType;
+  context?: string;
 }

@@ -4,6 +4,7 @@ import { getDailyInsight } from '../services/geminiService';
 import { InsightData } from '../types';
 import { cn } from '../lib/utils';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useSoundtrack } from '../contexts/SoundtrackContext';
 import { 
   Clock, 
   Zap, 
@@ -57,7 +58,6 @@ interface WidgetProps {
 }
 
 const WidgetShell: React.FC<WidgetProps> = ({ children, className, title, delay = 0, noPadding = false }) => {
-  
   return (
     <div 
       className={cn(
@@ -98,8 +98,12 @@ export const Dashboard: React.FC = () => {
   const [insight, setInsight] = useState<InsightData | null>(null);
   const [focusScore] = useState(85);
   const { t } = useLanguage();
+  const { emitSignal } = useSoundtrack();
 
   useEffect(() => {
+    // Emit neutral focus signal on dashboard load
+    emitSignal('ENTER_FOCUS', 'Dashboard Initialized');
+    
     const timer = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);

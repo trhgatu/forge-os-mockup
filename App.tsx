@@ -24,6 +24,7 @@ import { LifeThemesView } from './components/LifeThemesView';
 import { ShadowWorkView } from './components/ShadowWorkView';
 import { CompassView } from './components/CompassView';
 import { MasterplanView } from './components/MasterplanView';
+import { SoundtrackView } from './components/SoundtrackView'; 
 import { SettingsView } from './components/SettingsView';
 import { NovaGuide } from './components/NovaGuide';
 import { View } from './types';
@@ -31,6 +32,8 @@ import { GlassCard } from './components/GlassCard';
 import { Hammer } from 'lucide-react';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { SoundProvider } from './contexts/SoundContext';
+import { SoundtrackProvider } from './contexts/SoundtrackContext';
+import { GlobalPlayer } from './components/GlobalPlayer';
 
 const AppContent: React.FC = () => {
   const [currentView, setCurrentView] = useState<View>(View.DASHBOARD);
@@ -45,6 +48,7 @@ const AppContent: React.FC = () => {
       case View.TIMELINE: return <TimelineView />;
       case View.QUOTES: return <QuoteView />;
       case View.MOOD: return <MoodView />;
+      case View.SOUNDTRACK: return <SoundtrackView />; 
       case View.INSIGHTS: return <InsightView />;
       case View.IDEAS: return <IdeasView />;
       case View.GOALS: return <GoalsView />;
@@ -93,6 +97,7 @@ const AppContent: React.FC = () => {
              {renderContent()}
            </div>
            <NovaGuide currentView={currentView} />
+           <GlobalPlayer />
         </main>
       </div>
     </div>
@@ -102,7 +107,9 @@ const AppContent: React.FC = () => {
 const App: React.FC = () => (
   <LanguageProvider>
     <SoundProvider>
-      <AppContent />
+      <SoundtrackProvider>
+        <AppContent />
+      </SoundtrackProvider>
     </SoundProvider>
   </LanguageProvider>
 );
