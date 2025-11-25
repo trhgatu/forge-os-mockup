@@ -2,6 +2,8 @@
 // Fix: Import React to resolve "Cannot find namespace 'React'" error
 import React from 'react';
 
+export type Language = 'en' | 'vi';
+
 export enum View {
   DASHBOARD = 'DASHBOARD',
   FORGE_CHAMBER = 'FORGE_CHAMBER',
@@ -31,7 +33,7 @@ export enum View {
 
 export interface NavItem {
   id: View;
-  label: string;
+  labelKey: string; // Changed from label to labelKey for i18n
   icon: React.ElementType;
   group: 'Main' | 'Reflection' | 'Creativity' | 'Evolution' | 'System' | 'Meta';
 }

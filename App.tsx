@@ -29,8 +29,9 @@ import { NovaGuide } from './components/NovaGuide';
 import { View } from './types';
 import { GlassCard } from './components/GlassCard';
 import { Hammer } from 'lucide-react';
+import { LanguageProvider } from './contexts/LanguageContext';
 
-const App: React.FC = () => {
+const AppContent: React.FC = () => {
   const [currentView, setCurrentView] = useState<View>(View.DASHBOARD);
 
   const renderContent = () => {
@@ -129,5 +130,11 @@ const App: React.FC = () => {
     </div>
   );
 };
+
+const App: React.FC = () => (
+  <LanguageProvider>
+    <AppContent />
+  </LanguageProvider>
+);
 
 export default App;

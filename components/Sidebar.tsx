@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { View, NavItem } from '../types';
 import { cn } from '../lib/utils';
+import { useLanguage } from '../contexts/LanguageContext';
 import { 
   LayoutDashboard, 
   BrainCircuit, 
@@ -31,7 +32,7 @@ import {
   Ghost,
   Navigation,
   Globe,
-  Hexagon
+  Languages
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -40,34 +41,39 @@ interface SidebarProps {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { id: View.MASTERPLAN, label: 'Masterplan', icon: Globe, group: 'Meta' }, // New Top Level
-  { id: View.DASHBOARD, label: 'Dashboard', icon: LayoutDashboard, group: 'Main' },
-  { id: View.FORGE_CHAMBER, label: 'Forge Chamber', icon: BrainCircuit, group: 'Main' },
-  { id: View.TIMELINE, label: 'Timeline', icon: GitCommitHorizontal, group: 'Reflection' },
-  { id: View.JOURNAL, label: 'Journal', icon: BookOpen, group: 'Reflection' },
-  { id: View.MEMORY, label: 'Memory', icon: History, group: 'Reflection' },
-  { id: View.SHADOW_WORK, label: 'Shadow Work', icon: Ghost, group: 'Reflection' },
-  { id: View.MOOD, label: 'Mood', icon: Smile, group: 'Reflection' },
-  { id: View.QUOTES, label: 'Wisdom', icon: Quote, group: 'Reflection' },
-  { id: View.COMPASS, label: 'Compass', icon: Navigation, group: 'Evolution' },
-  { id: View.GOALS, label: 'Goals', icon: Target, group: 'Evolution' },
-  { id: View.IDENTITY, label: 'Identity', icon: Fingerprint, group: 'Evolution' },
-  { id: View.THEMES, label: 'Life Themes', icon: Map, group: 'Evolution' },
-  { id: View.MILESTONES, label: 'Milestones', icon: Flag, group: 'Evolution' },
-  { id: View.ACHIEVEMENTS, label: 'Archive', icon: Trophy, group: 'Evolution' },
-  { id: View.HABITS, label: 'Habits', icon: Repeat, group: 'Evolution' },
-  { id: View.ROUTINES, label: 'Routines', icon: Clock, group: 'Evolution' },
-  { id: View.ENERGY, label: 'Energy', icon: Zap, group: 'Evolution' },
-  { id: View.INSIGHTS, label: 'Observatory', icon: Telescope, group: 'System' },
-  { id: View.WEEKLY_REVIEW, label: 'Weekly Review', icon: CalendarCheck, group: 'System' },
-  { id: View.MONTHLY_REVIEW, label: 'Monthly Review', icon: Moon, group: 'System' },
-  { id: View.YEARLY_REVIEW, label: 'Yearly Review', icon: Orbit, group: 'System' },
-  { id: View.IDEAS, label: 'Forge Lab', icon: Lightbulb, group: 'Creativity' },
-  { id: View.SETTINGS, label: 'System', icon: Settings, group: 'System' },
+  { id: View.MASTERPLAN, labelKey: 'nav.masterplan', icon: Globe, group: 'Meta' },
+  { id: View.DASHBOARD, labelKey: 'nav.dashboard', icon: LayoutDashboard, group: 'Main' },
+  { id: View.FORGE_CHAMBER, labelKey: 'nav.forge_chamber', icon: BrainCircuit, group: 'Main' },
+  { id: View.TIMELINE, labelKey: 'nav.timeline', icon: GitCommitHorizontal, group: 'Reflection' },
+  { id: View.JOURNAL, labelKey: 'nav.journal', icon: BookOpen, group: 'Reflection' },
+  { id: View.MEMORY, labelKey: 'nav.memory', icon: History, group: 'Reflection' },
+  { id: View.SHADOW_WORK, labelKey: 'nav.shadow_work', icon: Ghost, group: 'Reflection' },
+  { id: View.MOOD, labelKey: 'nav.mood', icon: Smile, group: 'Reflection' },
+  { id: View.QUOTES, labelKey: 'nav.quotes', icon: Quote, group: 'Reflection' },
+  { id: View.COMPASS, labelKey: 'nav.compass', icon: Navigation, group: 'Evolution' },
+  { id: View.GOALS, labelKey: 'nav.goals', icon: Target, group: 'Evolution' },
+  { id: View.IDENTITY, labelKey: 'nav.identity', icon: Fingerprint, group: 'Evolution' },
+  { id: View.THEMES, labelKey: 'nav.themes', icon: Map, group: 'Evolution' },
+  { id: View.MILESTONES, labelKey: 'nav.milestones', icon: Flag, group: 'Evolution' },
+  { id: View.ACHIEVEMENTS, labelKey: 'nav.achievements', icon: Trophy, group: 'Evolution' },
+  { id: View.HABITS, labelKey: 'nav.habits', icon: Repeat, group: 'Evolution' },
+  { id: View.ROUTINES, labelKey: 'nav.routines', icon: Clock, group: 'Evolution' },
+  { id: View.ENERGY, labelKey: 'nav.energy', icon: Zap, group: 'Evolution' },
+  { id: View.INSIGHTS, labelKey: 'nav.insights', icon: Telescope, group: 'System' },
+  { id: View.WEEKLY_REVIEW, labelKey: 'nav.weekly_review', icon: CalendarCheck, group: 'System' },
+  { id: View.MONTHLY_REVIEW, labelKey: 'nav.monthly_review', icon: Moon, group: 'System' },
+  { id: View.YEARLY_REVIEW, labelKey: 'nav.yearly_review', icon: Orbit, group: 'System' },
+  { id: View.IDEAS, labelKey: 'nav.ideas', icon: Lightbulb, group: 'Creativity' },
+  { id: View.SETTINGS, labelKey: 'nav.settings', icon: Settings, group: 'System' },
 ];
 
 export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate }) => {
   const [isExpanded, setIsExpanded] = useState(true);
+  const { language, setLanguage, t } = useLanguage();
+
+  const toggleLanguage = () => {
+    setLanguage(language === 'en' ? 'vi' : 'en');
+  };
 
   return (
     <aside 
@@ -117,13 +123,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate }) => 
               "px-4 text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-2 transition-all duration-300",
               isExpanded ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-2'
             )}>
-              {group}
+              {t(`group.${group.toLowerCase()}`)}
             </h3>
 
             <div className="space-y-1">
               {NAV_ITEMS.filter(item => item.group === group).map((item, index) => {
                 const isActive = currentView === item.id;
                 const Icon = item.icon;
+                const label = t(item.labelKey);
                 
                 return (
                   <button
@@ -160,7 +167,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate }) => 
                       )}
                       style={{ transitionDelay: isExpanded ? `${index * 35}ms` : '0ms' }}
                     >
-                      {item.label}
+                      {label}
                     </span>
 
                     {/* Active Dot (Right) - Only when expanded */}
@@ -171,7 +178,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate }) => 
                     {/* Tooltip for Collapsed State */}
                     {!isExpanded && (
                       <div className="absolute left-full ml-4 px-3 py-1.5 bg-gray-900 border border-white/10 rounded-lg text-xs text-white whitespace-nowrap opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 transition-all duration-200 pointer-events-none z-50 shadow-xl backdrop-blur-xl">
-                        {item.label}
+                        {label}
                       </div>
                     )}
                   </button>
@@ -192,8 +199,30 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate }) => 
         </button>
       </div>
 
-      {/* User Status */}
-      <div className="p-4 mt-auto border-t border-forge-border bg-black/20">
+      {/* User Status & Settings */}
+      <div className="p-4 mt-auto border-t border-forge-border bg-black/20 space-y-2">
+        {/* Language Toggle */}
+        <button 
+          onClick={toggleLanguage}
+          className={cn(
+            "w-full flex items-center rounded-lg hover:bg-white/5 transition-all border border-transparent hover:border-white/5 group",
+            isExpanded ? 'p-2 gap-3' : 'p-2 justify-center'
+          )}
+        >
+           <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-gray-400 group-hover:text-white transition-colors">
+              <Languages size={16} />
+           </div>
+           {isExpanded && (
+             <div className="flex-1 flex items-center justify-between">
+                <span className="text-xs font-medium text-gray-400">Language</span>
+                <div className="flex bg-black/40 rounded-md p-0.5 border border-white/10">
+                   <span className={cn("px-2 py-0.5 text-[10px] rounded font-bold transition-all", language === 'en' ? 'bg-forge-cyan text-black' : 'text-gray-500')}>EN</span>
+                   <span className={cn("px-2 py-0.5 text-[10px] rounded font-bold transition-all", language === 'vi' ? 'bg-forge-cyan text-black' : 'text-gray-500')}>VI</span>
+                </div>
+             </div>
+           )}
+        </button>
+
         <div className={cn(
           "flex items-center rounded-xl transition-all duration-300",
           isExpanded ? 'p-2 gap-3 bg-white/5 border border-white/5' : 'p-0 justify-center bg-transparent border-none'

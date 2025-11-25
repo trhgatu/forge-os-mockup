@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { getDailyInsight } from '../services/geminiService';
 import { InsightData } from '../types';
 import { cn } from '../lib/utils';
+import { useLanguage } from '../contexts/LanguageContext';
 import { 
   Clock, 
   Zap, 
@@ -93,6 +94,7 @@ export const Dashboard: React.FC = () => {
   const [time, setTime] = useState(new Date());
   const [insight, setInsight] = useState<InsightData | null>(null);
   const [focusScore] = useState(85);
+  const { t } = useLanguage();
 
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000);
@@ -117,7 +119,7 @@ export const Dashboard: React.FC = () => {
             <div className="absolute -left-20 -top-20 w-64 h-64 bg-forge-accent/10 rounded-full blur-[80px] pointer-events-none" />
             
             <h1 className="text-4xl md:text-5xl font-display font-bold text-white mb-2 tracking-tight leading-tight animate-in fade-in slide-in-from-bottom-2">
-               Welcome back, Traveler.
+               {t('dashboard.welcome')}
             </h1>
             <div className="flex items-center gap-4 text-gray-400 animate-in fade-in slide-in-from-bottom-3 duration-700 delay-100">
                <span className="flex items-center gap-2 font-light">
@@ -125,7 +127,7 @@ export const Dashboard: React.FC = () => {
                </span>
                <span className="w-1 h-1 rounded-full bg-gray-600" />
                <span className="text-forge-cyan font-mono text-xs flex items-center gap-2">
-                  <Activity size={10} /> Systems Nominal
+                  <Activity size={10} /> {t('dashboard.systems_nominal')}
                </span>
             </div>
          </header>
@@ -148,7 +150,7 @@ export const Dashboard: React.FC = () => {
                         <Clock className="text-forge-cyan" size={20} />
                      </div>
                      <div className="text-right">
-                        <div className="text-xs text-gray-500 font-mono uppercase">Focus Score</div>
+                        <div className="text-xs text-gray-500 font-mono uppercase">{t('dashboard.focus_score')}</div>
                         <div className="text-xl font-bold text-white">{focusScore}%</div>
                      </div>
                   </div>
@@ -159,14 +161,14 @@ export const Dashboard: React.FC = () => {
                      </div>
                      <p className="text-gray-400 mt-2 font-light flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                        Optimal flow state detected.
+                        {t('dashboard.optimal_flow')}
                      </p>
                   </div>
                </div>
             </WidgetShell>
 
             {/* B. Daily Insight Widget */}
-            <WidgetShell className="col-span-1 md:col-span-2 lg:col-span-2 row-span-1 bg-gradient-to-br from-forge-accent/5 to-transparent" delay={100} title={<><Quote size={12}/> Wisdom</>}>
+            <WidgetShell className="col-span-1 md:col-span-2 lg:col-span-2 row-span-1 bg-gradient-to-br from-forge-accent/5 to-transparent" delay={100} title={<><Quote size={12}/> {t('dashboard.wisdom')}</>}>
                <div className="h-full flex flex-col justify-center">
                   {insight ? (
                      <>
@@ -194,7 +196,7 @@ export const Dashboard: React.FC = () => {
             </WidgetShell>
 
             {/* C. Mood Graph Widget */}
-            <WidgetShell className="col-span-1 md:col-span-2 lg:col-span-2 row-span-1 min-h-[200px]" delay={200} title={<><TrendingUp size={12}/> Emotional Resonance</>} noPadding>
+            <WidgetShell className="col-span-1 md:col-span-2 lg:col-span-2 row-span-1 min-h-[200px]" delay={200} title={<><TrendingUp size={12}/> {t('dashboard.emotional_resonance')}</>} noPadding>
                <div className="h-full w-full pt-4">
                   <ResponsiveContainer width="100%" height="85%">
                      <AreaChart data={MOOD_DATA}>
@@ -222,7 +224,7 @@ export const Dashboard: React.FC = () => {
             </WidgetShell>
 
             {/* D. Forge Chamber Quick Access */}
-            <WidgetShell className="col-span-1 row-span-1" delay={300} title={<><BrainCircuit size={12}/> Neural Core</>}>
+            <WidgetShell className="col-span-1 row-span-1" delay={300} title={<><BrainCircuit size={12}/> {t('dashboard.neural_core')}</>}>
                <div className="flex flex-col items-center justify-center h-full gap-4">
                   <div className="flex -space-x-3">
                      {AGENTS.slice(0,3).map((agent) => (
@@ -236,7 +238,7 @@ export const Dashboard: React.FC = () => {
                   </div>
                   <div className="w-full relative">
                      <input 
-                        placeholder="Ask Chamber..." 
+                        placeholder={t('dashboard.ask_chamber')}
                         className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-forge-accent transition-colors"
                      />
                      <button className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white">
@@ -247,7 +249,7 @@ export const Dashboard: React.FC = () => {
             </WidgetShell>
 
             {/* E. Timeline Snapshot */}
-            <WidgetShell className="col-span-1 row-span-1" delay={400} title={<><Activity size={12}/> Pulse</>}>
+            <WidgetShell className="col-span-1 row-span-1" delay={400} title={<><Activity size={12}/> {t('dashboard.pulse')}</>}>
                <div className="relative h-full pl-4">
                   <div className="absolute left-0 top-2 bottom-2 w-px bg-white/10" />
                   
@@ -264,7 +266,7 @@ export const Dashboard: React.FC = () => {
             </WidgetShell>
 
             {/* F. Memory Digest */}
-            <WidgetShell className="col-span-1 md:col-span-2 row-span-1 min-h-[180px]" delay={500} title={<><Target size={12}/> Artifacts</>}>
+            <WidgetShell className="col-span-1 md:col-span-2 row-span-1 min-h-[180px]" delay={500} title={<><Target size={12}/> {t('dashboard.artifacts')}</>}>
                <div className="grid grid-cols-3 gap-3 h-full">
                   {RECENT_ARTIFACTS.map((item) => (
                      <div key={item.id} className="group/card relative bg-white/5 rounded-xl p-3 hover:bg-white/10 transition-colors cursor-pointer border border-white/5">
@@ -291,14 +293,14 @@ export const Dashboard: React.FC = () => {
       <div className="w-80 flex-shrink-0 border-l border-white/5 bg-black/20 backdrop-blur-xl h-full flex flex-col overflow-hidden hidden xl:flex">
          <div className="p-6 border-b border-white/5">
             <h2 className="text-sm font-display font-bold text-white uppercase tracking-wider flex items-center gap-2">
-               <Sparkles size={14} className="text-forge-accent" /> Daily Synthesis
+               <Sparkles size={14} className="text-forge-accent" /> {t('dashboard.daily_synthesis')}
             </h2>
          </div>
 
          <div className="flex-1 overflow-y-auto p-6 space-y-8">
             {/* Action Items */}
             <div>
-               <h3 className="text-xs font-mono text-gray-500 uppercase tracking-widest mb-3">Suggested Actions</h3>
+               <h3 className="text-xs font-mono text-gray-500 uppercase tracking-widest mb-3">{t('dashboard.suggested_actions')}</h3>
                <div className="space-y-2">
                   {[
                      { label: "Log a reflection on 'Focus'", checked: false },

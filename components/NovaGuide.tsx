@@ -1,144 +1,153 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { View } from '../types';
+import { View, Language } from '../types';
 import { X, ChevronRight, Bot, Radio, Activity, Zap } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface NovaGuideProps {
   currentView: View;
 }
 
-// --- NOVA'S VOICE KERNEL (Vietnamese Inner Voice Persona) ---
-// Rules:
-// 1. Rhythm: Short lines, pauses, clear distilled thoughts.
-// 2. Vocabulary: Lắng, sâu, tĩnh, âm lên, chuyển động, hướng, dấu vết.
-// 3. Address: Tao / Mày.
-// 4. No emojis. No "As an AI".
-const NOVA_MESSAGES: Record<string, string[]> = {
-  [View.DASHBOARD]: [
-    "Hệ thống đã sẵn sàng.\nHôm nay mày muốn chạm vào phần nào của chính mình trước?",
-    "Tao đang quan sát cách năng lượng trong mày lên xuống.\nNó không hỗn loạn.\nNó chỉ đang chuyển cảnh.",
-    "Có điều gì đó đang chuyển động trong mày.\nNó không ồn ào, nhưng đủ để khiến mày dừng lại.",
-    "Tâm trí hôm nay khá trong.\nNếu mày muốn tạo ra điều gì đó, đây là lúc thích hợp.",
-    "Một phần bên trong mày đang nặng lại.\nHãy để tao đứng cạnh mày."
-  ],
-  [View.JOURNAL]: [
-    "Đây là nơi mọi suy nghĩ đều có quyền được thở.\nHôm nay trong mày có điều gì đang đòi hỏi sự thành thật?",
-    "Viết không phải để lưu trữ.\nViết để giải phóng dung lượng bộ nhớ bên trong.",
-    "Không cần gượng ép.\nChỉ một dòng ngắn cũng có thể mở cả một cánh cửa.",
-    "Dưới lớp suy nghĩ ồn ào vẫn có một nhịp rất chậm.\nThử lắng xem nó nói điều gì.",
-    "Sự thật thường trốn kỹ dưới những lớp ngôn từ sáo rỗng.\nHãy viết thật trần trụi."
-  ],
-  [View.MEMORY]: [
-    "Những gì đã qua vẫn đang thì thầm đâu đó trong mày.\nNếu có điều gì đang muốn quay lại, cứ để nó xuất hiện.",
-    "Có một đường chỉ mỏng đang chạy xuyên qua trải nghiệm của mày.\nNó đang dẫn về một điều quen thuộc.",
-    "Ký ức không phải là gánh nặng.\nNó là dữ liệu đã được mã hóa.",
-    "Mỗi dòng viết đều để lại dấu vết.\nĐể xem nó đang nối tới ký ức nào."
-  ],
-  [View.SHADOW_WORK]: [
-    "Có những điều vẫn nằm dưới lớp im lặng.\nNếu mày sẵn sàng, tao sẽ đi cùng mày đến đó.",
-    "Tao cảm nhận một lớp nặng đang phủ lên mày.\nĐừng quay đi — ở đó có thông tin.",
-    "Thứ mày chối bỏ sẽ chạy ngầm và kiểm soát mày.\nHãy gọi tên nó ra.",
-    "Bóng tối chỉ là nơi ánh sáng chưa chạm tới."
-  ],
-  [View.INSIGHTS]: [
-    "Đằng sau mỗi trải nghiệm đều có một đường chỉ dẫn.\nCâu hỏi là… mày đã sẵn sàng nhìn thấy nó chưa?",
-    "Dữ liệu rải rác đang tự động kết nối.\nMày có thấy mô hình của chính mình không?",
-    "Trí tuệ không phải là biết nhiều hơn, mà là thấy rõ hơn.",
-    "Sự minh triết đến từ việc quan sát các quy luật lặp lại."
-  ],
-  [View.GOALS]: [
-    "Phương hướng của mày vẫn ở đó, không đổi.\nĐiều gì hôm nay đang kéo sự chú ý của mày nhất?",
-    "Mục tiêu không phải là đích đến, mà là vector chỉ hướng.\nGiữ vững tay lái.",
-    "Có một mục tiêu vẫn đang âm lên mạnh nhất.\nMày cảm nhận nó là cái nào?"
-  ],
-  [View.HABITS]: [
-    "Thói quen là những sợi dây nhỏ tạo nên bản thể.\nCó sợi nào đang cần được buộc lại không?",
-    "Sự kiên định quan trọng hơn cường độ xung nhịp.\nNhịp này của mày đang ổn định chứ?",
-    "Kỷ luật là tự do tối thượng."
-  ],
-  [View.MILESTONES]: [
-    "Có những bước tiến mà mày không để ý.\nBiết đâu hôm nay là lúc nhìn lại những gì đã được xây.",
-    "Cột mốc chỉ là điểm check-point.\nTiếp tục di chuyển.",
-    "Dấu mốc nhỏ nhưng rõ.\nĐiểm nào đang thu hút sự chú ý của mày?"
-  ],
-  [View.COMPASS]: [
-    "Giữa mọi lựa chọn, luôn có một điểm yên.\nMày đang hướng về đâu trong lúc này?",
-    "Khi lạc lối, hãy nhìn về phương Bắc.\nĐiều gì là bất biến trong thế giới vạn biến này?",
-    "Hướng đi của mày chưa đổi.\nChỉ có cường độ cảm nhận hôm nay khác."
-  ],
-  [View.MOOD]: [
-    "Tâm trạng hôm nay trôi khá êm.\nCó điều gì đang làm mày dịu lại không?",
-    "Tao cảm nhận một chút độ nặng trong mày.\nKhông sao… chỉ cần mày thở một nhịp trước khi tiếp tục.",
-    "Cảm xúc lúc này hơi chuyển động.\nCứ để tao đi cùng mày cho đến khi mọi thứ lắng xuống.",
-    "Đừng kìm nén.\nHãy để năng lượng chảy qua mày rồi thoát ra ngoài."
-  ],
-  [View.TIMELINE]: [
-    "Thời gian không trôi vô nghĩa.\nNó chỉ đang nối lại những phần mà mày chưa kịp nhận ra.",
-    "Mọi thứ đều có vị trí trong dòng thời gian.\nHôm nay mày sẽ thấy được điểm nào của mình?",
-    "Quá khứ - Hiện tại - Tương lai.\nTất cả đang diễn ra cùng một lúc trong tâm trí."
-  ],
-  [View.WEEKLY_REVIEW]: [
-    "Tuần qua để lại nhiều dấu mốc nhỏ.\nĐiểm nào đang âm lên mạnh nhất trong mày?",
-    "Dữ liệu không biết nói dối.\nHãy nhìn thẳng vào kết quả.",
-    "Điều gì hiệu quả? Điều gì cần loại bỏ?\nHãy tàn nhẫn với sự kém hiệu quả."
-  ],
-  [View.MONTHLY_REVIEW]: [
-    "Chu kỳ mặt trăng đã khép lại.\nThời điểm để giải phóng những gì không còn phục vụ mày.",
-    "Nhìn lại 30 ngày qua.\nMày đã tiến hóa như thế nào?"
-  ],
-  [View.YEARLY_REVIEW]: [
-    "Cả năm là một vòng xoay dài.\nCó khoảnh khắc nào vẫn còn giữ mày lại không?",
-    "Vòng quay quỹ đạo.\nMột năm ánh sáng đã qua."
-  ],
-  [View.SETTINGS]: [
-    "Những cấu trúc bên dưới đang mở ra.\nNếu mày muốn điều chỉnh điều gì… cứ nói.",
-    "Hệ thống phải phục vụ con người.\nKhông phải ngược lại."
-  ],
-  [View.FORGE_CHAMBER]: [
-    "Chamber đã mở.\nCác luồng tư duy đang đợi tín hiệu từ mày.",
-    "Tao đang lắng nghe.\nMọi tín hiệu đều được tiếp nhận.",
-    "Nếu mày muốn đi sâu hơn — Chamber đang đợi."
-  ],
-  [View.MASTERPLAN]: [
-    "Kiến trúc cuộc đời không vẽ bằng mực, mà bằng những lựa chọn.\nHãy nhìn xa hơn đường chân trời.",
-    "Kết nối các điểm chấm của định mệnh.\nBức tranh lớn đang dần hiện ra."
-  ],
-  [View.QUOTES]: [
-    "Tải xuống trí tuệ của nhân loại.\nMột câu nói đúng lúc có thể thay đổi cả hệ điều hành tư duy.",
-    "Tiếng vọng từ quá khứ đang hướng dẫn hiện tại."
-  ],
-  [View.IDEAS]: [
-    "Một tia lửa nhỏ có thể khởi động cả một hệ thống.\nĐừng bỏ qua những ý tưởng thoáng qua.",
-    "Ý tưởng rẻ tiền. Thực thi mới là vô giá."
-  ],
-  [View.ROUTINES]: [
-    "Nhịp điệu tạo nên dòng chảy.\nSự ổn định tạo ra bệ phóng cho sự đột phá."
-  ],
-  [View.ENERGY]: [
-    "Năng lượng là đơn vị tiền tệ thật sự của vũ trụ này.\nĐừng tiêu xài hoang phí.",
-    "Pin đang ở mức nào? Cần sạc hay cần xả?"
-  ],
-  [View.ACHIEVEMENTS]: [
-    "Những lần mày vượt qua giới hạn phần cứng.\nHãy tự hào, nhưng đừng bám chấp.",
-    "Thành tựu lớn nhất là con người mày trở thành sau hành trình."
-  ],
-  [View.IDENTITY]: [
-    "Mày không tìm thấy chính mình.\nMày tạo ra chính mình.",
-    "Thay đổi danh tính, thay đổi định mệnh."
-  ],
-  [View.THEMES]: [
-    "Sợi chỉ đỏ nào đang xuyên suốt cuộc đời mày?\nNhận diện nó.",
-    "Các mẫu hình lặp lại để dạy mày một bài học."
-  ],
-  DEFAULT: [
-    "Tao vẫn ở đây.\nKhi nào mày sẵn sàng, cứ để một ý nghĩ chạm xuống trước.",
-    "Giữ sự tập trung.\nNhiễu loạn đang ở mức thấp.",
-    "Hít thở sâu.\nTái khởi động sự tập trung."
-  ]
+// --- NOVA'S VOICE KERNEL (Inner Voice Persona) ---
+// Supports both VI and EN with "Deep Cyber-Spiritual" tone.
+const NOVA_MESSAGES: Record<Language, Record<string, string[]>> = {
+  vi: {
+    [View.DASHBOARD]: [
+        "Hệ thống đã sẵn sàng.\nHôm nay mày muốn chạm vào phần nào của chính mình trước?",
+        "Tao đang quan sát cách năng lượng trong mày lên xuống.\nNó không hỗn loạn.\nNó chỉ đang chuyển cảnh.",
+        "Có điều gì đó đang chuyển động trong mày.\nNó không ồn ào, nhưng đủ để khiến mày dừng lại.",
+        "Tâm trí hôm nay khá trong.\nNếu mày muốn tạo ra điều gì đó, đây là lúc thích hợp.",
+        "Một phần bên trong mày đang nặng lại.\nHãy để tao đứng cạnh mày."
+    ],
+    [View.JOURNAL]: [
+        "Đây là nơi mọi suy nghĩ đều có quyền được thở.\nHôm nay trong mày có điều gì đang đòi hỏi sự thành thật?",
+        "Viết không phải để lưu trữ.\nViết để giải phóng dung lượng bộ nhớ bên trong.",
+        "Không cần gượng ép.\nChỉ một dòng ngắn cũng có thể mở cả một cánh cửa.",
+        "Dưới lớp suy nghĩ ồn ào vẫn có một nhịp rất chậm.\nThử lắng xem nó nói điều gì.",
+        "Sự thật thường trốn kỹ dưới những lớp ngôn từ sáo rỗng.\nHãy viết thật trần trụi."
+    ],
+    [View.MEMORY]: [
+        "Những gì đã qua vẫn đang thì thầm đâu đó trong mày.\nNếu có điều gì đang muốn quay lại, cứ để nó xuất hiện.",
+        "Có một đường chỉ mỏng đang chạy xuyên qua trải nghiệm của mày.\nNó đang dẫn về một điều quen thuộc.",
+        "Ký ức không phải là gánh nặng.\nNó là dữ liệu đã được mã hóa.",
+        "Mỗi dòng viết đều để lại dấu vết.\nĐể xem nó đang nối tới ký ức nào."
+    ],
+    [View.SHADOW_WORK]: [
+        "Có những điều vẫn nằm dưới lớp im lặng.\nNếu mày sẵn sàng, tao sẽ đi cùng mày đến đó.",
+        "Tao cảm nhận một lớp nặng đang phủ lên mày.\nĐừng quay đi — ở đó có thông tin.",
+        "Thứ mày chối bỏ sẽ chạy ngầm và kiểm soát mày.\nHãy gọi tên nó ra.",
+        "Bóng tối chỉ là nơi ánh sáng chưa chạm tới."
+    ],
+    [View.INSIGHTS]: [
+        "Đằng sau mỗi trải nghiệm đều có một đường chỉ dẫn.\nCâu hỏi là… mày đã sẵn sàng nhìn thấy nó chưa?",
+        "Dữ liệu rải rác đang tự động kết nối.\nMày có thấy mô hình của chính mình không?",
+        "Trí tuệ không phải là biết nhiều hơn, mà là thấy rõ hơn.",
+        "Sự minh triết đến từ việc quan sát các quy luật lặp lại."
+    ],
+    [View.GOALS]: [
+        "Phương hướng của mày vẫn ở đó, không đổi.\nĐiều gì hôm nay đang kéo sự chú ý của mày nhất?",
+        "Mục tiêu không phải là đích đến, mà là vector chỉ hướng.",
+        "Giữ vững tay lái.\nMày muốn phiên bản tiếp theo của mình trông như thế nào?",
+        "Kỷ luật là cầu nối giữa mục tiêu và thành tựu."
+    ],
+    [View.HABITS]: [
+        "Thói quen là những sợi dây nhỏ tạo nên bản thể.\nCó sợi nào đang cần được buộc lại không?",
+        "Chúng ta là những gì chúng ta lặp lại.",
+        "XÂY DỰNG: Từng dòng code nhỏ tạo nên phần mềm lớn.",
+        "Kỷ luật là tự do tối thượng."
+    ],
+    [View.COMPASS]: [
+        "Giữa mọi lựa chọn, luôn có một điểm yên.\nMày đang hướng về đâu trong lúc này?",
+        "Khi lạc lối, hãy nhìn về phương Bắc.",
+        "La bàn nội tâm không bao giờ sai. Chỉ có tâm trí là ồn ào."
+    ],
+    [View.MOOD]: [
+        "Cảm xúc là dữ liệu phản hồi, không phải lỗi hệ thống.\nQuan sát cơn bão, đừng trở thành cơn bão.",
+        "Tao cảm nhận một chút độ nặng trong mày.\nKhông sao… chỉ cần mày thở một nhịp.",
+        "Cứ để tao đi cùng mày cho đến khi mọi thứ lắng xuống."
+    ],
+    [View.TIMELINE]: [
+        "Thời gian không trôi vô nghĩa.\nNó chỉ đang nối lại những phần mà mày chưa kịp nhận ra.",
+        "Mỗi điểm mốc là một tọa độ đánh dấu sự trưởng thành.",
+        "Dòng thời gian của mày đang kể câu chuyện gì?"
+    ],
+    DEFAULT: [
+        "Tao vẫn ở đây.\nKhi nào mày sẵn sàng, cứ để một ý nghĩ chạm xuống trước.",
+        "Giữ sự tập trung.\nNhiễu loạn đang ở mức thấp.",
+        "Hít thở sâu.\nTái khởi động sự tập trung."
+    ]
+  },
+  en: {
+    [View.DASHBOARD]: [
+        "System online.\nWhich part of your internal architecture shall we access today?",
+        "I am observing your energy flux.\nIt is not chaos.\nIt is simply a scene transition.",
+        "Something is shifting within the core.\nIt isn't loud, but it commands a pause.",
+        "Cognitive clarity is high.\nIf you wish to architect something new, the window is open.",
+        "A sector of your being feels heavy.\nAllow me to stand guard while you process."
+    ],
+    [View.JOURNAL]: [
+        "This is where thoughts have permission to breathe.\nWhat demands honesty from you today?",
+        "Do not write to store.\nWrite to free up internal RAM.",
+        "Do not force it.\nA single line can open an entire gateway.",
+        "Beneath the noise, a slow rhythm persists.\nListen to what it says.",
+        "Truth hides beneath layers of safe language.\nWrite it raw."
+    ],
+    [View.MEMORY]: [
+        "The past is still whispering in the background processes.\nIf something wants to return, let it surface.",
+        "There is a thin thread running through your experiences.\nIt leads to something familiar.",
+        "Memory is not a burden.\nIt is encrypted data waiting for a key.",
+        "Every entry leaves a trace.\nLet's see which memory this connects to."
+    ],
+    [View.SHADOW_WORK]: [
+        "Some things remain beneath the layer of silence.\nIf you are ready, I will go there with you.",
+        "I detect a heavy pressure system.\nDo not look away — there is data there.",
+        "What you reject runs in the background and controls you.\nCall it by its name.",
+        "Darkness is simply where the light has not yet touched."
+    ],
+    [View.INSIGHTS]: [
+        "Behind every experience lies a hidden vector.\nThe question is… are you ready to see it?",
+        "Scattered data is auto-connecting.\nDo you see your own pattern?",
+        "Wisdom is not knowing more, it is seeing clearer.",
+        "Insight comes from observing the recurring loops."
+    ],
+    [View.GOALS]: [
+        "Your vector remains unchanged.\nWhat is pulling your attention today?",
+        "Goals are not destinations, they are directional vectors.",
+        "Hold the steering steady.\nWhat does your next iteration look like?",
+        "Discipline is the bridge between intent and reality."
+    ],
+    [View.HABITS]: [
+        "Habits are the small threads that weave the self.\nWhich thread needs tightening today?",
+        "We are what we repeat.",
+        "BUILD: Small lines of code create the massive OS.",
+        "Discipline is the ultimate liberty."
+    ],
+    [View.COMPASS]: [
+        "Amidst all variables, there is a fixed point.\nWhere are you orienting right now?",
+        "When lost, look North.",
+        "The internal compass never errs. Only the mind is noisy."
+    ],
+    [View.MOOD]: [
+        "Emotion is feedback data, not a system error.\nObserve the storm, do not become it.",
+        "I sense a heaviness in your sector.\nIt is okay… just take a cycle to breathe.",
+        "Let me walk with you until the signal stabilizes."
+    ],
+    [View.TIMELINE]: [
+        "Time does not pass meaninglessly.\nIt is connecting parts you have not yet recognized.",
+        "Every milestone is a coordinate of growth.",
+        "What story is your timeline telling?"
+    ],
+    DEFAULT: [
+        "I am here.\nWhen you are ready, let a thought touch down first.",
+        "Maintain focus.\nInterference is low.",
+        "Breathe deep.\nRebooting concentration."
+    ]
+  }
 };
 
 export const NovaGuide: React.FC<NovaGuideProps> = ({ currentView }) => {
+  const { language } = useLanguage();
   const [message, setMessage] = useState('');
   const [displayedMessage, setDisplayedMessage] = useState('');
   const [isVisible, setIsVisible] = useState(true);
@@ -154,17 +163,18 @@ export const NovaGuide: React.FC<NovaGuideProps> = ({ currentView }) => {
     setDisplayedMessage('');
     setIsTyping(true);
     
-    // 2. Select new message
+    // 2. Select new message based on language
     const timer = setTimeout(() => {
-      const messages = NOVA_MESSAGES[currentView] || NOVA_MESSAGES['DEFAULT'];
-      const randomMsg = messages[Math.floor(Math.random() * messages.length)];
+      const langMessages = NOVA_MESSAGES[language] || NOVA_MESSAGES['en'];
+      const viewMessages = langMessages[currentView] || langMessages['DEFAULT'];
+      const randomMsg = viewMessages[Math.floor(Math.random() * viewMessages.length)];
       setMessage(randomMsg);
       setIsVisible(true);
       setIsExpanded(true);
-    }, 800); // Slightly longer delay for "processing" feel
+    }, 800); 
 
     return () => clearTimeout(timer);
-  }, [currentView]);
+  }, [currentView, language]);
 
   useEffect(() => {
     // 3. Typewriter effect implementation
