@@ -32,13 +32,14 @@ const SEASON_CONFIG: Record<InnerSeason, SeasonConfig> = {
     id: 'Spring',
     label: 'Awakening',
     icon: Sprout,
-    gradient: 'from-emerald-900/40 via-teal-900/20 to-slate-900/40',
-    bg: 'bg-[#051111]',
-    border: 'border-emerald-500/30',
+    // Updated for "diffused freshness" - lighter, airier feel with soft teal/sky tones
+    gradient: 'from-emerald-500/20 via-teal-500/10 to-sky-500/5',
+    bg: 'bg-[#061414]', // Deep mossy/teal black
+    border: 'border-emerald-400/20',
     accent: 'text-emerald-200',
     whisper: "Có thứ gì đó đang mở ra trong mày.",
     texture: 'dust',
-    particleColor: 'bg-emerald-200'
+    particleColor: 'bg-emerald-100'
   },
   Summer: {
     id: 'Summer',
@@ -167,33 +168,46 @@ const MOCK_MEMORIES: Memory[] = [
 // --- VISUAL FX COMPONENTS ---
 
 const Particles: React.FC<{ type: SeasonConfig['texture']; color: string }> = ({ type, color }) => {
-  // Generate random particles
-  const particles = useMemo(() => Array.from({ length: 8 }), []);
+  // Increase particle count for dust to feel like "floating particles"
+  const count = type === 'dust' ? 20 : 8;
+  const particles = useMemo(() => Array.from({ length: count }), [count]);
   
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-40">
+    <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-60">
       {particles.map((_, i) => {
         const left = `${Math.random() * 100}%`;
         const top = `${Math.random() * 100}%`;
         const delay = `${Math.random() * 5}s`;
-        const duration = `${5 + Math.random() * 10}s`;
+        const duration = `${type === 'dust' ? 15 + Math.random() * 15 : 5 + Math.random() * 10}s`;
         
         let animationClass = '';
-        if (type === 'dust' || type === 'shimmer') animationClass = 'animate-float'; // Gentle up/down
-        if (type === 'snow') animationClass = 'animate-[fall_10s_linear_infinite]'; // Downward
-        if (type === 'leaves') animationClass = 'animate-[sway_8s_ease-in-out_infinite]'; // Side sway
+        let blurClass = '';
+        let size = Math.random() * 3 + 1;
+
+        if (type === 'dust') {
+            animationClass = 'animate-float'; 
+            blurClass = 'blur-[1px]'; // Soft, diffused dust
+            size = Math.random() * 2 + 1; // Smaller particles
+        } else if (type === 'shimmer') {
+             animationClass = 'animate-float';
+        } else if (type === 'snow') {
+             animationClass = 'animate-[fall_10s_linear_infinite]'; 
+        } else if (type === 'leaves') {
+             animationClass = 'animate-[sway_8s_ease-in-out_infinite]'; 
+        }
 
         return (
           <div
             key={i}
-            className={cn("absolute rounded-full opacity-60", animationClass, color)}
+            className={cn("absolute rounded-full", animationClass, blurClass, color)}
             style={{
               left,
               top,
-              width: Math.random() * 3 + 1 + 'px',
-              height: Math.random() * 3 + 1 + 'px',
+              width: size + 'px',
+              height: size + 'px',
               animationDelay: delay,
-              animationDuration: duration
+              animationDuration: duration,
+              opacity: Math.random() * 0.5 + 0.2
             }}
           />
         );
@@ -224,6 +238,16 @@ const SeasonalCard: React.FC<{
     >
       {/* Atmospheric Background */}
       <div className={cn("absolute inset-0 bg-gradient-to-br opacity-40 transition-opacity duration-700 group-hover:opacity-60", config.gradient)} />
+      
+      {/* Diffused Freshness Texture for Spring */}
+      {season === 'Spring' && (
+        <>
+          <div className="absolute inset-0 opacity-20 mix-blend-overlay pointer-events-none" 
+               style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }} 
+          />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom,_var(--tw-gradient-stops))] from-emerald-500/10 via-transparent to-transparent opacity-50" />
+        </>
+      )}
       
       {/* Particles Layer */}
       <Particles type={config.texture} color={config.particleColor} />
@@ -294,9 +318,21 @@ const MemoryDetailPanel: React.FC<{
   const config = SEASON_CONFIG[season];
 
   return (
-    <div className="fixed inset-y-0 right-0 w-full md:w-[500px] bg-black/80 backdrop-blur-2xl border-l border-white/10 shadow-2xl z-[100] flex flex-col animate-in slide-in-from-right duration-500">
+    <div className={cn(
+        "fixed inset-y-0 right-0 w-full md:w-[500px] bg-black/90 backdrop-blur-2xl border-l shadow-2xl z-[100] flex flex-col animate-in slide-in-from-right duration-500",
+        config.border // Use season border color
+    )}>
+       {/* Background Ambience */}
+       <div className={cn("absolute inset-0 opacity-20 pointer-events-none bg-gradient-to-br", config.gradient)} />
+       {season === 'Spring' && (
+          <div className="absolute inset-0 opacity-10 mix-blend-overlay pointer-events-none" 
+               style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }} 
+          />
+       )}
+       <Particles type={config.texture} color={config.particleColor} />
+
        {/* Header */}
-       <div className="p-6 border-b border-white/5 flex justify-between items-start bg-black/40 shrink-0">
+       <div className="p-6 border-b border-white/5 flex justify-between items-start bg-black/40 shrink-0 relative z-10">
           <div>
              <div className={cn("flex items-center gap-2 mb-2 text-xs font-bold uppercase tracking-widest", config.accent)}>
                <config.icon size={14} /> Season of {config.label}
@@ -309,7 +345,7 @@ const MemoryDetailPanel: React.FC<{
        </div>
 
        {/* Scrollable Content */}
-       <div className="flex-1 overflow-y-auto p-6 space-y-8">
+       <div className="flex-1 overflow-y-auto p-6 space-y-8 relative z-10">
           
           {/* Image Section */}
           {memory.imageUrl && (
