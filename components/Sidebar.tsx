@@ -35,7 +35,11 @@ import {
   Globe,
   Languages,
   Disc,
-  Mic2 // Mantra Icon
+  Mic2,
+  Aperture,
+  Users,
+  Sun,
+  Radar
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -44,20 +48,22 @@ interface SidebarProps {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { id: View.MASTERPLAN, labelKey: 'nav.masterplan', icon: Globe, group: 'Meta' },
+  { id: View.PRESENCE, labelKey: 'nav.presence', icon: Radar, group: 'Meta' }, 
   { id: View.DASHBOARD, labelKey: 'nav.dashboard', icon: LayoutDashboard, group: 'Main' },
   { id: View.FORGE_CHAMBER, labelKey: 'nav.forge_chamber', icon: BrainCircuit, group: 'Main' },
   { id: View.TIMELINE, labelKey: 'nav.timeline', icon: GitCommitHorizontal, group: 'Reflection' },
   { id: View.JOURNAL, labelKey: 'nav.journal', icon: BookOpen, group: 'Reflection' },
+  { id: View.META_JOURNAL, labelKey: 'nav.meta_journal', icon: Aperture, group: 'Reflection' },
   { id: View.MEMORY, labelKey: 'nav.memory', icon: History, group: 'Reflection' },
   { id: View.SHADOW_WORK, labelKey: 'nav.shadow_work', icon: Ghost, group: 'Reflection' },
   { id: View.MOOD, labelKey: 'nav.mood', icon: Smile, group: 'Reflection' },
   { id: View.QUOTES, labelKey: 'nav.quotes', icon: Quote, group: 'Reflection' },
-  { id: View.MANTRA, labelKey: 'nav.mantra', icon: Mic2, group: 'Reflection' }, // New Mantra
+  { id: View.MANTRA, labelKey: 'nav.mantra', icon: Mic2, group: 'Reflection' },
   { id: View.SOUNDTRACK, labelKey: 'nav.soundtrack', icon: Disc, group: 'Reflection' },
   { id: View.COMPASS, labelKey: 'nav.compass', icon: Navigation, group: 'Evolution' },
   { id: View.GOALS, labelKey: 'nav.goals', icon: Target, group: 'Evolution' },
   { id: View.IDENTITY, labelKey: 'nav.identity', icon: Fingerprint, group: 'Evolution' },
+  { id: View.CONNECTION, labelKey: 'nav.connection', icon: Users, group: 'Evolution' }, 
   { id: View.THEMES, labelKey: 'nav.themes', icon: Map, group: 'Evolution' },
   { id: View.MILESTONES, labelKey: 'nav.milestones', icon: Flag, group: 'Evolution' },
   { id: View.ACHIEVEMENTS, labelKey: 'nav.achievements', icon: Trophy, group: 'Evolution' },

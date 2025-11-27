@@ -1,3 +1,4 @@
+
 import React from 'react';
 
 export type Language = 'en' | 'vi';
@@ -5,14 +6,16 @@ export type Language = 'en' | 'vi';
 export enum View {
   DASHBOARD = 'DASHBOARD',
   FORGE_CHAMBER = 'FORGE_CHAMBER',
-  MASTERPLAN = 'MASTERPLAN', 
   COMPASS = 'COMPASS',
   JOURNAL = 'JOURNAL',
+  META_JOURNAL = 'META_JOURNAL',
   MEMORY = 'MEMORY',
   TIMELINE = 'TIMELINE',
+  CONNECTION = 'CONNECTION',
+  PRESENCE = 'PRESENCE', 
   QUOTES = 'QUOTES',
   MOOD = 'MOOD',
-  MANTRA = 'MANTRA', // New
+  MANTRA = 'MANTRA', 
   INSIGHTS = 'INSIGHTS',
   IDEAS = 'IDEAS',
   GOALS = 'GOALS',
@@ -50,6 +53,51 @@ export interface InsightData {
   quote: string;
   author: string;
   theme: string;
+}
+
+// --- Notification Types (Whisper OS) ---
+
+export type NotificationType = 'whisper' | 'signal' | 'event';
+export type NotificationSource = 
+  | 'season' 
+  | 'thoughtstream' 
+  | 'insight' 
+  | 'identity' 
+  | 'connection' 
+  | 'system' 
+  | 'nova'
+  | 'memory'
+  | 'presence'; 
+
+export interface Notification {
+  id: string;
+  type: NotificationType;
+  source: NotificationSource;
+  title?: string;
+  message: string;
+  timestamp: Date;
+  read: boolean;
+  seasonTint?: Season; 
+  priority: 'low' | 'medium' | 'high';
+  linkTo?: View; 
+}
+
+// --- Presence / Visitor Echo Types ---
+
+export type EchoType = 'anonymous' | 'known' | 'connection';
+
+export interface VisitorEcho {
+  id: string;
+  timestamp: Date;
+  type: EchoType;
+  connectionId?: string; // If linked to a connection
+  connectionName?: string;
+  connectionRole?: ConnectionRole; // For color
+  distance: number; // 0-100 (Proximity to center)
+  angle: number; // 0-360 (Position on radar)
+  seasonContext: Season;
+  duration: number;
+  pageVisited: string;
 }
 
 // --- Multi-Agent Types ---
@@ -110,6 +158,74 @@ export interface JournalEntry {
   tags: string[];
   analysis?: JournalAnalysis;
   isDraft?: boolean;
+}
+
+// --- Meta-Journal Types ---
+
+export type MetaJournalType = 'Pattern' | 'State' | 'Identity' | 'Season';
+
+export interface MetaJournalAnalysis {
+  depthLevel: number; // 1-10
+  cognitivePattern: string;
+  seasonalShift?: Season;
+  novaWhisper: string;
+}
+
+export interface MetaJournalEntry {
+  id: string;
+  content: string;
+  type: MetaJournalType;
+  date: Date;
+  season: Season;
+  tags: string[];
+  analysis?: MetaJournalAnalysis;
+  linkedModules?: View[]; 
+}
+
+// --- Connection Types ---
+
+export type ConnectionRole = 
+  | 'Catalyst' 
+  | 'Ghost' 
+  | 'Mirror' 
+  | 'Anchor' 
+  | 'Teacher' 
+  | 'Past Love' 
+  | 'Shadow' 
+  | 'Companion' 
+  | 'Healer' 
+  | 'Mystery';
+
+export interface MessageFragment {
+  id: string;
+  content: string;
+  date: Date;
+  context: string;
+  isFavorite: boolean;
+}
+
+export interface ConnectionAnalysis {
+  novaWhisper: string;
+  emotionalSummary: string;
+  seasonAffinity: Season;
+}
+
+export interface ConnectionNode {
+  id: string;
+  name: string;
+  nickname?: string;
+  role: ConnectionRole;
+  importance: number; // 1-10
+  bondIntensity: number; // 0-100
+  seasonInfluence: Season;
+  lastInteraction: Date;
+  messageFragments: MessageFragment[];
+  linkedMemories?: string[]; // IDs
+  analysis?: ConnectionAnalysis;
+  
+  // Visual coordinates
+  x?: number; 
+  y?: number;
 }
 
 // --- Memory Types ---
@@ -182,7 +298,7 @@ export interface Quote {
     imageUrl?: string; 
 }
 
-// --- Mantra Types (New) ---
+// --- Mantra Types ---
 
 export type MantraType = 'Daily' | 'Seasonal' | 'Identity' | 'Shadow' | 'Compass';
 
@@ -774,55 +890,6 @@ export interface CompassData {
   };
 }
 
-// --- Masterplan Types (Meta-Layer) ---
-
-export type PillarState = 'growing' | 'stable' | 'decaying';
-export type EpochArchetype = 'Explorer' | 'Builder' | 'Master' | 'Sage';
-
-export interface LifePillar {
-  id: string;
-  name: string; 
-  purpose: string;
-  state: PillarState;
-  metric: string; 
-}
-
-export interface Epoch {
-  id: string;
-  title: string; 
-  name: string; 
-  years: string; 
-  theme: string;
-  archetype: EpochArchetype;
-  description: string;
-  objectives: string[];
-}
-
-export interface GrandProject {
-  id: string;
-  title: string;
-  vision: string;
-  horizon: string; 
-  progress: number; 
-  pillars: string[]; 
-  milestones: { id: string; title: string; done: boolean }[];
-}
-
-export interface MasterplanData {
-  visionStatement: string;
-  aiDeepLine: string;
-  currentEpoch: Epoch;
-  pillars: LifePillar[];
-  grandProjects: GrandProject[];
-  alignmentScore: number;
-  auditResult: {
-    insights: string[];
-    weakestPillar: string;
-    strongestPillar: string;
-    riskFactor: string;
-  };
-}
-
 // --- Season Types ---
 
 export type Season = 'Spring' | 'Summer' | 'Autumn' | 'Winter';
@@ -840,7 +907,7 @@ export interface SeasonTheme {
   description: string;
 }
 
-// --- Soundtrack Types (New) ---
+// --- Soundtrack Types ---
 
 export type MusicSeason = Season;
 

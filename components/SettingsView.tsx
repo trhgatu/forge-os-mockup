@@ -285,18 +285,23 @@ const AppearanceSection = () => {
         <label className="block text-xs text-gray-500 font-mono uppercase mb-3">System Theme</label>
         <div className="grid grid-cols-4 gap-3">
           {[
-            { name: 'Cosmic', bg: 'bg-[#050505]', accent: 'bg-forge-accent' },
-            { name: 'Aurora', bg: 'bg-[#0B0B15]', accent: 'bg-emerald-500' },
-            { name: 'Titanium', bg: 'bg-gray-900', accent: 'bg-gray-200' },
-            { name: 'Midnight', bg: 'bg-black', accent: 'bg-blue-600' }
-          ].map((theme, i) => (
-            <div key={theme.name} className="group cursor-pointer">
-              <div className={cn("aspect-video rounded-lg border border-white/10 relative overflow-hidden mb-2", theme.bg)}>
-                <div className={cn("absolute top-2 right-2 w-3 h-3 rounded-full", theme.accent)} />
+            { name: 'Cosmic', bg: 'bg-[#050505]', accent: 'bg-forge-accent', id: 'dark' },
+            { name: 'Aurora', bg: 'bg-[#0B0B15]', accent: 'bg-emerald-500', id: 'dark' },
+            { name: 'Midnight', bg: 'bg-black', accent: 'bg-blue-600', id: 'dark' }
+          ].map((t, i) => (
+            <div 
+              key={t.name} 
+              className="group cursor-pointer"
+            >
+              <div className={cn(
+                "aspect-video rounded-lg border border-white/10 relative overflow-hidden mb-2", 
+                t.bg
+              )}>
+                <div className={cn("absolute top-2 right-2 w-3 h-3 rounded-full", t.accent)} />
                 <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-white/5 backdrop-blur-sm" />
-                {i === 0 && <div className="absolute inset-0 border-2 border-forge-cyan rounded-lg" />}
+                {i===0 && <div className="absolute inset-0 border-2 border-forge-cyan rounded-lg" />}
               </div>
-              <div className={cn("text-center text-xs", i === 0 ? 'text-white font-bold' : 'text-gray-500 group-hover:text-gray-300')}>{theme.name}</div>
+              <div className={cn("text-center text-xs", i===0 ? 'text-white font-bold' : 'text-gray-500 group-hover:text-gray-300')}>{t.name}</div>
             </div>
           ))}
         </div>
@@ -470,7 +475,7 @@ export const SettingsView: React.FC = () => {
       case 'profile': return <ProfileSection />;
       case 'identity': return <IdentitySection />;
       case 'intelligence': return <IntelligenceSection />;
-      case 'behavior': return <div className="text-center text-gray-500 py-20">Behavior Tracking Configuration Loading...</div>; // Placeholder for brevity if needed, or reuse standard patterns
+      case 'behavior': return <div className="text-center text-gray-500 py-20">Behavior Tracking Configuration Loading...</div>; 
       case 'appearance': return <AppearanceSection />;
       case 'system': return <SystemSection />;
       case 'data': return <DataSection />;
@@ -495,7 +500,7 @@ export const SettingsView: React.FC = () => {
   };
 
   return (
-    <div className="h-full flex bg-[#050505] text-white relative overflow-hidden animate-in fade-in duration-700">
+    <div className="h-full flex bg-forge-bg text-white relative overflow-hidden animate-in fade-in duration-700 transition-colors">
       
       {/* Background */}
       <div className="absolute inset-0 pointer-events-none">

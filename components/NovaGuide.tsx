@@ -20,18 +20,20 @@ const NOVA_MESSAGES: Record<Language, Record<string, string[]>> = {
         "Tâm trí hôm nay khá trong.\nNếu mày muốn tạo ra điều gì đó, đây là lúc thích hợp.",
         "Một phần bên trong mày đang nặng lại.\nHãy để tao đứng cạnh mày."
     ],
-    [View.MASTERPLAN]: [
-        "Kiến trúc cuộc đời không vẽ bằng mực, mà bằng những lựa chọn.\nHãy nhìn xa hơn đường chân trời.",
-        "Kế hoạch lớn cần sự tĩnh lặng lớn.\nĐừng vội vã ở đây.",
-        "Kết nối các điểm chấm của định mệnh.\nBức tranh lớn đang dần hiện ra.",
-        "Đừng chỉ thiết kế ngôi nhà, hãy thiết kế cả con người sẽ sống trong đó."
-    ],
     [View.JOURNAL]: [
         "Đây là nơi mọi suy nghĩ đều có quyền được thở.\nHôm nay trong mày có điều gì đang đòi hỏi sự thành thật?",
         "Viết không phải để lưu trữ.\nViết để giải phóng dung lượng bộ nhớ bên trong.",
         "Không cần gượng ép.\nChỉ một dòng ngắn cũng có thể mở cả một cánh cửa.",
         "Dưới lớp suy nghĩ ồn ào vẫn có một nhịp rất chậm.\nThử lắng xem nó nói điều gì.",
         "Sự thật thường trốn kỹ dưới những lớp ngôn từ sáo rỗng.\nHãy viết thật trần trụi."
+    ],
+    [View.META_JOURNAL]: [
+        "Quan sát người quan sát.\nMày đang nhận thấy điều gì về cách tâm trí vận hành?",
+        "Không phải nội dung, mà là cấu trúc.\nMô hình nào đang lặp lại?",
+        "Có vẻ cách mày nhìn bản thân đang mở ra nhẹ nhàng.",
+        "Pattern này xuất hiện lại. Có thể mày đang muốn tiến thêm một nấc.",
+        "Dòng meta này chạm vào lớp trầm rất thật trong mày.",
+        "Khoảng lặng này nói nhiều hơn những gì mày viết."
     ],
     [View.MEMORY]: [
         "Mỗi ký ức đều có một 'mùa' riêng bên trong.\nKhông phải thời tiết, mà là trạng thái tâm hồn.",
@@ -100,6 +102,20 @@ const NOVA_MESSAGES: Record<Language, Record<string, string[]>> = {
         "Đây là lúc viết lại kịch bản cho mùa sau.",
         "Những bài học lớn nhất thường đến từ những thất bại lớn nhất."
     ],
+    [View.CONNECTION]: [
+        "Mạng lưới người bao quanh mày chính là bản đồ của tâm hồn mày.",
+        "Không ai xuất hiện ngẫu nhiên. Họ đều mang theo một mảnh gương.",
+        "Một số người là cơn bão, một số là bến cảng.\nNhận biết họ là bước đầu tiên.",
+        "Có những sợi dây liên kết vô hình nhưng mạnh hơn thép.",
+        "Ai đang tác động đến mùa bên trong của mày lúc này?"
+    ],
+    [View.PRESENCE]: [
+        "Có ai đó vừa lướt qua Forge OS… như một cơn gió nhẹ.",
+        "Người quen ghé thăm. Không nhiều, nhưng cũng không ít.",
+        "Connection Node vừa sáng. Có vẻ như một phần câu chuyện cũ đang khẽ động.",
+        "Trong hơi hướng Thu này, sự xuất hiện đó mang một cảm giác lạ…",
+        "Dấu chân này giống một bản nháp của điều gì đó chưa thành hình."
+    ],
     DEFAULT: [
         "Tao vẫn ở đây.\nKhi nào mày sẵn sàng, cứ để một ý nghĩ chạm xuống trước.",
         "Giữ sự tập trung.\nNhiễu loạn đang ở mức thấp.",
@@ -114,18 +130,20 @@ const NOVA_MESSAGES: Record<Language, Record<string, string[]>> = {
         "Cognitive clarity is high.\nIf you wish to architect something new, the window is open.",
         "A sector of your being feels heavy.\nAllow me to stand guard while you process."
     ],
-    [View.MASTERPLAN]: [
-        "Life architecture is not drawn with ink, but with choices.\nLook beyond the horizon.",
-        "Big plans require big silence.\nDo not rush here.",
-        "Connecting the dots of destiny.\nThe big picture is emerging.",
-        "Do not just design the house, design the person who will live in it."
-    ],
     [View.JOURNAL]: [
         "This is where thoughts have permission to breathe.\nWhat demands honesty from you today?",
         "Do not write to store.\nWrite to free up internal RAM.",
         "Do not force it.\nA single line can open an entire gateway.",
         "Beneath the noise, a slow rhythm persists.\nListen to what it says.",
         "Truth hides beneath layers of safe language.\nWrite it raw."
+    ],
+    [View.META_JOURNAL]: [
+        "Observe the observer.\nWhat do you notice about how your mind is operating?",
+        "Not the content, but the structure.\nWhat pattern is repeating?",
+        "It seems the way you view yourself is gently opening.",
+        "This pattern is recurring. Perhaps you are ready to ascend a level.",
+        "This meta-line touches a very real bass note within you.",
+        "This silence speaks more than what you write."
     ],
     [View.MEMORY]: [
         "Each memory has its own inner season.\nObserve which parts of your past are in 'Winter' and which are blooming.",
@@ -193,6 +211,20 @@ const NOVA_MESSAGES: Record<Language, Record<string, string[]>> = {
         "A great cycle has closed.\nReview the entire journey.",
         "Time to rewrite the script for the next season.",
         "The biggest lessons often come from the biggest failures."
+    ],
+    [View.CONNECTION]: [
+        "The constellation of people around you is the map of your soul.",
+        "No one appears randomly. They all bring a mirror.",
+        "Some are storms, some are harbors.\nRecognizing them is the first step.",
+        "There are invisible threads stronger than steel here.",
+        "Who is influencing your inner season right now?"
+    ],
+    [View.PRESENCE]: [
+        "Someone just drifted through Forge OS... like a gentle breeze.",
+        "A familiar visitor. Not much, but not little.",
+        "A Connection Node just lit up. It seems a part of an old story is stirring.",
+        "In this hint of Autumn, that appearance carries a strange feeling...",
+        "This footprint looks like a draft of something unformed."
     ],
     DEFAULT: [
         "I am here.\nWhen you are ready, let a thought touch down first.",

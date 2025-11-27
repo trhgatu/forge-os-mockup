@@ -10,16 +10,16 @@ export const TRANSLATIONS = {
     "group.system": "System",
 
     // Nav Items
-    "nav.masterplan": "Masterplan",
     "nav.dashboard": "Dashboard",
     "nav.forge_chamber": "Forge Chamber",
     "nav.timeline": "Timeline",
     "nav.journal": "Journal",
+    "nav.meta_journal": "Meta Log",
     "nav.memory": "Memory",
     "nav.shadow_work": "Shadow Work",
     "nav.mood": "Mood",
     "nav.quotes": "Wisdom",
-    "nav.mantra": "Mantra", // New
+    "nav.mantra": "Mantra", 
     "nav.soundtrack": "Soundtrack", 
     "nav.compass": "Compass",
     "nav.goals": "Goals",
@@ -36,6 +36,8 @@ export const TRANSLATIONS = {
     "nav.yearly_review": "Yearly Review",
     "nav.ideas": "Forge Lab",
     "nav.settings": "System",
+    "nav.connection": "Connections",
+    "nav.presence": "Visitor Echo", 
 
     // Dashboard
     "dashboard.welcome": "Welcome back, Traveler.",
@@ -61,16 +63,16 @@ export const TRANSLATIONS = {
     "group.system": "Hệ Thống",
 
     // Nav Items
-    "nav.masterplan": "Đại Kế Hoạch",
     "nav.dashboard": "Bảng Điều Khiển",
     "nav.forge_chamber": "Lõi Tư Duy",
     "nav.timeline": "Dòng Thời Gian",
     "nav.journal": "Nhật Ký",
+    "nav.meta_journal": "Meta Log",
     "nav.memory": "Ký Ức",
     "nav.shadow_work": "Góc Tối",
     "nav.mood": "Cảm Xúc",
     "nav.quotes": "Minh Triết",
-    "nav.mantra": "Mantra", // New
+    "nav.mantra": "Mantra",
     "nav.soundtrack": "Âm Thanh", 
     "nav.compass": "La Bàn",
     "nav.goals": "Mục Tiêu",
@@ -87,6 +89,8 @@ export const TRANSLATIONS = {
     "nav.yearly_review": "Tổng Kết Năm",
     "nav.ideas": "Phòng Thí Nghiệm",
     "nav.settings": "Cấu Hình",
+    "nav.connection": "Mối Quan Hệ",
+    "nav.presence": "Vọng Âm", 
 
     // Dashboard
     "dashboard.welcome": "Chào mừng trở lại, Lữ khách.",

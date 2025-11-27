@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -11,6 +12,39 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"
     />
+    <style>
+      :root {
+        /* Default Dark Mode Colors (RGB channels for Tailwind opacity support) */
+        --c-white: 255 255 255;
+        --c-black: 5 5 5;
+        
+        /* Semantic Forge Colors */
+        --forge-bg-rgb: 9 9 11; /* Zinc 950 */
+        --forge-glass-border: 255 255 255;
+        --forge-glass-bg: 255 255 255; 
+      }
+
+      body {
+        background-color: rgb(var(--c-black));
+        color: rgb(var(--c-white));
+        overflow: hidden; /* OS-like feel */
+      }
+      
+      /* Custom Scrollbar for internal panels */
+      ::-webkit-scrollbar {
+        width: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: rgba(128, 128, 128, 0.2);
+        border-radius: 10px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: rgba(128, 128, 128, 0.4);
+      }
+    </style>
     <script>
       tailwind.config = {
         theme: {
@@ -21,12 +55,16 @@
               display: ['Space Grotesk', 'sans-serif'],
             },
             colors: {
+              // Override white/black with semantic variables
+              white: 'rgb(var(--c-white) / <alpha-value>)',
+              black: 'rgb(var(--c-black) / <alpha-value>)',
+              
               forge: {
-                bg: '#09090b', // Zinc 950
-                glass: 'rgba(255, 255, 255, 0.03)',
-                border: 'rgba(255, 255, 255, 0.08)',
-                accent: '#7C3AED', // Violet 600
-                cyan: '#22D3EE', // Cyan 400
+                bg: 'rgb(var(--forge-bg-rgb) / <alpha-value>)', 
+                glass: 'rgba(var(--forge-glass-bg), 0.03)',
+                border: 'rgba(var(--forge-glass-border), 0.08)',
+                accent: '#7C3AED', // Violet 600 - keeps visual identity
+                cyan: '#22D3EE', // Cyan 400 - keeps visual identity
               },
             },
             animation: {
@@ -52,27 +90,6 @@
         },
       };
     </script>
-    <style>
-      body {
-        background-color: #050505;
-        color: #e4e4e7;
-        overflow: hidden; /* OS-like feel */
-      }
-      /* Custom Scrollbar for internal panels */
-      ::-webkit-scrollbar {
-        width: 6px;
-      }
-      ::-webkit-scrollbar-track {
-        background: transparent;
-      }
-      ::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 10px;
-      }
-      ::-webkit-scrollbar-thumb:hover {
-        background: rgba(255, 255, 255, 0.2);
-      }
-    </style>
   <script type="importmap">
 {
   "imports": {

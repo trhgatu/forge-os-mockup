@@ -23,9 +23,11 @@ import { IdentityView } from './components/IdentityView';
 import { LifeThemesView } from './components/LifeThemesView';
 import { ShadowWorkView } from './components/ShadowWorkView';
 import { CompassView } from './components/CompassView';
-import { MasterplanView } from './components/MasterplanView';
 import { SoundtrackView } from './components/SoundtrackView'; 
-import { MantraView } from './components/MantraView'; // New
+import { MantraView } from './components/MantraView'; 
+import { MetaJournalView } from './components/MetaJournalView'; 
+import { ConnectionView } from './components/ConnectionView';
+import { PresenceView } from './components/PresenceView'; 
 import { SettingsView } from './components/SettingsView';
 import { NovaGuide } from './components/NovaGuide';
 import { View } from './types';
@@ -34,7 +36,11 @@ import { Hammer } from 'lucide-react';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { SoundProvider } from './contexts/SoundContext';
 import { SoundtrackProvider } from './contexts/SoundtrackContext';
+import { NotificationProvider } from './contexts/NotificationContext';
+import { NotificationOverlay } from './components/Notification/NotificationOverlay';
 import { GlobalPlayer } from './components/GlobalPlayer';
+import { SeasonProvider } from './contexts/SeasonContext'; 
+import { SeasonalWrapper } from './components/SeasonalWrapper'; 
 
 const AppContent: React.FC = () => {
   const [currentView, setCurrentView] = useState<View>(View.DASHBOARD);
@@ -43,13 +49,13 @@ const AppContent: React.FC = () => {
     switch (currentView) {
       case View.DASHBOARD: return <Dashboard />;
       case View.FORGE_CHAMBER: return <ForgeChamber />;
-      case View.MASTERPLAN: return <MasterplanView />;
       case View.JOURNAL: return <JournalView />;
+      case View.META_JOURNAL: return <MetaJournalView />; 
       case View.MEMORY: return <MemoryView />;
       case View.TIMELINE: return <TimelineView />;
       case View.QUOTES: return <QuoteView />;
       case View.MOOD: return <MoodView />;
-      case View.MANTRA: return <MantraView />; // New
+      case View.MANTRA: return <MantraView />; 
       case View.SOUNDTRACK: return <SoundtrackView />; 
       case View.INSIGHTS: return <InsightView />;
       case View.IDEAS: return <IdeasView />;
@@ -59,6 +65,8 @@ const AppContent: React.FC = () => {
       case View.MILESTONES: return <MilestoneView />;
       case View.ACHIEVEMENTS: return <AchievementsView />;
       case View.IDENTITY: return <IdentityView />;
+      case View.CONNECTION: return <ConnectionView />; 
+      case View.PRESENCE: return <PresenceView />; 
       case View.THEMES: return <LifeThemesView />;
       case View.SHADOW_WORK: return <ShadowWorkView />;
       case View.COMPASS: return <CompassView />;
@@ -91,15 +99,18 @@ const AppContent: React.FC = () => {
   };
 
   return (
-    <div className="flex h-screen w-screen bg-[#09090b] text-white overflow-hidden font-sans">
+    <div className="flex h-screen w-screen bg-forge-bg text-white overflow-hidden font-sans transition-colors duration-300">
       <div className="relative z-10 flex w-full h-full">
         <Sidebar currentView={currentView} onNavigate={setCurrentView} />
         <main className="flex-1 h-full relative overflow-hidden flex flex-col">
            <div className="flex-1 overflow-hidden">
              {renderContent()}
            </div>
+           
+           {/* System Layers */}
            <NovaGuide currentView={currentView} />
            <GlobalPlayer />
+           <NotificationOverlay />
         </main>
       </div>
     </div>
@@ -108,11 +119,15 @@ const AppContent: React.FC = () => {
 
 const App: React.FC = () => (
   <LanguageProvider>
-    <SoundProvider>
-      <SoundtrackProvider>
-        <AppContent />
-      </SoundtrackProvider>
-    </SoundProvider>
+    <SeasonProvider>
+      <SoundProvider>
+        <NotificationProvider>
+          <SoundtrackProvider>
+            <AppContent />
+          </SoundtrackProvider>
+        </NotificationProvider>
+      </SoundProvider>
+    </SeasonProvider>
   </LanguageProvider>
 );
 
