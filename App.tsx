@@ -25,6 +25,7 @@ import { ShadowWorkView } from './components/ShadowWorkView';
 import { CompassView } from './components/CompassView';
 import { MasterplanView } from './components/MasterplanView';
 import { SoundtrackView } from './components/SoundtrackView'; 
+import { MantraView } from './components/MantraView'; // New
 import { SettingsView } from './components/SettingsView';
 import { NovaGuide } from './components/NovaGuide';
 import { View } from './types';
@@ -48,6 +49,7 @@ const AppContent: React.FC = () => {
       case View.TIMELINE: return <TimelineView />;
       case View.QUOTES: return <QuoteView />;
       case View.MOOD: return <MoodView />;
+      case View.MANTRA: return <MantraView />; // New
       case View.SOUNDTRACK: return <SoundtrackView />; 
       case View.INSIGHTS: return <InsightView />;
       case View.IDEAS: return <IdeasView />;

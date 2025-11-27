@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 export type Language = 'en' | 'vi';
@@ -13,6 +12,7 @@ export enum View {
   TIMELINE = 'TIMELINE',
   QUOTES = 'QUOTES',
   MOOD = 'MOOD',
+  MANTRA = 'MANTRA', // New
   INSIGHTS = 'INSIGHTS',
   IDEAS = 'IDEAS',
   GOALS = 'GOALS',
@@ -24,7 +24,7 @@ export enum View {
   THEMES = 'THEMES',
   SHADOW_WORK = 'SHADOW_WORK', 
   ENERGY = 'ENERGY',
-  SOUNDTRACK = 'SOUNDTRACK', // New View
+  SOUNDTRACK = 'SOUNDTRACK',
   WEEKLY_REVIEW = 'WEEKLY_REVIEW',
   MONTHLY_REVIEW = 'MONTHLY_REVIEW',
   YEARLY_REVIEW = 'YEARLY_REVIEW',
@@ -180,6 +180,27 @@ export interface Quote {
     reflectionDepth: number; 
     analysis?: QuoteAnalysis;
     imageUrl?: string; 
+}
+
+// --- Mantra Types (New) ---
+
+export type MantraType = 'Daily' | 'Seasonal' | 'Identity' | 'Shadow' | 'Compass';
+
+export interface MantraAnalysis {
+  season: Season;
+  tone: string;
+  archetype: IdentityArchetype;
+  novaWhisper: string;
+}
+
+export interface Mantra {
+  id: string;
+  text: string;
+  type: MantraType;
+  season: Season;
+  isActive: boolean;
+  dateCreated: Date;
+  analysis?: MantraAnalysis;
 }
 
 // --- Mood Types ---
@@ -469,7 +490,7 @@ export interface AchievementStats {
 
 // --- Identity Evolution Types ---
 
-export type IdentityArchetype = 'Creator' | 'Strategist' | 'Warrior' | 'Healer' | 'Builder' | 'Explorer';
+export type IdentityArchetype = 'Creator' | 'Strategist' | 'Warrior' | 'Healer' | 'Builder' | 'Explorer' | 'Sage';
 
 export interface IdentityTrait {
   name: string;

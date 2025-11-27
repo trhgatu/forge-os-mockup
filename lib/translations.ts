@@ -19,7 +19,8 @@ export const TRANSLATIONS = {
     "nav.shadow_work": "Shadow Work",
     "nav.mood": "Mood",
     "nav.quotes": "Wisdom",
-    "nav.soundtrack": "Soundtrack", // New
+    "nav.mantra": "Mantra", // New
+    "nav.soundtrack": "Soundtrack", 
     "nav.compass": "Compass",
     "nav.goals": "Goals",
     "nav.identity": "Identity",
@@ -69,7 +70,8 @@ export const TRANSLATIONS = {
     "nav.shadow_work": "Góc Tối",
     "nav.mood": "Cảm Xúc",
     "nav.quotes": "Minh Triết",
-    "nav.soundtrack": "Âm Thanh", // New
+    "nav.mantra": "Mantra", // New
+    "nav.soundtrack": "Âm Thanh", 
     "nav.compass": "La Bàn",
     "nav.goals": "Mục Tiêu",
     "nav.identity": "Nhân Dạng",

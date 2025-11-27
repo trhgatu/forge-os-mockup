@@ -34,6 +34,7 @@ import {
   ResponsiveContainer,
   ReferenceLine
 } from 'recharts';
+import { cn } from '../lib/utils';
 
 // --- CONFIG ---
 
@@ -315,83 +316,73 @@ export const MoodView: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Graph Container */}
-                <div className="h-64 px-8 mb-6 shrink-0">
-                    <GlassCard className="h-full w-full relative" noPadding>
-                        <div className="absolute inset-0 p-4">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart data={graphData}>
-                                    <defs>
-                                        <linearGradient id="colorIntensity" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#7C3AED" stopOpacity={0.3}/>
-                                            <stop offset="95%" stopColor="#7C3AED" stopOpacity={0}/>
-                                        </linearGradient>
-                                    </defs>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                                    <XAxis dataKey="date" stroke="rgba(255,255,255,0.3)" fontSize={10} tickLine={false} axisLine={false} />
-                                    <Tooltip 
-                                        contentStyle={{ backgroundColor: '#09090b', borderColor: '#333', borderRadius: '12px' }}
-                                        itemStyle={{ color: '#fff' }}
-                                        labelStyle={{ color: '#888', marginBottom: '4px' }}
-                                    />
-                                    <Area 
-                                        type="monotone" 
-                                        dataKey="value" 
-                                        stroke="#7C3AED" 
-                                        strokeWidth={3}
-                                        fillOpacity={1} 
-                                        fill="url(#colorIntensity)" 
-                                    />
-                                </AreaChart>
-                            </ResponsiveContainer>
-                        </div>
-                    </GlassCard>
-                </div>
+                {/* Scrollable Content */}
+                <div className="flex-1 overflow-y-auto px-8 scrollbar-hide">
+                    
+                    {/* Chart Area */}
+                    <div className="h-64 w-full mb-12">
+                        <GlassCard className="h-full relative overflow-hidden" noPadding>
+                            <div className="absolute top-4 left-6 z-10">
+                                <h3 className="text-xs font-bold text-white uppercase tracking-widest flex items-center gap-2">
+                                    <Activity size={14} className="text-forge-cyan" /> Resonance Frequency
+                                </h3>
+                            </div>
+                            <div className="w-full h-full pt-12 pr-0 pb-0">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <AreaChart data={graphData}>
+                                        <defs>
+                                            <linearGradient id="moodGradient" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="5%" stopColor="#FBBF24" stopOpacity={0.3}/>
+                                                <stop offset="95%" stopColor="#FBBF24" stopOpacity={0}/>
+                                            </linearGradient>
+                                        </defs>
+                                        <CartesianGrid stroke="rgba(255,255,255,0.05)" vertical={false} strokeDasharray="3 3" />
+                                        <XAxis dataKey="date" stroke="#555" fontSize={10} tickLine={false} axisLine={false} />
+                                        <Tooltip 
+                                            contentStyle={{ backgroundColor: '#09090b', borderColor: '#333', borderRadius: '8px' }}
+                                            itemStyle={{ fontSize: '12px' }}
+                                        />
+                                        <Area type="monotone" dataKey="value" stroke="#FBBF24" fill="url(#moodGradient)" strokeWidth={2} />
+                                    </AreaChart>
+                                </ResponsiveContainer>
+                            </div>
+                        </GlassCard>
+                    </div>
 
-                {/* Timeline List */}
-                <div className="flex-1 overflow-y-auto px-8 pb-20 scrollbar-hide">
-                    <h3 className="text-xs font-mono text-gray-500 uppercase tracking-widest mb-4">Timeline Stream</h3>
-                    <div className="space-y-3">
-                        {[...history].reverse().map((entry) => {
+                    {/* Recent Logs */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-32">
+                        {history.slice().reverse().map((entry) => {
                             const config = MOOD_CONFIG[entry.mood];
                             return (
-                                <div key={entry.id} className="group flex items-center gap-4 p-4 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.05] hover:border-white/10 transition-all">
-                                    <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 ${config.bg}/20 text-${config.color.split('-')[1]}-400`}>
-                                        <config.icon size={20} />
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-center justify-between mb-1">
-                                            <h4 className="text-white font-medium capitalize">{entry.mood}</h4>
-                                            <span className="text-xs text-gray-500 font-mono">{entry.date.toLocaleString()}</span>
+                                <div key={entry.id} className="p-5 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-all group">
+                                    <div className="flex justify-between items-start mb-3">
+                                        <div className="flex items-center gap-3">
+                                            <div className={cn("p-2 rounded-lg bg-white/5", config.color)}>
+                                                <config.icon size={18} />
+                                            </div>
+                                            <div>
+                                                <div className="text-white font-bold capitalize">{entry.mood}</div>
+                                                <div className="text-[10px] text-gray-500">{entry.date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+                                            </div>
                                         </div>
-                                        <p className="text-sm text-gray-400 truncate">{entry.note || "No context provided."}</p>
+                                        <div className="text-xs font-mono text-gray-600">Int: {entry.intensity}</div>
                                     </div>
-                                    <div className="flex items-center gap-2">
-                                         <div className="text-xs font-bold text-gray-600">{entry.intensity}/10</div>
-                                         <div className={`w-1.5 h-8 rounded-full bg-white/10 overflow-hidden`}>
-                                             <div className={`w-full bg-${config.color.split('-')[1]}-500 rounded-full`} style={{ height: `${entry.intensity * 10}%`, marginTop: `${(10-entry.intensity)*10}%` }} />
-                                         </div>
-                                    </div>
+                                    {entry.note && <p className="text-xs text-gray-400 line-clamp-2">{entry.note}</p>}
                                 </div>
                             );
                         })}
                     </div>
                 </div>
             </div>
-
-            {/* Right Sidebar (Context/AI) */}
-            <div className="hidden lg:block w-80 flex-shrink-0 border-l border-white/5 bg-black/20 backdrop-blur-xl">
+            
+            {/* Right Panel: Analysis (Desktop Only) */}
+            <div className="hidden xl:block w-80 border-l border-white/5 bg-black/20 backdrop-blur-xl">
                 <div className="p-6 border-b border-white/5">
-                    <h2 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                        <Activity size={16} /> Analysis
-                    </h2>
+                    <h3 className="text-sm font-bold text-white uppercase tracking-widest">Pattern Recognition</h3>
                 </div>
-                <div className="h-full overflow-y-auto pb-20">
-                    <InsightPanel analysis={analysis} isAnalyzing={isAnalyzing} />
-                </div>
+                <InsightPanel analysis={analysis} isAnalyzing={isAnalyzing} />
             </div>
 
-            {/* Modals */}
             {isModalOpen && <AddMoodModal onClose={() => setIsModalOpen(false)} onSave={handleSave} />}
         </div>
     );

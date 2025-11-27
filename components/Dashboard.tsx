@@ -18,7 +18,8 @@ import {
   Activity, 
   ChevronRight, 
   Maximize2,
-  CheckCircle2
+  CheckCircle2,
+  Mic2 // Mantra icon
 } from 'lucide-react';
 import { AreaChart, Area, Tooltip, ResponsiveContainer } from 'recharts';
 import { AGENTS } from './AgentDock';
@@ -174,31 +175,17 @@ export const Dashboard: React.FC = () => {
                </div>
             </WidgetShell>
 
-            {/* B. Daily Insight Widget */}
-            <WidgetShell className="col-span-1 md:col-span-2 lg:col-span-2 row-span-1 bg-gradient-to-br from-white/[0.02] to-transparent" delay={100} title={<><Quote size={12}/> {t('dashboard.wisdom')}</>}>
-               <div className="h-full flex flex-col justify-center">
-                  {insight ? (
-                     <>
-                        <blockquote className="text-xl font-display font-medium text-white leading-relaxed mb-4">
-                           "{insight.quote}"
-                        </blockquote>
-                        <div className="flex items-center justify-between">
-                           <cite className="text-sm font-mono text-forge-cyan not-italic">— {insight.author}</cite>
-                           <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/5 border border-white/5 text-gray-400">{insight.theme}</span>
-                        </div>
-                        <div className="mt-4 pt-3 border-t border-white/5">
-                           <p className="text-xs text-gray-500 italic flex items-center gap-2">
-                              <Sparkles size={10} className="text-forge-accent" />
-                              AI: This resonates with your recent focus.
-                           </p>
-                        </div>
-                     </>
-                  ) : (
-                     <div className="animate-pulse space-y-2">
-                        <div className="h-4 bg-white/10 rounded w-3/4" />
-                        <div className="h-4 bg-white/10 rounded w-1/2" />
-                     </div>
-                  )}
+            {/* B. Daily Mantra Widget (NEW) */}
+            <WidgetShell className="col-span-1 md:col-span-2 lg:col-span-2 row-span-1 bg-gradient-to-br from-emerald-900/10 to-transparent border-emerald-500/20" delay={100} title={<><Mic2 size={12}/> Daily Mantra</>}>
+               <div className="h-full flex flex-col justify-center text-center">
+                  <p className="text-2xl font-display font-medium text-emerald-100 leading-relaxed drop-shadow-lg">
+                     "Hôm nay tao nhẹ nhưng thật."
+                  </p>
+                  <div className="mt-4 pt-3 flex justify-center">
+                     <p className="text-xs text-emerald-400/60 font-mono flex items-center gap-2">
+                        <Sparkles size={10} /> Spring Season
+                     </p>
+                  </div>
                </div>
             </WidgetShell>
 

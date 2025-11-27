@@ -1,6 +1,5 @@
-
 import { GoogleGenAI, GenerateContentResponse, Type } from "@google/genai";
-import { InsightData, JournalAnalysis, MemoryAnalysis, TimelineAnalysis, QuoteAnalysis, MoodEntry, MoodAnalysis, GlobalAnalysis, Idea, GoalAnalysis, Milestone, HabitAnalysis, RoutineBlock, RoutineAnalysis, EnergyMetrics, EnergyAnalysis, MilestoneAnalysis, WeeklyReviewData, WeeklyReviewAnalysis, MonthlyReviewData, MonthlyReviewAnalysis, YearlyReviewData, YearlyReviewAnalysis, AchievementAnalysis, AchievementCategory, IdentityProfile, LifeThemeAnalysis, ShadowAnalysis, CompassData, MasterplanData } from "../types";
+import { InsightData, JournalAnalysis, MemoryAnalysis, TimelineAnalysis, QuoteAnalysis, MoodEntry, MoodAnalysis, GlobalAnalysis, Idea, GoalAnalysis, Milestone, HabitAnalysis, RoutineBlock, RoutineAnalysis, EnergyMetrics, EnergyAnalysis, MilestoneAnalysis, WeeklyReviewData, WeeklyReviewAnalysis, MonthlyReviewData, MonthlyReviewAnalysis, YearlyReviewData, YearlyReviewAnalysis, AchievementAnalysis, AchievementCategory, IdentityProfile, LifeThemeAnalysis, ShadowAnalysis, CompassData, MasterplanData, MantraAnalysis, Season, IdentityArchetype } from "../types";
 
 // Initialize the AI client - ONLY used for Forge Chamber
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
@@ -861,5 +860,48 @@ export const generateMasterplanAnalysis = async (): Promise<MasterplanData> => {
       strongestPillar: "Work & Craft",
       riskFactor: "Burnout due to neglected recovery protocols."
     }
+  };
+};
+
+export const analyzeMantra = async (text: string): Promise<MantraAnalysis> => {
+  await simulateDelay();
+  
+  // Enhanced poetic logic for Vietnamese tone
+  const len = text.length;
+  let season: Season = 'Winter';
+  let whisper = "Sự tĩnh lặng tuyệt đối, nơi mọi xao động dừng lại.";
+  let tone = "Tối Giản & Tĩnh Lặng";
+  let archetype: IdentityArchetype = 'Sage';
+
+  const lowerText = text.toLowerCase();
+
+  if (lowerText.includes('mở') || lowerText.includes('mới') || lowerText.includes('nhẹ') || lowerText.includes('thở')) {
+      season = 'Spring';
+      whisper = "Lời này mang sinh khí của sự tái sinh, nhẹ nhõm và đầy hứa hẹn.";
+      tone = "Hy Vọng & Thanh Thoát";
+      archetype = 'Explorer';
+  } else if (lowerText.includes('đẩy') || lowerText.includes('lửa') || lowerText.includes('bước') || lowerText.includes('mạnh')) {
+      season = 'Summer';
+      whisper = "Năng lượng trong câu này sắc bén như một mũi tên rời cung.";
+      tone = "Mãnh Liệt & Quyết Đoán";
+      archetype = 'Warrior';
+  } else if (lowerText.includes('sâu') || lowerText.includes('hiểu') || lowerText.includes('trầm') || lowerText.includes('thật')) {
+      season = 'Autumn';
+      whisper = "Có độ đầm của thời gian và sự chín muồi trong tư duy.";
+      tone = "Chiêm Nghiệm & Sâu Sắc";
+      archetype = 'Healer';
+  } else {
+      // Winter Default
+      season = 'Winter';
+      whisper = "Sự cô đọng tối giản, giữ lại những gì cốt lõi nhất.";
+      tone = "Tối Giản & Cốt Lõi";
+      archetype = 'Strategist';
+  }
+
+  return {
+      season,
+      tone,
+      archetype,
+      novaWhisper: whisper
   };
 };
