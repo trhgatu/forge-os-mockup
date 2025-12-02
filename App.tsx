@@ -29,7 +29,8 @@ import { MetaJournalView } from './components/MetaJournalView';
 import { ConnectionView } from './components/ConnectionView';
 import { PresenceView } from './components/PresenceView'; 
 import { EchoesView } from './components/EchoesView'; 
-import { WikiView } from './components/WikiView'; // Added
+import { WikiView } from './components/WikiView';
+import { ThoughtStreamView } from './components/ThoughtStreamView';
 import { SettingsView } from './components/SettingsView';
 import { NovaGuide } from './components/NovaGuide';
 import { View } from './types';
@@ -43,7 +44,9 @@ import { EchoesProvider } from './contexts/EchoesContext';
 import { NotificationOverlay } from './components/Notification/NotificationOverlay';
 import { GlobalPlayer } from './components/GlobalPlayer';
 import { SeasonProvider } from './contexts/SeasonContext'; 
-import { SeasonalWrapper } from './components/SeasonalWrapper'; 
+import { NavigationProvider } from './contexts/NavigationContext';
+import { InsightProvider } from './contexts/InsightContext'; 
+import { ThoughtStreamProvider } from './contexts/ThoughtStreamContext';
 
 const AppContent: React.FC = () => {
   const [currentView, setCurrentView] = useState<View>(View.DASHBOARD);
@@ -52,6 +55,7 @@ const AppContent: React.FC = () => {
     switch (currentView) {
       case View.DASHBOARD: return <Dashboard />;
       case View.FORGE_CHAMBER: return <ForgeChamber />;
+      case View.THOUGHT_STREAM: return <ThoughtStreamView />; 
       case View.JOURNAL: return <JournalView />;
       case View.META_JOURNAL: return <MetaJournalView />; 
       case View.MEMORY: return <MemoryView />;
@@ -71,7 +75,7 @@ const AppContent: React.FC = () => {
       case View.CONNECTION: return <ConnectionView />; 
       case View.PRESENCE: return <PresenceView />; 
       case View.ECHOES: return <EchoesView />;
-      case View.WIKI: return <WikiView />; // Added
+      case View.WIKI: return <WikiView />; 
       case View.THEMES: return <LifeThemesView />;
       case View.SHADOW_WORK: return <ShadowWorkView />;
       case View.COMPASS: return <CompassView />;
@@ -104,21 +108,23 @@ const AppContent: React.FC = () => {
   };
 
   return (
-    <div className="flex h-screen w-screen bg-forge-bg text-white overflow-hidden font-sans transition-colors duration-300">
-      <div className="relative z-10 flex w-full h-full">
-        <Sidebar currentView={currentView} onNavigate={setCurrentView} />
-        <main className="flex-1 h-full relative overflow-hidden flex flex-col">
-           <div className="flex-1 overflow-hidden">
-             {renderContent()}
-           </div>
-           
-           {/* System Layers */}
-           <NovaGuide currentView={currentView} />
-           <GlobalPlayer />
-           <NotificationOverlay />
-        </main>
+    <NavigationProvider currentView={currentView} onNavigate={setCurrentView}>
+      <div className="flex h-screen w-screen bg-forge-bg text-white overflow-hidden font-sans transition-colors duration-300">
+        <div className="relative z-10 flex w-full h-full">
+          <Sidebar currentView={currentView} onNavigate={setCurrentView} />
+          <main className="flex-1 h-full relative overflow-hidden flex flex-col">
+             <div className="flex-1 overflow-hidden">
+               {renderContent()}
+             </div>
+             
+             {/* System Layers */}
+             <NovaGuide currentView={currentView} />
+             <GlobalPlayer />
+             <NotificationOverlay />
+          </main>
+        </div>
       </div>
-    </div>
+    </NavigationProvider>
   );
 };
 
@@ -128,9 +134,13 @@ const App: React.FC = () => (
       <SoundProvider>
         <NotificationProvider>
           <EchoesProvider>
-            <SoundtrackProvider>
-              <AppContent />
-            </SoundtrackProvider>
+            <InsightProvider>
+              <ThoughtStreamProvider>
+                <SoundtrackProvider>
+                  <AppContent />
+                </SoundtrackProvider>
+              </ThoughtStreamProvider>
+            </InsightProvider>
           </EchoesProvider>
         </NotificationProvider>
       </SoundProvider>

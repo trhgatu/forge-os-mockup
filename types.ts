@@ -14,7 +14,8 @@ export enum View {
   CONNECTION = 'CONNECTION',
   PRESENCE = 'PRESENCE', 
   ECHOES = 'ECHOES', 
-  WIKI = 'WIKI', // New View
+  WIKI = 'WIKI',
+  THOUGHT_STREAM = 'THOUGHT_STREAM', 
   QUOTES = 'QUOTES',
   MOOD = 'MOOD',
   MANTRA = 'MANTRA', 
@@ -57,24 +58,69 @@ export interface InsightData {
   theme: string;
 }
 
+// --- Insight Engine Types ---
+
+export type InsightSource = 'thought' | 'journal' | 'wiki' | 'echo' | 'memory' | 'mood' | 'energy' | 'identity' | 'manual';
+
+export interface Insight {
+  id: string;
+  source: InsightSource;
+  text: string;          // The core realization
+  reflection?: string;   // Nova's whisper
+  createdAt: Date;
+  tags: string[];
+  metadata: {
+    depth: number;       // 1-5
+    emotion?: string;
+    relatedConcepts?: string[];
+  };
+  isFavorite?: boolean;
+}
+
+// --- Thought Stream Types ---
+
+export type ThoughtType = 'spark' | 'fragment' | 'stream';
+
+export interface ThoughtFragment {
+  id: string;
+  type: ThoughtType;
+  text: string;
+  createdAt: Date;
+  tags: string[];
+  metadata: {
+    sentiment?: string;
+    depth: number; // 0-100
+    origin?: "manual" | "wiki" | "echo" | "memory" | "journal";
+    novaReflection?: string;
+  };
+  expanded: boolean;
+}
+
+export interface ThoughtStats {
+  totalCount: number;
+  avgDepth: number;
+  dominantType: ThoughtType;
+  flowState: 'stagnant' | 'drifting' | 'flowing' | 'rushing';
+}
+
 // --- Wiki Module Types ---
 
 export interface WikiConcept {
   id: string;
   title: string;
-  extract: string; // The summary text
-  content?: string; // Full HTML content
-  url: string; // Wikipedia URL
-  imageUrl?: string; // Optional thumbnail
-  language?: string; // 'en' or 'vi'
+  extract: string; 
+  content?: string; 
+  url: string; 
+  imageUrl?: string; 
+  language?: string; 
   metadata?: {
     keywords?: string[];
     categories?: string[];
   };
-  insights?: string[]; // Generated bullet points
-  reflection?: string; // Nova's commentary
-  createdAt: string; // When it was accessed
-  lastModified?: string; // ISO Date string
+  insights?: string[]; 
+  reflection?: string; 
+  createdAt: string; 
+  lastModified?: string; 
 }
 
 // --- Echoes Module Types ---
@@ -85,11 +131,11 @@ export type EchoTone = 'soft' | 'warm' | 'cool' | 'neutral' | 'deep';
 export interface Echo {
   id: string;
   type: EchoType;
-  from: string | null; // Null implies anonymous
+  from: string | null; 
   message: string;
   metadata: {
     sentiment?: string;
-    depth: number; // 0-100
+    depth: number; 
     keywords: string[];
   };
   createdAt: Date;
@@ -111,7 +157,7 @@ export type NotificationSource =
   | 'memory'
   | 'presence'
   | 'echoes'
-  | 'wiki'; // Added wiki
+  | 'wiki';
 
 export interface Notification {
   id: string;

@@ -7,6 +7,7 @@ import {
 import { GlassCard } from './GlassCard';
 import { JournalEntry, JournalAnalysis, MoodType } from '../types';
 import { analyzeJournalEntry } from '../services/geminiService';
+import { draftService } from '../services/draftService';
 import { cn } from '../lib/utils';
 
 // --- MOCK DATA ---
@@ -430,6 +431,26 @@ export const JournalView: React.FC = () => {
   const [selectedId, setSelectedId] = useState<string | null>(MOCK_ENTRIES[0].id);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isFocusMode, setIsFocusMode] = useState(false);
+
+  // Check for incoming drafts on mount
+  useEffect(() => {
+    if (draftService.hasDraft()) {
+      const draft = draftService.getDraft();
+      if (draft) {
+        const newEntry: JournalEntry = {
+          id: Date.now().toString(),
+          title: 'Expanded Thought', // Default title, user can edit
+          content: draft.content + '\n\n', // Add spacing for expansion
+          date: new Date(),
+          mood: 'neutral',
+          tags: draft.tags || [],
+          isDraft: true
+        };
+        setEntries(prev => [newEntry, ...prev]);
+        setSelectedId(newEntry.id);
+      }
+    }
+  }, []);
 
   const selectedEntry = entries.find(e => e.id === selectedId) || entries[0];
 

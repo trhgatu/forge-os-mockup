@@ -1,89 +1,210 @@
 
 import React, { useState, useEffect } from 'react';
-import { Telescope, Sparkles, Activity, Zap, TrendingUp, BrainCircuit, RefreshCw, ArrowRight } from 'lucide-react';
-import { GlassCard } from './GlassCard';
-import { GlobalAnalysis, TopicCluster, Pattern } from '../types';
-import { generateGlobalInsights } from '../services/geminiService';
-import { ComposedChart, Area, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { useInsight } from '../contexts/InsightContext';
+import { InsightCard } from './InsightCard';
+import { InsightDetail } from './InsightDetail';
+import { Telescope, Brain, Plus, RefreshCw, Layers, Search, Sparkles } from 'lucide-react';
+import { draftService } from '../services/draftService';
 import { cn } from '../lib/utils';
 
-const TopicConstellation: React.FC<{ topics: TopicCluster[] }> = ({ topics }) => {
-    return (
-        <div className="relative w-full h-full overflow-hidden bg-gradient-to-b from-black/40 to-transparent rounded-2xl border border-white/5">
-            <div className="absolute inset-0" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
-            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-forge-accent/5 rounded-full blur-3xl animate-pulse-slow" />
-            {topics.map((topic, index) => {
-                const sizeClass = topic.size > 8 ? 'w-24 h-24 text-base' : topic.size > 5 ? 'w-16 h-16 text-sm' : 'w-12 h-12 text-xs';
-                return (
-                    <div key={topic.id} className="absolute transition-all duration-1000" style={{ left: `${topic.x}%`, top: `${topic.y}%`, animation: `float ${6 + index}s ease-in-out infinite ${index}s` }}>
-                        <div className="absolute left-1/2 top-1/2 w-[200px] h-[1px] bg-gradient-to-r from-white/5 to-transparent origin-left -z-10 -rotate-45 opacity-30" />
-                        <div className={cn(sizeClass, "rounded-full border border-white/10 bg-white/5 backdrop-blur-md flex items-center justify-center text-center p-2 shadow-lg hover:scale-110 transition-transform cursor-pointer group hover:bg-forge-accent/20 hover:border-forge-accent/40")}>
-                            <span className="font-medium text-gray-200 group-hover:text-white">{topic.name}</span>
-                        </div>
-                        {topic.relatedTopics.map((sub, i) => <div key={i} className="absolute w-2 h-2 bg-forge-cyan/40 rounded-full animate-pulse" style={{ top: `${Math.sin(i) * 40}px`, left: `${Math.cos(i) * 40}px` }} />)}
-                    </div>
-                );
-            })}
-        </div>
-    );
-};
-
-const PatternCard: React.FC<{ pattern: Pattern }> = ({ pattern }) => {
-    const color = pattern.impact === 'positive' ? 'text-emerald-400 border-emerald-500/30' : pattern.impact === 'negative' ? 'text-rose-400 border-rose-500/30' : 'text-blue-400 border-blue-500/30';
-    return (
-        <div className={cn("group p-5 rounded-xl border bg-white/[0.02] hover:bg-white/[0.05] transition-all", color)}>
-            <div className="flex justify-between items-start mb-3">
-                <div className="flex items-center gap-2"><Zap size={14} className="animate-pulse" /><span className="text-xs font-bold uppercase tracking-wider opacity-80">{pattern.type} Signal</span></div>
-                <div className="text-xs font-mono opacity-60">{pattern.confidence}% Conf.</div>
-            </div>
-            <h3 className="text-white font-medium mb-2 group-hover:text-white transition-colors">{pattern.title}</h3>
-            <p className="text-sm text-gray-400 leading-relaxed group-hover:text-gray-300">{pattern.description}</p>
-        </div>
-    );
-};
-
-const LifeArcWidget: React.FC<{ arc: GlobalAnalysis['lifeArc'] }> = ({ arc }) => (
-    <GlassCard className="relative overflow-hidden">
-        <div className="absolute right-0 top-0 w-32 h-32 bg-gradient-to-br from-forge-cyan/20 to-transparent blur-2xl rounded-bl-full pointer-events-none" />
-        <div className="relative z-10">
-            <div className="flex items-center gap-2 text-forge-cyan text-xs font-bold uppercase tracking-widest mb-4"><Activity size={14} /> Macro Cycle</div>
-            <div className="flex justify-between items-end mb-2"><h2 className="text-2xl font-display font-bold text-white">{arc.currentPhase}</h2><span className="text-xs text-gray-500 font-mono mb-1">Phase Progress</span></div>
-            <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden mb-4"><div className="h-full bg-gradient-to-r from-forge-accent to-forge-cyan" style={{ width: `${arc.progress}%` }} /></div>
-            <p className="text-sm text-gray-300 leading-relaxed mb-4">{arc.description}</p>
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs text-gray-400"><span>Next Phase Prediction:</span><span className="text-white font-medium">{arc.nextPhasePrediction}</span><ArrowRight size={12} /></div>
-        </div>
-    </GlassCard>
-);
-
 export const InsightView: React.FC = () => {
-    const [data, setData] = useState<GlobalAnalysis | null>(null);
-    const [isAnalyzing, setIsAnalyzing] = useState(false);
-    const [period, setPeriod] = useState<'7d' | '30d'>('7d');
+  const { insights, activeInsight, setActiveInsight, isLoading, addInsight, patterns, refreshPatterns } = useInsight();
+  const [manualInput, setManualInput] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [filter, setFilter] = useState('');
 
-    useEffect(() => { refreshInsights(); }, []);
-    const refreshInsights = async () => { setIsAnalyzing(true); try { const mockSummary = "User has been logging focused work sessions but reporting feeling tired in evenings. High activity in Journaling about 'Systems'. Memory logged about hiking."; const result = await generateGlobalInsights(mockSummary); setData(result); } catch (e) { console.error(e); } finally { setIsAnalyzing(false); } };
+  // Check for incoming drafts from Thought Stream
+  useEffect(() => {
+    if (draftService.hasDraft()) {
+      const draft = draftService.getDraft();
+      if (draft) {
+        const process = async () => {
+           setIsProcessing(true);
+           setManualInput(draft.content); // Visual feedback
+           // Prioritize analysis for drafts
+           await addInsight(draft.content, 'thought');
+           setManualInput('');
+           setIsProcessing(false);
+        };
+        process();
+      }
+    }
+  }, [addInsight]);
 
-    return (
-        <div className="h-full flex bg-forge-bg text-white relative overflow-hidden animate-in fade-in duration-700">
-            <div className="flex-1 h-full overflow-y-auto overflow-x-hidden relative">
-                <div className="p-8 pb-4 relative z-10">
-                    <div className="flex justify-between items-start">
-                        <div><h1 className="text-3xl font-display font-bold text-white flex items-center gap-3"><Telescope className="text-forge-cyan" /> Mind Observatory</h1><p className="text-sm text-gray-500 mt-2 max-w-xl leading-relaxed">Aggregating cognitive signals, emotional cycles, and behavioral patterns from the Forge Neural Net.</p></div>
-                        <div className="flex gap-2">
-                            {['7d', '30d'].map(p => (<button key={p} onClick={() => setPeriod(p as any)} className={cn("px-3 py-1.5 rounded-lg text-xs font-medium border transition-all", period === p ? 'bg-white/10 border-white/20 text-white' : 'border-transparent text-gray-500 hover:text-white')}>{p === '7d' ? '7 Days' : '30 Days'}</button>))}
-                            <button onClick={refreshInsights} className="p-2 rounded-lg bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-forge-accent/20 transition-all" disabled={isAnalyzing}><RefreshCw size={16} className={isAnalyzing ? 'animate-spin' : ''} /></button>
-                        </div>
-                    </div>
-                </div>
-                {data ? (
-                    <div className="p-8 pt-0 grid grid-cols-1 lg:grid-cols-3 gap-6 pb-24">
-                        <div className="lg:col-span-2 min-h-[300px]"><GlassCard className="h-full flex flex-col" noPadding><div className="p-5 border-b border-white/5 flex justify-between items-center"><h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 flex items-center gap-2"><TrendingUp size={14} /> Emotional Cycle</h3></div><div className="flex-1 w-full h-full min-h-[250px] p-4"><ResponsiveContainer width="100%" height="100%"><ComposedChart data={data.emotionalCycle}><defs><linearGradient id="colorMood" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#7C3AED" stopOpacity={0.3}/><stop offset="95%" stopColor="#7C3AED" stopOpacity={0}/></linearGradient></defs><CartesianGrid stroke="rgba(255,255,255,0.05)" vertical={false} strokeDasharray="3 3" /><XAxis dataKey="date" stroke="#555" fontSize={10} tickLine={false} axisLine={false} /><YAxis hide domain={[0, 10]} /><Tooltip contentStyle={{ backgroundColor: '#000', border: '1px solid #333', borderRadius: '8px' }} itemStyle={{ color: '#fff' }} /><Area type="monotone" dataKey="value" stroke="#7C3AED" fill="url(#colorMood)" strokeWidth={2} /><Scatter dataKey="value" fill="#fff" /></ComposedChart></ResponsiveContainer></div></GlassCard></div>
-                        <div className="lg:col-span-1"><LifeArcWidget arc={data.lifeArc} /></div>
-                        <div className="lg:col-span-2 min-h-[400px]"><GlassCard className="h-full relative" noPadding><div className="absolute top-5 left-5 z-10"><h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 flex items-center gap-2"><BrainCircuit size={14} /> Topic Constellation</h3></div><TopicConstellation topics={data.topics} /></GlassCard></div>
-                        <div className="lg:col-span-1 flex flex-col gap-4"><h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 px-2">Detected Signals</h3>{data.patterns.map(p => <PatternCard key={p.id} pattern={p} />)}</div>
-                    </div>
-                ) : <div className="flex flex-col items-center justify-center h-[60vh]"><div className="w-16 h-16 rounded-full border-4 border-forge-accent border-t-transparent animate-spin mb-6" /><h2 className="text-xl font-display font-bold text-white">Calibrating Sensors...</h2></div>}
+  const handleManualAdd = async () => {
+    if (!manualInput.trim()) return;
+    setIsProcessing(true);
+    await addInsight(manualInput, 'manual');
+    setManualInput('');
+    setIsProcessing(false);
+  };
+
+  const filteredInsights = insights.filter(i => 
+    i.text.toLowerCase().includes(filter.toLowerCase()) || 
+    i.tags.some(t => t.toLowerCase().includes(filter.toLowerCase()))
+  );
+
+  return (
+    <div className="h-full flex bg-[#020204] text-white relative overflow-hidden animate-in fade-in duration-1000">
+      
+      {/* Background Ambience */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-[-20%] left-[20%] w-[1000px] h-[1000px] bg-indigo-900/10 rounded-full blur-[200px] opacity-40" />
+        <div className="absolute bottom-[-10%] right-[10%] w-[800px] h-[800px] bg-fuchsia-900/10 rounded-full blur-[200px] opacity-40" />
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-overlay" />
+      </div>
+
+      <div className="flex-1 h-full flex flex-col relative z-10">
+        
+        {/* Header */}
+        <div className="shrink-0 p-8 flex justify-between items-end border-b border-white/5 bg-black/20 backdrop-blur-sm">
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 bg-white/5 text-xs font-mono text-gray-400 mb-4">
+              <Telescope size={12} className="text-forge-cyan animate-pulse-slow" /> Meaning Maker
             </div>
+            <h1 className="text-4xl md:text-5xl font-display font-bold text-white tracking-tight">Insight Engine</h1>
+            <p className="text-gray-400 mt-2 font-light text-sm max-w-md">
+              Detecting patterns and crystallizing meaning from the noise.
+            </p>
+          </div>
+          
+          <div className="hidden md:flex gap-6 items-center">
+             <div className="text-right">
+                <div className="text-2xl font-bold text-white">{insights.length}</div>
+                <div className="text-[10px] text-gray-500 uppercase tracking-widest">Total Nodes</div>
+             </div>
+             <div className="w-px h-8 bg-white/10" />
+             <div className="text-right">
+                <div className="text-2xl font-bold text-forge-cyan">{patterns.length}</div>
+                <div className="text-[10px] text-gray-500 uppercase tracking-widest">Active Patterns</div>
+             </div>
+          </div>
         </div>
-    );
+
+        <div className="flex-1 flex overflow-hidden">
+          
+          {/* Main Feed */}
+          <div className="flex-1 overflow-y-auto scrollbar-hide p-6 md:p-8">
+            <div className="max-w-4xl mx-auto space-y-8 pb-32">
+              
+              {/* Input Area */}
+              <div className="relative group">
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-forge-cyan/20 to-fuchsia-500/20 rounded-2xl blur opacity-0 group-focus-within:opacity-100 transition duration-700" />
+                <div className="relative flex items-center bg-[#050508] rounded-2xl border border-white/10 p-2 shadow-2xl">
+                  <div className="pl-4 pr-2 text-gray-500">
+                    <Brain size={20} />
+                  </div>
+                  <input 
+                    type="text" 
+                    value={manualInput}
+                    onChange={(e) => setManualInput(e.target.value)}
+                    placeholder="Input raw data for analysis..." 
+                    className="flex-1 bg-transparent border-none text-white text-lg px-4 py-3 focus:outline-none focus:ring-0 placeholder-gray-600 font-serif"
+                    onKeyDown={(e) => e.key === 'Enter' && handleManualAdd()}
+                  />
+                  <button 
+                    onClick={handleManualAdd}
+                    disabled={!manualInput.trim() || isProcessing}
+                    className={cn(
+                      "p-3 rounded-xl transition-all duration-300",
+                      manualInput.trim() 
+                        ? "bg-white text-black hover:bg-gray-200" 
+                        : "bg-white/5 text-gray-500 hover:text-gray-300"
+                    )}
+                  >
+                    {isProcessing ? <RefreshCw size={18} className="animate-spin" /> : <Plus size={18} />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Filters / Search */}
+              <div className="flex items-center gap-4">
+                 <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={14} />
+                    <input 
+                        type="text" 
+                        value={filter}
+                        onChange={(e) => setFilter(e.target.value)}
+                        placeholder="Search patterns..." 
+                        className="w-full bg-white/5 border border-white/5 rounded-xl py-2 pl-9 pr-4 text-xs text-white focus:outline-none focus:border-white/20 transition-all"
+                    />
+                 </div>
+                 <div className="flex gap-2">
+                    {patterns.slice(0, 3).map((pat, i) => (
+                        <button key={i} className="hidden md:block px-3 py-1.5 rounded-lg bg-white/5 border border-white/5 text-[10px] text-gray-400 hover:text-white hover:border-white/20 transition-all truncate max-w-[150px]">
+                            {pat.title.split(':')[0]}
+                        </button>
+                    ))}
+                 </div>
+              </div>
+
+              {isLoading ? (
+                <div className="flex flex-col items-center justify-center h-64 text-gray-500 gap-4">
+                  <div className="w-12 h-12 rounded-full border-2 border-white/10 border-t-forge-cyan animate-spin" />
+                  <p className="text-xs font-mono uppercase tracking-widest">Synthesizing Meaning...</p>
+                </div>
+              ) : filteredInsights.length === 0 ? (
+                <div className="text-center py-20 opacity-50 border border-dashed border-white/10 rounded-3xl">
+                  <Sparkles size={48} className="mx-auto mb-4 text-gray-600" />
+                  <p className="text-gray-400 font-light">No insights found.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {filteredInsights.map((insight) => (
+                    <InsightCard 
+                        key={insight.id} 
+                        insight={insight} 
+                        onClick={() => setActiveInsight(insight)} 
+                    />
+                    ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Right Panel: Clusters (Visible on Large Screens) */}
+          <div className="w-80 border-l border-white/5 bg-black/20 hidden xl:flex flex-col p-6 backdrop-blur-xl">
+            <div className="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-widest mb-6">
+              <Layers size={14} /> Pattern Clusters
+            </div>
+            
+            <div className="space-y-3 overflow-y-auto flex-1 scrollbar-hide">
+              {patterns.map((pat, i) => (
+                <div key={i} className="p-4 rounded-xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors group cursor-default relative overflow-hidden">
+                  <div className="relative z-10 flex justify-between items-start mb-2">
+                    <span className="text-xs font-bold text-gray-300 group-hover:text-white transition-colors">{pat.title}</span>
+                    <span className="bg-white/10 text-[10px] px-1.5 py-0.5 rounded text-gray-400 font-mono">{pat.count}</span>
+                  </div>
+                  <div className="w-full bg-white/5 h-1 rounded-full overflow-hidden relative z-10">
+                    <div 
+                      className="h-full bg-forge-cyan/50 group-hover:bg-forge-cyan transition-all duration-500" 
+                      style={{ width: `${Math.min(100, pat.count * 10)}%` }} 
+                    />
+                  </div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-forge-cyan/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-6 p-5 rounded-2xl bg-gradient-to-br from-indigo-500/10 to-transparent border border-indigo-500/20">
+              <div className="text-[10px] font-mono text-indigo-300 mb-2 uppercase tracking-widest">System Note</div>
+              <p className="text-xs text-gray-400 leading-relaxed font-serif italic">
+                "Identity vectors are aligning. A shift in the 'Work' cluster suggests a need for rest."
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      {/* Detail Overlay */}
+      {activeInsight && (
+        <InsightDetail 
+          insight={activeInsight} 
+          onClose={() => setActiveInsight(null)} 
+        />
+      )}
+
+    </div>
+  );
 };

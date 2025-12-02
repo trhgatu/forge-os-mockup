@@ -1,8 +1,9 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Plus, Heart, Maximize2, Minimize2, Sparkles, Tag, Quote as QuoteIcon, X, BookOpen, Feather } from 'lucide-react';
 import { Quote, MoodType } from '../types';
 import { analyzeQuote } from '../services/geminiService';
+import { draftService } from '../services/draftService';
 import { cn } from '../lib/utils';
 
 const MOOD_THEMES: Record<MoodType, { bg: string, border: string, text: string, glow: string }> = {
@@ -38,7 +39,6 @@ const MOCK_QUOTES: Quote[] = [
             reflectionPrompt: "What 'catastrophe' are you imagining right now that hasn't actually happened?"
         }
     },
-    // ... more mocks
 ];
 
 const QuoteCard: React.FC<{ quote: Quote; onClick: () => void; onToggleFav: (e: React.MouseEvent) => void }> = ({ quote, onClick, onToggleFav }) => {
@@ -144,10 +144,19 @@ const DetailPanel: React.FC<{ quote: Quote; onClose: () => void; onAnalyze: (id:
     );
 };
 
-const AddQuoteModal: React.FC<{ onClose: () => void; onSave: (q: Quote) => void }> = ({ onClose, onSave }) => {
-    const [text, setText] = useState('');
+const AddQuoteModal: React.FC<{ 
+    initialText?: string; 
+    onClose: () => void; 
+    onSave: (q: Quote) => void 
+}> = ({ initialText = '', onClose, onSave }) => {
+    const [text, setText] = useState(initialText);
     const [author, setAuthor] = useState('');
     const [mood, setMood] = useState<MoodType>('neutral');
+
+    // Auto-set author if we have initial text (coming from Thought Stream)
+    useEffect(() => {
+        if (initialText) setAuthor('Self');
+    }, [initialText]);
 
     const handleSave = () => {
         if (!text) return;
@@ -188,7 +197,19 @@ export const QuoteView: React.FC = () => {
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [filterMood, setFilterMood] = useState<MoodType | 'all'>('all');
     const [isAdding, setIsAdding] = useState(false);
+    const [initialDraftText, setInitialDraftText] = useState('');
     const [isAnalyzing, setIsAnalyzing] = useState(false);
+
+    // Check for incoming drafts (from Thought Stream)
+    useEffect(() => {
+        if (draftService.hasDraft()) {
+            const draft = draftService.getDraft();
+            if (draft && draft.type === 'insight') {
+                setInitialDraftText(draft.content);
+                setIsAdding(true);
+            }
+        }
+    }, []);
 
     const filteredQuotes = filterMood === 'all' ? quotes : quotes.filter(q => q.mood === filterMood);
 
@@ -234,7 +255,7 @@ export const QuoteView: React.FC = () => {
                         <p className="text-xs text-gray-500 mt-1 font-mono">{quotes.length} Quotes Collected</p>
                     </div>
                     <div className="flex gap-3">
-                        <button onClick={() => setIsAdding(true)} className="flex items-center gap-2 px-4 py-2 bg-white text-black rounded-xl font-medium hover:bg-gray-200 transition-colors shadow-lg shadow-white/10">
+                        <button onClick={() => { setInitialDraftText(''); setIsAdding(true); }} className="flex items-center gap-2 px-4 py-2 bg-white text-black rounded-xl font-medium hover:bg-gray-200 transition-colors shadow-lg shadow-white/10">
                             <Plus size={16} /> <span className="hidden md:inline">Add Quote</span>
                         </button>
                     </div>
@@ -252,7 +273,7 @@ export const QuoteView: React.FC = () => {
             {selectedId && (
                 <DetailPanel quote={quotes.find(q => q.id === selectedId)!} onClose={() => setSelectedId(null)} onAnalyze={handleAnalyze} isAnalyzing={isAnalyzing} />
             )}
-            {isAdding && <AddQuoteModal onClose={() => setIsAdding(false)} onSave={handleSaveNew} />}
+            {isAdding && <AddQuoteModal initialText={initialDraftText} onClose={() => setIsAdding(false)} onSave={handleSaveNew} />}
         </div>
     );
 };

@@ -12,6 +12,7 @@ export const TRANSLATIONS = {
     // Nav Items
     "nav.dashboard": "Dashboard",
     "nav.forge_chamber": "Forge Chamber",
+    "nav.thought_stream": "Thought Stream", // Added
     "nav.timeline": "Timeline",
     "nav.journal": "Journal",
     "nav.meta_journal": "Meta Log",
@@ -30,7 +31,7 @@ export const TRANSLATIONS = {
     "nav.habits": "Habits",
     "nav.routines": "Routines",
     "nav.energy": "Energy",
-    "nav.insights": "Observatory",
+    "nav.insights": "Insight Engine",
     "nav.weekly_review": "Weekly Review",
     "nav.monthly_review": "Monthly Review",
     "nav.yearly_review": "Yearly Review",
@@ -39,7 +40,7 @@ export const TRANSLATIONS = {
     "nav.connection": "Connections",
     "nav.presence": "Visitor Echo", 
     "nav.echoes": "Echoes", 
-    "nav.wiki": "Knowledge", // Added
+    "nav.wiki": "Knowledge", 
 
     // Dashboard
     "dashboard.welcome": "Welcome back, Traveler.",
@@ -67,6 +68,7 @@ export const TRANSLATIONS = {
     // Nav Items
     "nav.dashboard": "Bảng Điều Khiển",
     "nav.forge_chamber": "Lõi Tư Duy",
+    "nav.thought_stream": "Dòng Suy Nghĩ", // Added
     "nav.timeline": "Dòng Thời Gian",
     "nav.journal": "Nhật Ký",
     "nav.meta_journal": "Meta Log",
@@ -85,7 +87,7 @@ export const TRANSLATIONS = {
     "nav.habits": "Thói Quen",
     "nav.routines": "Nhịp Điệu",
     "nav.energy": "Năng Lượng",
-    "nav.insights": "Đài Quan Sát",
+    "nav.insights": "Động Cơ Insight",
     "nav.weekly_review": "Tổng Kết Tuần",
     "nav.monthly_review": "Tổng Kết Tháng",
     "nav.yearly_review": "Tổng Kết Năm",
@@ -94,7 +96,7 @@ export const TRANSLATIONS = {
     "nav.connection": "Mối Quan Hệ",
     "nav.presence": "Vọng Âm", 
     "nav.echoes": "Tiếng Vọng",
-    "nav.wiki": "Tri Thức", // Added
+    "nav.wiki": "Tri Thức", 
 
     // Dashboard
     "dashboard.welcome": "Chào mừng trở lại, Lữ khách.",

@@ -23,12 +23,12 @@ export const NotificationCenter: React.FC = () => {
         onClick={toggleCenter} 
       />
 
-      {/* Panel */}
-      <div className="fixed top-4 right-4 bottom-20 w-[380px] z-[100] animate-in slide-in-from-right duration-300">
-        <GlassCard className="h-full flex flex-col bg-black/80 border-white/10" noPadding>
+      {/* Panel - Vertically Centered, Left of Trigger */}
+      <div className="fixed top-1/2 right-20 -translate-y-1/2 w-[380px] max-h-[70vh] z-[100] animate-in slide-in-from-right-4 duration-300 flex flex-col">
+        <GlassCard className="flex flex-col h-full bg-black/90 border-white/10 shadow-2xl backdrop-blur-xl max-h-full" noPadding>
           
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-white/5 bg-white/[0.02]">
+          <div className="flex items-center justify-between p-4 border-b border-white/5 bg-white/[0.02] shrink-0">
             <div className="flex items-center gap-2">
               <Bell size={16} className="text-forge-cyan" />
               <h3 className="text-sm font-bold text-white uppercase tracking-wider">Signals</h3>
@@ -54,7 +54,7 @@ export const NotificationCenter: React.FC = () => {
           </div>
 
           {/* List */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-hide">
+          <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-hide min-h-0">
             {notifications.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-48 text-gray-600">
                 <Bell size={24} className="mb-2 opacity-20" />

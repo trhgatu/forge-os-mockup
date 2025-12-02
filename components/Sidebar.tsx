@@ -40,7 +40,8 @@ import {
   Users,
   Sun,
   Radar,
-  Inbox
+  Inbox,
+  Wind // Replaced Waves with Wind
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -51,9 +52,11 @@ interface SidebarProps {
 const NAV_ITEMS: NavItem[] = [
   { id: View.PRESENCE, labelKey: 'nav.presence', icon: Radar, group: 'Meta' }, 
   { id: View.ECHOES, labelKey: 'nav.echoes', icon: Inbox, group: 'Meta' },
-  { id: View.WIKI, labelKey: 'nav.wiki', icon: Globe, group: 'Meta' }, // Added Wiki
+  { id: View.WIKI, labelKey: 'nav.wiki', icon: Globe, group: 'Meta' },
+  { id: View.INSIGHTS, labelKey: 'nav.insights', icon: Telescope, group: 'Meta' },
   { id: View.DASHBOARD, labelKey: 'nav.dashboard', icon: LayoutDashboard, group: 'Main' },
   { id: View.FORGE_CHAMBER, labelKey: 'nav.forge_chamber', icon: BrainCircuit, group: 'Main' },
+  { id: View.THOUGHT_STREAM, labelKey: 'nav.thought_stream', icon: Wind, group: 'Main' }, // Changed Icon
   { id: View.TIMELINE, labelKey: 'nav.timeline', icon: GitCommitHorizontal, group: 'Reflection' },
   { id: View.JOURNAL, labelKey: 'nav.journal', icon: BookOpen, group: 'Reflection' },
   { id: View.META_JOURNAL, labelKey: 'nav.meta_journal', icon: Aperture, group: 'Reflection' },
@@ -73,7 +76,6 @@ const NAV_ITEMS: NavItem[] = [
   { id: View.HABITS, labelKey: 'nav.habits', icon: Repeat, group: 'Evolution' },
   { id: View.ROUTINES, labelKey: 'nav.routines', icon: Clock, group: 'Evolution' },
   { id: View.ENERGY, labelKey: 'nav.energy', icon: Zap, group: 'Evolution' },
-  { id: View.INSIGHTS, labelKey: 'nav.insights', icon: Telescope, group: 'System' },
   { id: View.WEEKLY_REVIEW, labelKey: 'nav.weekly_review', icon: CalendarCheck, group: 'System' },
   { id: View.MONTHLY_REVIEW, labelKey: 'nav.monthly_review', icon: Moon, group: 'System' },
   { id: View.YEARLY_REVIEW, labelKey: 'nav.yearly_review', icon: Orbit, group: 'System' },
@@ -134,7 +136,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate }) => 
           isExpanded ? 'opacity-100 translate-x-0 w-auto' : 'opacity-0 -translate-x-4 w-0'
         )}>
           <span className="font-display font-bold text-lg tracking-wide text-white leading-none">FORGE OS</span>
-          <span className="text-[10px] font-mono mt-1 text-forge-cyan">v2.6.0-beta</span>
+          <span className="text-[10px] font-mono mt-1 text-forge-cyan">v2.7.0-beta</span>
         </div>
       </div>
 
