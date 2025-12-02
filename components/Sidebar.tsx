@@ -41,7 +41,8 @@ import {
   Sun,
   Radar,
   Inbox,
-  Wind // Replaced Waves with Wind
+  Wind,
+  Hammer
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -56,7 +57,7 @@ const NAV_ITEMS: NavItem[] = [
   { id: View.INSIGHTS, labelKey: 'nav.insights', icon: Telescope, group: 'Meta' },
   { id: View.DASHBOARD, labelKey: 'nav.dashboard', icon: LayoutDashboard, group: 'Main' },
   { id: View.FORGE_CHAMBER, labelKey: 'nav.forge_chamber', icon: BrainCircuit, group: 'Main' },
-  { id: View.THOUGHT_STREAM, labelKey: 'nav.thought_stream', icon: Wind, group: 'Main' }, // Changed Icon
+  { id: View.THOUGHT_STREAM, labelKey: 'nav.thought_stream', icon: Wind, group: 'Main' },
   { id: View.TIMELINE, labelKey: 'nav.timeline', icon: GitCommitHorizontal, group: 'Reflection' },
   { id: View.JOURNAL, labelKey: 'nav.journal', icon: BookOpen, group: 'Reflection' },
   { id: View.META_JOURNAL, labelKey: 'nav.meta_journal', icon: Aperture, group: 'Reflection' },
@@ -79,7 +80,7 @@ const NAV_ITEMS: NavItem[] = [
   { id: View.WEEKLY_REVIEW, labelKey: 'nav.weekly_review', icon: CalendarCheck, group: 'System' },
   { id: View.MONTHLY_REVIEW, labelKey: 'nav.monthly_review', icon: Moon, group: 'System' },
   { id: View.YEARLY_REVIEW, labelKey: 'nav.yearly_review', icon: Orbit, group: 'System' },
-  { id: View.IDEAS, labelKey: 'nav.ideas', icon: Lightbulb, group: 'Creativity' },
+  { id: View.FORGE_LAB, labelKey: 'nav.ideas', icon: Hammer, group: 'Creativity' }, // Updated Icon and ID
   { id: View.SETTINGS, labelKey: 'nav.settings', icon: Settings, group: 'System' },
 ];
 
@@ -136,7 +137,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate }) => 
           isExpanded ? 'opacity-100 translate-x-0 w-auto' : 'opacity-0 -translate-x-4 w-0'
         )}>
           <span className="font-display font-bold text-lg tracking-wide text-white leading-none">FORGE OS</span>
-          <span className="text-[10px] font-mono mt-1 text-forge-cyan">v2.7.0-beta</span>
+          <span className="text-[10px] font-mono mt-1 text-forge-cyan">v2.8.0-beta</span>
         </div>
       </div>
 

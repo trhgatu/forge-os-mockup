@@ -20,7 +20,7 @@ export enum View {
   MOOD = 'MOOD',
   MANTRA = 'MANTRA', 
   INSIGHTS = 'INSIGHTS',
-  IDEAS = 'IDEAS',
+  FORGE_LAB = 'FORGE_LAB', // Replaces IDEAS
   GOALS = 'GOALS',
   HABITS = 'HABITS',
   ROUTINES = 'ROUTINES',
@@ -36,6 +36,8 @@ export enum View {
   YEARLY_REVIEW = 'YEARLY_REVIEW',
   SETTINGS = 'SETTINGS',
 }
+
+// ... (Previous existing interfaces remain unchanged) ...
 
 export interface NavItem {
   id: View;
@@ -157,7 +159,8 @@ export type NotificationSource =
   | 'memory'
   | 'presence'
   | 'echoes'
-  | 'wiki';
+  | 'wiki'
+  | 'forge_lab';
 
 export interface Notification {
   id: string;
@@ -468,39 +471,62 @@ export interface GlobalAnalysis {
   };
 }
 
-// --- Idea Lab Types ---
+// --- FORGE LAB TYPES (NEW) ---
 
-export type IdeaMode = 'CANVAS' | 'LIST' | 'GRAPH';
-export type IdeaType = 'spark' | 'concept' | 'project' | 'cluster';
-export type IdeaStatus = 'active' | 'incubating' | 'archived';
+export type ForgeProjectStatus = "idea" | "active" | "paused" | "completed";
+export type ForgeFoundationCategory = "philosophy" | "method" | "model" | "principle" | "framework";
 
-export interface IdeaConnection {
+export interface ForgeMilestone {
   id: string;
-  fromId: string;
-  toId: string;
-  type: 'related' | 'parent' | 'child' | 'conflict';
-  strength: number; 
+  title: string;
+  isCompleted: boolean;
+  date?: string;
 }
 
-export interface Idea {
+export interface ForgeProject {
   id: string;
   title: string;
   description: string;
-  x: number;
-  y: number;
-  type: IdeaType;
-  status?: IdeaStatus; 
-  color: string; 
+  status: ForgeProjectStatus;
   tags: string[];
-  energy: number; 
-  connections: string[]; 
-  aiAnalysis?: {
-    expansion: string;
-    gaps: string[];
-    nextSteps: string[];
-    suggestedConnections?: string[];
-  };
-  dateCreated: Date;
+  technologies: string[];
+  milestones: ForgeMilestone[];
+  insights?: string[]; // IDs from Insight module
+  researchLinks?: string[]; // IDs from Research Trails
+  createdAt: Date;
+  updatedAt: Date;
+  novaReflection?: string;
+}
+
+export interface ForgeFoundation {
+  id: string;
+  title: string;
+  summary: string;
+  content: string;
+  category: ForgeFoundationCategory;
+  relatedInsights?: string[];
+  createdAt: Date;
+  updatedAt: Date;
+  novaReflection?: string;
+}
+
+export interface ResearchNode {
+  id: string;
+  title: string;
+  summary: string;
+  wikiSource?: string; // URL or ID
+  relatedInsights?: string[];
+  type: 'concept' | 'source' | 'note';
+}
+
+export interface ResearchTrail {
+  id: string;
+  topic: string;
+  nodes: ResearchNode[];
+  sourceLinks?: string[];
+  relatedProjects?: string[];
+  createdAt: Date;
+  novaReflection?: string;
 }
 
 // --- Goal Types ---
@@ -1053,4 +1079,29 @@ export type AudioSignalType =
 export interface AudioSignal {
   type: AudioSignalType;
   context?: string;
+}
+
+// --- Ideas / Canvas Types ---
+
+export type IdeaType = 'spark' | 'concept' | 'project' | 'cluster';
+export type IdeaStatus = 'active' | 'incubating' | 'archived';
+
+export interface Idea {
+  id: string;
+  title: string;
+  description: string;
+  x: number;
+  y: number;
+  type: IdeaType;
+  status: IdeaStatus;
+  color: string;
+  tags: string[];
+  energy: number;
+  connections: string[];
+  dateCreated: Date;
+  aiAnalysis?: {
+      expansion: string;
+      gaps: string[];
+      nextSteps: string[];
+  };
 }

@@ -14,7 +14,8 @@ import {
     Flag, 
     Filter,
     Clock,
-    MoreHorizontal
+    MoreHorizontal,
+    Layers
 } from 'lucide-react';
 import { TimelineItem, TimelineType, MoodType } from '../types';
 import { analyzeTimelineItem } from '../services/geminiService';
@@ -22,13 +23,13 @@ import { cn } from '../lib/utils';
 import { GlassCard } from './GlassCard';
 
 // --- CONFIG & UTILS ---
-const TYPE_CONFIG: Record<TimelineType, { icon: React.ElementType, color: string, bg: string, label: string }> = {
-    memory: { icon: ImageIcon, color: 'text-blue-400', bg: 'bg-blue-500', label: 'Memory' },
-    journal: { icon: BookOpen, color: 'text-purple-400', bg: 'bg-purple-500', label: 'Journal' },
-    quote: { icon: Quote, color: 'text-amber-400', bg: 'bg-amber-500', label: 'Insight' },
-    mood: { icon: Activity, color: 'text-pink-400', bg: 'bg-pink-500', label: 'Mood' },
-    milestone: { icon: Flag, color: 'text-red-400', bg: 'bg-red-500', label: 'Milestone' },
-    insight: { icon: Sparkles, color: 'text-forge-cyan', bg: 'bg-cyan-500', label: 'AI Insight' },
+const TYPE_CONFIG: Record<TimelineType, { icon: React.ElementType, color: string, bg: string, label: string, border: string }> = {
+    memory: { icon: ImageIcon, color: 'text-blue-400', bg: 'bg-blue-500/10', border: 'border-blue-500/20', label: 'Memory' },
+    journal: { icon: BookOpen, color: 'text-purple-400', bg: 'bg-purple-500/10', border: 'border-purple-500/20', label: 'Journal' },
+    quote: { icon: Quote, color: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/20', label: 'Insight' },
+    mood: { icon: Activity, color: 'text-pink-400', bg: 'bg-pink-500/10', border: 'border-pink-500/20', label: 'Mood' },
+    milestone: { icon: Flag, color: 'text-red-400', bg: 'bg-red-500/10', border: 'border-red-500/20', label: 'Milestone' },
+    insight: { icon: Sparkles, color: 'text-forge-cyan', bg: 'bg-cyan-500/10', border: 'border-cyan-500/20', label: 'AI Insight' },
 };
 
 const MOOD_GLOWS: Record<MoodType, string> = {
@@ -112,17 +113,17 @@ const TimelineNode: React.FC<{ item: TimelineItem; isSelected: boolean }> = ({ i
             )}>
                 {/* Glow Halo */}
                 <div className={cn(
-                    "absolute inset-0 -m-2 rounded-full blur-xl opacity-40 transition-all duration-500",
-                    config.bg,
-                    isSelected ? "opacity-60 scale-150" : "opacity-0 scale-50"
+                    "absolute inset-0 -m-3 rounded-full blur-xl opacity-0 transition-all duration-500",
+                    config.bg.replace('/10', ''),
+                    isSelected ? "opacity-40 scale-150" : "group-hover:opacity-20"
                 )} />
                 
                 {/* Core Circle */}
                 <div className={cn(
-                    "w-10 h-10 rounded-full border border-white/10 bg-[#0B0B15] flex items-center justify-center shadow-lg relative z-10 group-hover:border-white/30 transition-colors",
-                    isSelected ? "border-white/40 bg-white/5" : ""
+                    "w-12 h-12 rounded-full border bg-[#0B0B15] flex items-center justify-center shadow-lg relative z-10 transition-all duration-300",
+                    isSelected ? `border-white ${config.bg}` : "border-white/10 group-hover:border-white/30"
                 )}>
-                    <TypeIcon size={16} className={cn("transition-colors", isSelected ? 'text-white' : config.color)} />
+                    <TypeIcon size={18} className={cn("transition-colors", isSelected ? 'text-white' : config.color)} />
                 </div>
             </div>
         </div>
@@ -142,29 +143,33 @@ const TimelineCard: React.FC<{
         <div 
             onClick={onClick}
             className={cn(
-                "relative w-[45%] mb-20 cursor-pointer group perspective-1000",
-                isLeft ? 'mr-auto pr-12 text-right' : 'ml-auto pl-12 text-left'
+                "relative w-[42%] mb-24 cursor-pointer group perspective-1000",
+                isLeft ? 'mr-auto text-right' : 'ml-auto text-left'
             )}
         >
-            {/* Connection Line */}
+            {/* Connection Line to Node */}
             <div className={cn(
-                "absolute top-5 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent w-12 transition-all duration-500",
-                isLeft ? 'right-0 group-hover:via-white/40' : 'left-0 group-hover:via-white/40',
-                isSelected ? 'via-forge-cyan/50' : ''
+                "absolute top-6 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent w-20 transition-all duration-500",
+                isLeft ? '-right-20 group-hover:via-white/40 origin-right' : '-left-20 group-hover:via-white/40 origin-left',
+                isSelected ? 'via-forge-cyan/50 scale-x-110' : 'scale-x-100'
             )} />
 
-            {/* Date Label */}
+            {/* Date Label (Floating outside) */}
             <div className={cn(
-                "absolute top-[1.35rem] text-[10px] font-mono text-gray-500 font-bold tracking-widest opacity-60 group-hover:opacity-100 transition-opacity",
-                isLeft ? '-right-32 text-left w-20' : '-left-32 text-right w-20'
+                "absolute -top-8 text-[10px] font-mono text-gray-500 font-bold tracking-widest opacity-60 group-hover:opacity-100 transition-opacity flex items-center gap-2",
+                isLeft ? 'right-0 justify-end' : 'left-0 justify-start'
             )}>
-                {item.date.toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                {isLeft && <span>{item.date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>}
+                <span className={cn("px-2 py-0.5 rounded bg-white/5 border border-white/5 text-gray-400")}>
+                    {item.date.toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                </span>
+                {!isLeft && <span>{item.date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>}
             </div>
 
             {/* Main Card */}
             <div className={cn(
-                "relative p-6 rounded-2xl border backdrop-blur-xl transition-all duration-500 ease-spring-out hover:-translate-y-1 hover:scale-[1.01]",
-                "bg-black/40",
+                "relative p-6 rounded-2xl border backdrop-blur-xl transition-all duration-500 ease-spring-out hover:-translate-y-1",
+                "bg-[#09090b]/80",
                 isSelected ? cn("bg-white/[0.03]", moodStyle) : "border-white/5 hover:border-white/10 hover:shadow-2xl"
             )}>
                 {/* Type & Mood Header */}
@@ -172,9 +177,6 @@ const TimelineCard: React.FC<{
                     "flex items-center gap-3 mb-4",
                     isLeft ? 'flex-row-reverse' : 'flex-row'
                 )}>
-                    <span className={cn("text-[10px] font-mono uppercase tracking-widest px-2 py-0.5 rounded border bg-white/5 border-white/5", config.color)}>
-                        {config.label}
-                    </span>
                     {item.mood && (
                         <div className={cn("flex items-center gap-1.5 text-[10px] uppercase font-bold text-gray-500", isLeft ? 'flex-row-reverse' : '')}>
                             <span className={cn("w-1.5 h-1.5 rounded-full", MOOD_GLOWS[item.mood].split(' ')[0].replace('shadow-', 'bg-').replace('rgba', 'rgb').replace('0.15', '1'))} />
@@ -186,7 +188,7 @@ const TimelineCard: React.FC<{
                 {/* Content */}
                 <div className={cn("flex flex-col", isLeft ? 'items-end' : 'items-start')}>
                     {item.type === 'memory' && item.imageUrl && (
-                        <div className="w-full h-40 mb-4 rounded-xl overflow-hidden border border-white/5 relative group/img">
+                        <div className="w-full h-48 mb-4 rounded-xl overflow-hidden border border-white/5 relative group/img">
                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10" />
                             <img src={item.imageUrl} className="w-full h-full object-cover transition-transform duration-700 group-hover/img:scale-105" alt="memory" />
                         </div>
@@ -238,15 +240,15 @@ const ContextPanel: React.FC<{
     const config = TYPE_CONFIG[item.type];
 
     return (
-        <div className="absolute inset-y-0 right-0 w-full md:w-[500px] bg-black/90 backdrop-blur-2xl border-l border-white/10 shadow-2xl z-50 overflow-hidden flex flex-col animate-in slide-in-from-right duration-500">
+        <div className="absolute inset-y-0 right-0 w-full md:w-[500px] bg-[#050508]/95 backdrop-blur-2xl border-l border-white/10 shadow-2xl z-50 overflow-hidden flex flex-col animate-in slide-in-from-right duration-500">
             {/* Ambient Background */}
-            <div className={cn("absolute inset-0 opacity-10 bg-gradient-to-br pointer-events-none", config.bg.replace('bg-', 'from-'), "to-transparent")} />
+            <div className={cn("absolute inset-0 opacity-10 bg-gradient-to-br pointer-events-none", config.bg.replace('bg-', 'from-').replace('/10', '/30'), "to-transparent")} />
             
             {/* Header */}
             <div className="relative z-10 p-8 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
                 <div>
-                    <div className="flex items-center gap-2 text-xs font-mono text-gray-500 uppercase tracking-widest mb-2">
-                        <Calendar size={12} /> {item.date.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                    <div className={cn("flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-widest mb-3", config.color)}>
+                        <config.icon size={14} /> {config.label} Artifact
                     </div>
                     <h2 className="text-2xl font-display font-bold text-white leading-tight">{item.title}</h2>
                 </div>
@@ -257,14 +259,21 @@ const ContextPanel: React.FC<{
 
             <div className="relative z-10 flex-1 overflow-y-auto p-8 space-y-8">
                 
+                <div className="flex items-center gap-4 text-xs text-gray-500 font-mono">
+                    <span className="flex items-center gap-2"><Calendar size={14} /> {item.date.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                    <span className="w-px h-3 bg-white/10" />
+                    <span>{item.date.toLocaleTimeString()}</span>
+                </div>
+
                 {item.imageUrl && (
-                    <div className="rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
+                    <div className="rounded-2xl overflow-hidden border border-white/10 shadow-2xl relative group">
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-60" />
                         <img src={item.imageUrl} className="w-full h-full object-cover" alt="detail" />
                     </div>
                 )}
 
                 <div className="prose prose-invert prose-sm max-w-none">
-                    <p className="text-base text-gray-300 leading-relaxed font-light whitespace-pre-line">
+                    <p className="text-base text-gray-300 leading-relaxed font-serif whitespace-pre-line">
                         {item.content}
                     </p>
                 </div>
@@ -463,7 +472,7 @@ export const TimelineView: React.FC = () => {
     };
 
     return (
-        <div className="h-full w-full flex bg-[#030304] relative overflow-hidden animate-in fade-in duration-700">
+        <div className="h-full w-full flex flex-col bg-[#020203] relative overflow-hidden animate-in fade-in duration-700">
             
             {/* Atmospheric Background */}
             <div className="absolute inset-0 pointer-events-none">
@@ -472,74 +481,75 @@ export const TimelineView: React.FC = () => {
                 <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-overlay" />
             </div>
 
-            {/* Sidebar Filters */}
-            <div className="hidden lg:flex w-72 flex-col border-r border-white/5 bg-black/20 backdrop-blur-xl h-full p-6 z-20">
-                <div className="mb-8">
-                    <h2 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4 flex items-center gap-2">
-                        <Filter size={12} /> Data Streams
-                    </h2>
-                    <div className="space-y-2">
-                        <button 
-                            onClick={() => setFilterType('all')}
-                            className={cn(
-                                "w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-all border",
-                                filterType === 'all' 
-                                    ? 'bg-white/10 text-white border-white/10 shadow-lg' 
-                                    : 'bg-transparent text-gray-400 border-transparent hover:bg-white/5 hover:text-gray-200'
-                            )}
-                        >
-                            All Streams
-                        </button>
-                        {Object.entries(TYPE_CONFIG).map(([type, config]) => (
-                            <button
-                                key={type}
-                                onClick={() => setFilterType(type as TimelineType)}
-                                className={cn(
-                                    "w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all border",
-                                    filterType === type 
-                                        ? 'bg-white/10 text-white border-white/10 shadow-lg' 
-                                        : 'bg-transparent text-gray-400 border-transparent hover:bg-white/5 hover:text-gray-200'
-                                )}
-                            >
-                                <config.icon size={16} className={filterType === type ? 'text-white' : config.color} />
-                                {config.label}
-                            </button>
-                        ))}
-                    </div>
-                </div>
+            {/* Header & Filter Island */}
+            <div className="shrink-0 p-8 pb-4 relative z-30 flex flex-col gap-6">
                 
-                <div className="mt-auto p-4 rounded-2xl bg-gradient-to-br from-white/5 to-transparent border border-white/5">
-                    <div className="text-xs font-mono text-gray-500 uppercase mb-2">Total Artifacts</div>
-                    <div className="text-3xl font-display font-bold text-white">{items.length}</div>
-                </div>
-            </div>
-
-            {/* Main Timeline Area */}
-            <div className="flex-1 h-full overflow-y-auto relative scrollbar-hide flex flex-col" id="timeline-scroll-container">
-                
-                {/* Header */}
-                <div className="sticky top-0 z-40 w-full p-8 bg-gradient-to-b from-[#030304] via-[#030304]/90 to-transparent pointer-events-none flex justify-between items-end backdrop-blur-[2px]">
-                    <div className="pointer-events-auto">
+                {/* Top Row: Title & Actions */}
+                <div className="flex justify-between items-end">
+                    <div>
                         <div className="flex items-center gap-2 text-xs font-mono text-forge-cyan uppercase tracking-widest mb-2">
                             <Clock size={12} /> Temporal Log
                         </div>
                         <h1 className="text-4xl font-display font-bold text-white tracking-tight">Chronicle</h1>
                     </div>
-                    <button 
-                        onClick={() => setIsCreating(true)}
-                        className="pointer-events-auto flex items-center gap-2 px-6 py-3 bg-white text-black rounded-full font-bold hover:scale-105 transition-all shadow-[0_0_20px_rgba(255,255,255,0.15)]"
-                    >
-                        <Plus size={18} /> <span className="hidden md:inline">Add Event</span>
-                    </button>
+                    
+                    <div className="flex items-center gap-4">
+                        <div className="hidden md:block text-right">
+                            <div className="text-2xl font-bold text-white">{items.length}</div>
+                            <div className="text-[10px] text-gray-500 uppercase tracking-widest">Artifacts</div>
+                        </div>
+                        <button 
+                            onClick={() => setIsCreating(true)}
+                            className="flex items-center gap-2 px-6 py-3 bg-white text-black rounded-full font-bold hover:scale-105 transition-all shadow-[0_0_20px_rgba(255,255,255,0.15)]"
+                        >
+                            <Plus size={18} /> <span className="hidden md:inline">Log Event</span>
+                        </button>
+                    </div>
                 </div>
 
+                {/* Filter Island (Horizontal Scroll) */}
+                <div className="w-full flex justify-center">
+                    <div className="flex items-center gap-2 p-1.5 bg-white/5 border border-white/5 rounded-2xl backdrop-blur-md overflow-x-auto scrollbar-hide max-w-full">
+                        <button 
+                            onClick={() => setFilterType('all')}
+                            className={cn(
+                                "flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap",
+                                filterType === 'all' 
+                                    ? 'bg-white/10 text-white shadow-inner' 
+                                    : 'text-gray-500 hover:text-white hover:bg-white/5'
+                            )}
+                        >
+                            <Layers size={14} /> All Streams
+                        </button>
+                        <div className="w-px h-4 bg-white/10 mx-1" />
+                        {Object.entries(TYPE_CONFIG).map(([type, config]) => (
+                            <button
+                                key={type}
+                                onClick={() => setFilterType(type as TimelineType)}
+                                className={cn(
+                                    "flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap",
+                                    filterType === type 
+                                        ? `bg-white/10 text-white shadow-inner border border-white/5` 
+                                        : 'text-gray-500 hover:text-white hover:bg-white/5'
+                                )}
+                            >
+                                <config.icon size={14} className={filterType === type ? config.color : ''} />
+                                {config.label}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            </div>
+
+            {/* Main Timeline Area */}
+            <div className="flex-1 overflow-y-auto relative scrollbar-hide z-10" id="timeline-scroll-container">
                 <div className="relative w-full max-w-5xl mx-auto pb-32 min-h-screen px-4 md:px-0">
                     
-                    {/* The Spine - subtle gradient line */}
+                    {/* The Spine - Refined Gradient */}
                     <div className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-white/10 to-transparent" />
                     
                     <div className="pt-12 relative">
-                        {sortedItems.map((item, index) => (
+                        {sortedItems.length > 0 ? sortedItems.map((item, index) => (
                             <div key={item.id} className="relative flex w-full justify-center">
                                 <TimelineNode item={item} isSelected={selectedId === item.id} />
                                 <TimelineCard 
@@ -549,7 +559,11 @@ export const TimelineView: React.FC = () => {
                                     onClick={() => setSelectedId(item.id)} 
                                 />
                             </div>
-                        ))}
+                        )) : (
+                            <div className="text-center py-32 opacity-50">
+                                <p className="text-sm font-mono text-gray-500">No artifacts found in this stream.</p>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

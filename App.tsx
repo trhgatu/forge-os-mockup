@@ -9,7 +9,7 @@ import { TimelineView } from './components/TimelineView';
 import { QuoteView } from './components/QuoteView';
 import { MoodView } from './components/MoodView';
 import { InsightView } from './components/InsightView';
-import { IdeasView } from './components/IdeasView';
+import { ForgeLabView } from './components/ForgeLabView'; // Updated import
 import { GoalsView } from './components/GoalsView';
 import { HabitsView } from './components/HabitsView';
 import { RoutinesView } from './components/RoutinesView';
@@ -65,7 +65,7 @@ const AppContent: React.FC = () => {
       case View.MANTRA: return <MantraView />; 
       case View.SOUNDTRACK: return <SoundtrackView />; 
       case View.INSIGHTS: return <InsightView />;
-      case View.IDEAS: return <IdeasView />;
+      case View.FORGE_LAB: return <ForgeLabView />; // Use new module
       case View.GOALS: return <GoalsView />;
       case View.HABITS: return <HabitsView />;
       case View.ROUTINES: return <RoutinesView />;
