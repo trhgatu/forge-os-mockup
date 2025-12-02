@@ -9,7 +9,7 @@ import { TimelineView } from './components/TimelineView';
 import { QuoteView } from './components/QuoteView';
 import { MoodView } from './components/MoodView';
 import { InsightView } from './components/InsightView';
-import { ForgeLabView } from './components/ForgeLabView'; // Updated import
+import { ForgeLabView } from './components/ForgeLabView'; 
 import { GoalsView } from './components/GoalsView';
 import { HabitsView } from './components/HabitsView';
 import { RoutinesView } from './components/RoutinesView';
@@ -31,6 +31,7 @@ import { PresenceView } from './components/PresenceView';
 import { EchoesView } from './components/EchoesView'; 
 import { WikiView } from './components/WikiView';
 import { ThoughtStreamView } from './components/ThoughtStreamView';
+import { EpicSceneVault } from './components/EpicSceneVault/EpicSceneVault'; // New import
 import { SettingsView } from './components/SettingsView';
 import { NovaGuide } from './components/NovaGuide';
 import { View } from './types';
@@ -65,7 +66,8 @@ const AppContent: React.FC = () => {
       case View.MANTRA: return <MantraView />; 
       case View.SOUNDTRACK: return <SoundtrackView />; 
       case View.INSIGHTS: return <InsightView />;
-      case View.FORGE_LAB: return <ForgeLabView />; // Use new module
+      case View.FORGE_LAB: return <ForgeLabView />; 
+      case View.EPIC_SCENE_VAULT: return <EpicSceneVault />; // New View
       case View.GOALS: return <GoalsView />;
       case View.HABITS: return <HabitsView />;
       case View.ROUTINES: return <RoutinesView />;

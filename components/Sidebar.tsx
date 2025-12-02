@@ -9,12 +9,8 @@ import {
   BrainCircuit, 
   BookOpen, 
   History, 
-  Lightbulb, 
   Settings,
-  Activity,
   Cpu,
-  ChevronLeft,
-  ChevronRight,
   GitCommitHorizontal,
   Quote,
   Smile,
@@ -38,11 +34,11 @@ import {
   Mic2,
   Aperture,
   Users,
-  Sun,
   Radar,
   Inbox,
   Wind,
-  Hammer
+  Hammer,
+  Film // Added Icon
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -67,6 +63,7 @@ const NAV_ITEMS: NavItem[] = [
   { id: View.QUOTES, labelKey: 'nav.quotes', icon: Quote, group: 'Reflection' },
   { id: View.MANTRA, labelKey: 'nav.mantra', icon: Mic2, group: 'Reflection' },
   { id: View.SOUNDTRACK, labelKey: 'nav.soundtrack', icon: Disc, group: 'Reflection' },
+  { id: View.EPIC_SCENE_VAULT, labelKey: 'nav.epic_scene_vault', icon: Film, group: 'Reflection' }, // New Item
   { id: View.COMPASS, labelKey: 'nav.compass', icon: Navigation, group: 'Evolution' },
   { id: View.GOALS, labelKey: 'nav.goals', icon: Target, group: 'Evolution' },
   { id: View.IDENTITY, labelKey: 'nav.identity', icon: Fingerprint, group: 'Evolution' },
@@ -80,7 +77,7 @@ const NAV_ITEMS: NavItem[] = [
   { id: View.WEEKLY_REVIEW, labelKey: 'nav.weekly_review', icon: CalendarCheck, group: 'System' },
   { id: View.MONTHLY_REVIEW, labelKey: 'nav.monthly_review', icon: Moon, group: 'System' },
   { id: View.YEARLY_REVIEW, labelKey: 'nav.yearly_review', icon: Orbit, group: 'System' },
-  { id: View.FORGE_LAB, labelKey: 'nav.ideas', icon: Hammer, group: 'Creativity' }, // Updated Icon and ID
+  { id: View.FORGE_LAB, labelKey: 'nav.ideas', icon: Hammer, group: 'Creativity' }, 
   { id: View.SETTINGS, labelKey: 'nav.settings', icon: Settings, group: 'System' },
 ];
 

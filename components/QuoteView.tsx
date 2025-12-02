@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Search, Plus, Heart, Maximize2, Minimize2, Sparkles, Tag, Quote as QuoteIcon, X, BookOpen, Feather } from 'lucide-react';
+import { Search, Plus, Heart, Maximize2, Minimize2, Sparkles, Tag, Quote as QuoteIcon, X, BookOpen, Feather, Layers } from 'lucide-react';
 import { Quote, MoodType } from '../types';
 import { analyzeQuote } from '../services/geminiService';
 import { draftService } from '../services/draftService';
@@ -39,6 +39,26 @@ const MOCK_QUOTES: Quote[] = [
             reflectionPrompt: "What 'catastrophe' are you imagining right now that hasn't actually happened?"
         }
     },
+    {
+        id: '2',
+        text: "The only way out is through.",
+        author: "Robert Frost",
+        mood: 'focused',
+        tags: ['Resilience', 'Action'],
+        isFavorite: false,
+        dateAdded: new Date(Date.now() - 86400000),
+        reflectionDepth: 6,
+    },
+    {
+        id: '3',
+        text: "He who has a why to live for can bear almost any how.",
+        author: "Friedrich Nietzsche",
+        mood: 'inspired',
+        tags: ['Purpose', 'Meaning'],
+        isFavorite: true,
+        dateAdded: new Date(Date.now() - 172800000),
+        reflectionDepth: 9,
+    }
 ];
 
 const QuoteCard: React.FC<{ quote: Quote; onClick: () => void; onToggleFav: (e: React.MouseEvent) => void }> = ({ quote, onClick, onToggleFav }) => {
@@ -49,7 +69,7 @@ const QuoteCard: React.FC<{ quote: Quote; onClick: () => void; onToggleFav: (e: 
         <div 
             onClick={onClick}
             className={cn(
-                "group break-inside-avoid mb-6 relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-500 ease-spring-out hover:-translate-y-2 hover:z-10 border bg-black/40 backdrop-blur-xl hover:bg-white/[0.03]",
+                "group h-full relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-500 ease-spring-out hover:-translate-y-2 hover:z-10 border bg-black/40 backdrop-blur-xl hover:bg-white/[0.03]",
                 theme.border
             )}
         >
@@ -86,7 +106,7 @@ const DetailPanel: React.FC<{ quote: Quote; onClose: () => void; onAnalyze: (id:
     const theme = MOOD_THEMES[quote.mood];
 
     return (
-        <div className="absolute inset-y-0 right-0 w-full md:w-[450px] bg-black/80 backdrop-blur-2xl border-l border-white/10 shadow-2xl z-50 overflow-y-auto transform transition-transform duration-500 ease-spring-out">
+        <div className="absolute inset-y-0 right-0 w-full md:w-[450px] bg-black/80 backdrop-blur-2xl border-l border-white/10 shadow-2xl z-50 overflow-y-auto transform transition-transform duration-500 ease-spring-out animate-in slide-in-from-right">
             <div className="p-6 border-b border-white/5 flex items-center justify-between sticky top-0 bg-black/60 backdrop-blur-xl z-20">
                 <div className="flex items-center gap-2 text-sm font-bold text-white uppercase tracking-wider">
                     <BookOpen size={16} className={theme.text} /> Reflection
@@ -114,7 +134,8 @@ const DetailPanel: React.FC<{ quote: Quote; onClose: () => void; onAnalyze: (id:
                             <Sparkles size={14} className="text-forge-accent" /> Neural Decoding
                         </h3>
                         {!quote.analysis && (
-                            <button onClick={() => onAnalyze(quote.id)} disabled={isAnalyzing} className="text-xs bg-white/5 hover:bg-forge-accent hover:text-white px-3 py-1.5 rounded-lg transition-all disabled:opacity-50">
+                            <button onClick={() => onAnalyze(quote.id)} disabled={isAnalyzing} className="text-xs bg-white/5 hover:bg-forge-accent hover:text-white px-3 py-1.5 rounded-lg transition-all disabled:opacity-50 flex items-center gap-2">
+                                {isAnalyzing ? <Sparkles size={12} className="animate-spin" /> : <Sparkles size={12} />}
                                 {isAnalyzing ? 'Analyzing...' : 'Decode Meaning'}
                             </button>
                         )}
@@ -234,40 +255,92 @@ export const QuoteView: React.FC = () => {
     };
 
     return (
-        <div className="h-full flex bg-forge-bg text-white relative overflow-hidden animate-in fade-in duration-700">
-            <div className="hidden lg:block w-64 flex-shrink-0 border-r border-white/5 bg-black/20 p-4">
-                <h3 className="text-xs font-mono text-gray-500 uppercase tracking-widest mb-4 px-2">Library Filter</h3>
-                <div className="space-y-1">
-                    <button onClick={() => setFilterMood('all')} className={cn("w-full text-left px-3 py-2 rounded-lg text-sm transition-all", filterMood === 'all' ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white hover:bg-white/5')}>All Wisdom</button>
-                    {(Object.keys(MOOD_THEMES) as MoodType[]).map(mood => (
-                        <button key={mood} onClick={() => setFilterMood(mood)} className={cn("w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all capitalize", filterMood === mood ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white hover:bg-white/5')}>
-                            <div className={cn("w-2 h-2 rounded-full", MOOD_THEMES[mood].bg.replace('/10', ''))} />
-                            {mood}
-                        </button>
-                    ))}
-                </div>
+        <div className="h-full flex flex-col bg-[#050508] relative overflow-hidden animate-in fade-in duration-700">
+            
+            {/* Atmospheric Background */}
+            <div className="absolute inset-0 pointer-events-none">
+                <div className="absolute top-0 left-0 w-full h-[600px] bg-gradient-to-b from-indigo-900/10 via-transparent to-transparent" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[800px] h-[800px] bg-purple-900/5 rounded-full blur-[150px]" />
+                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-overlay" />
             </div>
 
-            <div className="flex-1 h-full flex flex-col relative z-0">
-                <div className="shrink-0 px-8 py-6 flex items-center justify-between bg-gradient-to-b from-forge-bg to-transparent z-20 sticky top-0">
+            {/* Header & Filter Section */}
+            <div className="shrink-0 p-8 pb-4 relative z-30 flex flex-col gap-6">
+                 
+                 {/* Top Row: Title & Actions */}
+                 <div className="flex justify-between items-end">
                     <div>
-                        <h1 className="text-2xl font-display font-bold text-white">Wisdom Archive</h1>
-                        <p className="text-xs text-gray-500 mt-1 font-mono">{quotes.length} Quotes Collected</p>
+                        <div className="flex items-center gap-2 text-xs font-mono text-gray-500 uppercase tracking-widest mb-2">
+                            <BookOpen size={12} /> Wisdom Archive
+                        </div>
+                        <h1 className="text-3xl font-display font-bold text-white tracking-tight">Library of Meaning</h1>
                     </div>
-                    <div className="flex gap-3">
-                        <button onClick={() => { setInitialDraftText(''); setIsAdding(true); }} className="flex items-center gap-2 px-4 py-2 bg-white text-black rounded-xl font-medium hover:bg-gray-200 transition-colors shadow-lg shadow-white/10">
-                            <Plus size={16} /> <span className="hidden md:inline">Add Quote</span>
+                    
+                    <div className="flex items-center gap-4">
+                        <div className="hidden md:block text-right">
+                            <div className="text-2xl font-bold text-white">{quotes.length}</div>
+                            <div className="text-[10px] text-gray-500 uppercase tracking-widest">Entries</div>
+                        </div>
+                        <button 
+                            onClick={() => { setInitialDraftText(''); setIsAdding(true); }}
+                            className="flex items-center gap-2 px-6 py-3 bg-white text-black rounded-full font-bold hover:scale-105 transition-all shadow-[0_0_20px_rgba(255,255,255,0.15)]"
+                        >
+                            <Plus size={18} /> <span className="hidden md:inline">Add Quote</span>
                         </button>
                     </div>
-                </div>
+                 </div>
 
-                <div className="flex-1 overflow-y-auto px-8 pb-20 scrollbar-hide">
-                    <div className="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
-                        {filteredQuotes.map(quote => (
-                            <QuoteCard key={quote.id} quote={quote} onClick={() => setSelectedId(quote.id)} onToggleFav={(e) => handleToggleFav(e, quote.id)} />
-                        ))}
+                 {/* Filter Island (Horizontal Scroll) */}
+                 <div className="w-full flex justify-center">
+                    <div className="flex items-center gap-2 p-1.5 bg-white/5 border border-white/5 rounded-2xl backdrop-blur-md overflow-x-auto scrollbar-hide max-w-full">
+                        <button 
+                            onClick={() => setFilterMood('all')}
+                            className={cn(
+                                "flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap",
+                                filterMood === 'all' 
+                                    ? 'bg-white/10 text-white shadow-inner' 
+                                    : 'text-gray-500 hover:text-white hover:bg-white/5'
+                            )}
+                        >
+                            <Layers size={14} /> All Wisdom
+                        </button>
+                        <div className="w-px h-4 bg-white/10 mx-1" />
+                        {(Object.keys(MOOD_THEMES) as MoodType[]).map(mood => {
+                            const config = MOOD_THEMES[mood];
+                            return (
+                                <button
+                                    key={mood}
+                                    onClick={() => setFilterMood(mood)}
+                                    className={cn(
+                                        "flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap",
+                                        filterMood === mood 
+                                            ? `bg-white/10 text-white shadow-inner border border-white/5` 
+                                            : 'text-gray-500 hover:text-white hover:bg-white/5'
+                                    )}
+                                >
+                                    <div className={cn("w-2 h-2 rounded-full", config.bg.replace('/10', ''))} />
+                                    {mood}
+                                </button>
+                            );
+                        })}
                     </div>
+                 </div>
+            </div>
+
+            {/* Main Content Area */}
+            <div className="flex-1 overflow-y-auto px-8 pb-20 scrollbar-hide z-10">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mx-auto max-w-7xl pt-4">
+                    {filteredQuotes.map(quote => (
+                        <QuoteCard key={quote.id} quote={quote} onClick={() => setSelectedId(quote.id)} onToggleFav={(e) => handleToggleFav(e, quote.id)} />
+                    ))}
                 </div>
+                
+                {filteredQuotes.length === 0 && (
+                    <div className="text-center py-32 opacity-50">
+                        <Feather size={32} className="mx-auto mb-4 text-white" />
+                        <p className="text-sm font-mono text-gray-500">Silence fills the archives.</p>
+                    </div>
+                )}
             </div>
 
             {selectedId && (

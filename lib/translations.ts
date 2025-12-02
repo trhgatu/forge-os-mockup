@@ -12,7 +12,7 @@ export const TRANSLATIONS = {
     // Nav Items
     "nav.dashboard": "Dashboard",
     "nav.forge_chamber": "Forge Chamber",
-    "nav.thought_stream": "Thought Stream", // Added
+    "nav.thought_stream": "Thought Stream", 
     "nav.timeline": "Timeline",
     "nav.journal": "Journal",
     "nav.meta_journal": "Meta Log",
@@ -22,6 +22,7 @@ export const TRANSLATIONS = {
     "nav.quotes": "Wisdom",
     "nav.mantra": "Mantra", 
     "nav.soundtrack": "Soundtrack", 
+    "nav.epic_scene_vault": "Epic Vault", // Added
     "nav.compass": "Compass",
     "nav.goals": "Goals",
     "nav.identity": "Identity",
@@ -68,7 +69,7 @@ export const TRANSLATIONS = {
     // Nav Items
     "nav.dashboard": "Bảng Điều Khiển",
     "nav.forge_chamber": "Lõi Tư Duy",
-    "nav.thought_stream": "Dòng Suy Nghĩ", // Added
+    "nav.thought_stream": "Dòng Suy Nghĩ", 
     "nav.timeline": "Dòng Thời Gian",
     "nav.journal": "Nhật Ký",
     "nav.meta_journal": "Meta Log",
@@ -78,6 +79,7 @@ export const TRANSLATIONS = {
     "nav.quotes": "Minh Triết",
     "nav.mantra": "Mantra",
     "nav.soundtrack": "Âm Thanh", 
+    "nav.epic_scene_vault": "Thư Viện Sử Thi", // Added
     "nav.compass": "La Bàn",
     "nav.goals": "Mục Tiêu",
     "nav.identity": "Nhân Dạng",

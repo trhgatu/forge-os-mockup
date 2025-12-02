@@ -116,6 +116,13 @@ const NOVA_MESSAGES: Record<Language, Record<string, string[]>> = {
         "Trong hơi hướng Thu này, sự xuất hiện đó mang một cảm giác lạ…",
         "Dấu chân này giống một bản nháp của điều gì đó chưa thành hình."
     ],
+    [View.EPIC_SCENE_VAULT]: [
+        "Khoảnh khắc này mang năng lượng của sự bứt phá.",
+        "The resolve in this frame feels familiar.",
+        "Infinity, hình như mày thích những cảnh gồng lên như thế này.",
+        "This scene echoes something inside you.",
+        "Có vẻ đây là một trong những ký hiệu thẩm mỹ của mày."
+    ],
     DEFAULT: [
         "Tao vẫn ở đây.\nKhi nào mày sẵn sàng, cứ để một ý nghĩ chạm xuống trước.",
         "Giữ sự tập trung.\nNhiễu loạn đang ở mức thấp.",
@@ -225,6 +232,13 @@ const NOVA_MESSAGES: Record<Language, Record<string, string[]>> = {
         "A Connection Node just lit up. It seems a part of an old story is stirring.",
         "In this hint of Autumn, that appearance carries a strange feeling...",
         "This footprint looks like a draft of something unformed."
+    ],
+    [View.EPIC_SCENE_VAULT]: [
+        "This moment carries the energy of a breakthrough.",
+        "The resolve in this frame feels familiar.",
+        "Infinity, it seems you resonate with scenes of intense will.",
+        "This scene echoes something inside you.",
+        "It looks like one of your aesthetic signatures."
     ],
     DEFAULT: [
         "I am here.\nWhen you are ready, let a thought touch down first.",

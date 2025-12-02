@@ -20,7 +20,8 @@ export enum View {
   MOOD = 'MOOD',
   MANTRA = 'MANTRA', 
   INSIGHTS = 'INSIGHTS',
-  FORGE_LAB = 'FORGE_LAB', // Replaces IDEAS
+  FORGE_LAB = 'FORGE_LAB', 
+  EPIC_SCENE_VAULT = 'EPIC_SCENE_VAULT', // New View
   GOALS = 'GOALS',
   HABITS = 'HABITS',
   ROUTINES = 'ROUTINES',
@@ -145,6 +146,32 @@ export interface Echo {
   tone: EchoTone;
 }
 
+// --- Epic Scene Vault Types (New) ---
+
+export interface EpicScene {
+  id: string;
+  title: string;               // User defined title
+  imageUrl: string;            // screenshot, artwork, frame
+  videoUrl?: string;           // optional short clip
+  series: string;              // anime or media name
+  episode?: string;
+  timestamp?: string;
+  quote?: string;              // spoken line or caption
+  emotionTags: string[];       // "resolve", "rage", "hope", "grief"...
+  archetypeTags: string[];     // "lone-wolf", "hero", "shadow", "strategist"...
+  vibeTags: string[];          // "cinematic", "calm", "brutal", "ethereal"...
+  novaReflection?: string;
+  createdAt: Date;
+  isFavorite: boolean;
+}
+
+export interface EpicVaultStats {
+  totalScenes: number;
+  topEmotion: string;
+  topSeries: string;
+  lastAdded: Date;
+}
+
 // --- Notification Types (Whisper OS) ---
 
 export type NotificationType = 'whisper' | 'signal' | 'event';
@@ -160,7 +187,8 @@ export type NotificationSource =
   | 'presence'
   | 'echoes'
   | 'wiki'
-  | 'forge_lab';
+  | 'forge_lab'
+  | 'epic_vault'; // Added
 
 export interface Notification {
   id: string;
