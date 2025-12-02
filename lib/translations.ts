@@ -38,6 +38,8 @@ export const TRANSLATIONS = {
     "nav.settings": "System",
     "nav.connection": "Connections",
     "nav.presence": "Visitor Echo", 
+    "nav.echoes": "Echoes", 
+    "nav.wiki": "Knowledge", // Added
 
     // Dashboard
     "dashboard.welcome": "Welcome back, Traveler.",
@@ -91,6 +93,8 @@ export const TRANSLATIONS = {
     "nav.settings": "Cấu Hình",
     "nav.connection": "Mối Quan Hệ",
     "nav.presence": "Vọng Âm", 
+    "nav.echoes": "Tiếng Vọng",
+    "nav.wiki": "Tri Thức", // Added
 
     // Dashboard
     "dashboard.welcome": "Chào mừng trở lại, Lữ khách.",

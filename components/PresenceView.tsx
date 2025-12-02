@@ -3,13 +3,13 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Radar, Disc, Radio, Eye, Ghost, Zap, Sparkles, Activity } from 'lucide-react';
 import { GlassCard } from './GlassCard';
 import { cn } from '../lib/utils';
-import { VisitorEcho, EchoType, ConnectionRole } from '../types';
+import { VisitorEcho, EchoTypeVisitor, ConnectionRole } from '../types';
 import { analyzePresence } from '../services/geminiService';
 import { useNotification } from '../contexts/NotificationContext';
 
 // --- VISUAL CONSTANTS ---
 
-const ECHO_COLORS: Record<EchoType, string> = {
+const ECHO_COLORS: Record<EchoTypeVisitor, string> = {
     anonymous: 'bg-blue-400/50 shadow-[0_0_10px_#60A5FA]',
     known: 'bg-amber-400/50 shadow-[0_0_10px_#FBBF24]',
     connection: 'bg-fuchsia-500/50 shadow-[0_0_15px_#D946EF]' // Base color, overridden by role
@@ -32,7 +32,7 @@ const ROLE_COLORS: Record<ConnectionRole, string> = {
 
 const generateMockEcho = (): VisitorEcho => {
     const r = Math.random();
-    let type: EchoType = 'anonymous';
+    let type: EchoTypeVisitor = 'anonymous';
     let role: ConnectionRole | undefined = undefined;
     let connectionName = undefined;
 
@@ -241,4 +241,3 @@ export const PresenceView: React.FC = () => {
         </div>
     );
 };
-    

@@ -39,7 +39,8 @@ import {
   Aperture,
   Users,
   Sun,
-  Radar
+  Radar,
+  Inbox
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -49,6 +50,8 @@ interface SidebarProps {
 
 const NAV_ITEMS: NavItem[] = [
   { id: View.PRESENCE, labelKey: 'nav.presence', icon: Radar, group: 'Meta' }, 
+  { id: View.ECHOES, labelKey: 'nav.echoes', icon: Inbox, group: 'Meta' },
+  { id: View.WIKI, labelKey: 'nav.wiki', icon: Globe, group: 'Meta' }, // Added Wiki
   { id: View.DASHBOARD, labelKey: 'nav.dashboard', icon: LayoutDashboard, group: 'Main' },
   { id: View.FORGE_CHAMBER, labelKey: 'nav.forge_chamber', icon: BrainCircuit, group: 'Main' },
   { id: View.TIMELINE, labelKey: 'nav.timeline', icon: GitCommitHorizontal, group: 'Reflection' },
@@ -131,7 +134,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate }) => 
           isExpanded ? 'opacity-100 translate-x-0 w-auto' : 'opacity-0 -translate-x-4 w-0'
         )}>
           <span className="font-display font-bold text-lg tracking-wide text-white leading-none">FORGE OS</span>
-          <span className="text-[10px] font-mono mt-1 text-forge-cyan">v2.5.0-beta</span>
+          <span className="text-[10px] font-mono mt-1 text-forge-cyan">v2.6.0-beta</span>
         </div>
       </div>
 

@@ -13,6 +13,8 @@ export enum View {
   TIMELINE = 'TIMELINE',
   CONNECTION = 'CONNECTION',
   PRESENCE = 'PRESENCE', 
+  ECHOES = 'ECHOES', 
+  WIKI = 'WIKI', // New View
   QUOTES = 'QUOTES',
   MOOD = 'MOOD',
   MANTRA = 'MANTRA', 
@@ -55,6 +57,46 @@ export interface InsightData {
   theme: string;
 }
 
+// --- Wiki Module Types ---
+
+export interface WikiConcept {
+  id: string;
+  title: string;
+  extract: string; // The summary text
+  content?: string; // Full HTML content
+  url: string; // Wikipedia URL
+  imageUrl?: string; // Optional thumbnail
+  language?: string; // 'en' or 'vi'
+  metadata?: {
+    keywords?: string[];
+    categories?: string[];
+  };
+  insights?: string[]; // Generated bullet points
+  reflection?: string; // Nova's commentary
+  createdAt: string; // When it was accessed
+  lastModified?: string; // ISO Date string
+}
+
+// --- Echoes Module Types ---
+
+export type EchoType = 'whisper' | 'signal' | 'echo';
+export type EchoTone = 'soft' | 'warm' | 'cool' | 'neutral' | 'deep';
+
+export interface Echo {
+  id: string;
+  type: EchoType;
+  from: string | null; // Null implies anonymous
+  message: string;
+  metadata: {
+    sentiment?: string;
+    depth: number; // 0-100
+    keywords: string[];
+  };
+  createdAt: Date;
+  viewed: boolean;
+  tone: EchoTone;
+}
+
 // --- Notification Types (Whisper OS) ---
 
 export type NotificationType = 'whisper' | 'signal' | 'event';
@@ -67,7 +109,9 @@ export type NotificationSource =
   | 'system' 
   | 'nova'
   | 'memory'
-  | 'presence'; 
+  | 'presence'
+  | 'echoes'
+  | 'wiki'; // Added wiki
 
 export interface Notification {
   id: string;
@@ -84,12 +128,12 @@ export interface Notification {
 
 // --- Presence / Visitor Echo Types ---
 
-export type EchoType = 'anonymous' | 'known' | 'connection';
+export type EchoTypeVisitor = 'anonymous' | 'known' | 'connection';
 
 export interface VisitorEcho {
   id: string;
   timestamp: Date;
-  type: EchoType;
+  type: EchoTypeVisitor;
   connectionId?: string; // If linked to a connection
   connectionName?: string;
   connectionRole?: ConnectionRole; // For color
@@ -635,7 +679,7 @@ export interface IdentityShift {
 export interface IdentityDriver {
   id: string;
   name: string;
-  type: 'Habit' | 'Emotion' | 'Goal' | 'Belief';
+  type: 'Habit' | 'Emotion' | 'Goal' | 'Belief' | 'Value';
   impact: number; 
   description: string;
 }

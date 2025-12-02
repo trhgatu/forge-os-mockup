@@ -28,6 +28,8 @@ import { MantraView } from './components/MantraView';
 import { MetaJournalView } from './components/MetaJournalView'; 
 import { ConnectionView } from './components/ConnectionView';
 import { PresenceView } from './components/PresenceView'; 
+import { EchoesView } from './components/EchoesView'; 
+import { WikiView } from './components/WikiView'; // Added
 import { SettingsView } from './components/SettingsView';
 import { NovaGuide } from './components/NovaGuide';
 import { View } from './types';
@@ -37,6 +39,7 @@ import { LanguageProvider } from './contexts/LanguageContext';
 import { SoundProvider } from './contexts/SoundContext';
 import { SoundtrackProvider } from './contexts/SoundtrackContext';
 import { NotificationProvider } from './contexts/NotificationContext';
+import { EchoesProvider } from './contexts/EchoesContext'; 
 import { NotificationOverlay } from './components/Notification/NotificationOverlay';
 import { GlobalPlayer } from './components/GlobalPlayer';
 import { SeasonProvider } from './contexts/SeasonContext'; 
@@ -67,6 +70,8 @@ const AppContent: React.FC = () => {
       case View.IDENTITY: return <IdentityView />;
       case View.CONNECTION: return <ConnectionView />; 
       case View.PRESENCE: return <PresenceView />; 
+      case View.ECHOES: return <EchoesView />;
+      case View.WIKI: return <WikiView />; // Added
       case View.THEMES: return <LifeThemesView />;
       case View.SHADOW_WORK: return <ShadowWorkView />;
       case View.COMPASS: return <CompassView />;
@@ -122,9 +127,11 @@ const App: React.FC = () => (
     <SeasonProvider>
       <SoundProvider>
         <NotificationProvider>
-          <SoundtrackProvider>
-            <AppContent />
-          </SoundtrackProvider>
+          <EchoesProvider>
+            <SoundtrackProvider>
+              <AppContent />
+            </SoundtrackProvider>
+          </EchoesProvider>
         </NotificationProvider>
       </SoundProvider>
     </SeasonProvider>
