@@ -1,9 +1,10 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, NavItem } from '../types';
 import { cn } from '../lib/utils';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useSound } from '../contexts/SoundContext';
+import { gsap } from 'gsap';
 import { 
   LayoutDashboard, 
   BrainCircuit, 
@@ -38,7 +39,7 @@ import {
   Inbox,
   Wind,
   Hammer,
-  Film // Added Icon
+  Film
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -63,7 +64,7 @@ const NAV_ITEMS: NavItem[] = [
   { id: View.QUOTES, labelKey: 'nav.quotes', icon: Quote, group: 'Reflection' },
   { id: View.MANTRA, labelKey: 'nav.mantra', icon: Mic2, group: 'Reflection' },
   { id: View.SOUNDTRACK, labelKey: 'nav.soundtrack', icon: Disc, group: 'Reflection' },
-  { id: View.EPIC_SCENE_VAULT, labelKey: 'nav.epic_scene_vault', icon: Film, group: 'Reflection' }, // New Item
+  { id: View.EPIC_SCENE_VAULT, labelKey: 'nav.epic_scene_vault', icon: Film, group: 'Reflection' },
   { id: View.COMPASS, labelKey: 'nav.compass', icon: Navigation, group: 'Evolution' },
   { id: View.GOALS, labelKey: 'nav.goals', icon: Target, group: 'Evolution' },
   { id: View.IDENTITY, labelKey: 'nav.identity', icon: Fingerprint, group: 'Evolution' },
@@ -85,6 +86,18 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate }) => 
   const [isExpanded, setIsExpanded] = useState(true);
   const { language, setLanguage, t } = useLanguage();
   const { playSound } = useSound();
+  const navContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Stagger animation for nav items on mount or expand
+    if (navContainerRef.current) {
+        const items = navContainerRef.current.querySelectorAll('.nav-item-btn');
+        gsap.fromTo(items, 
+            { opacity: 0, x: -10 },
+            { opacity: 1, x: 0, duration: 0.4, stagger: 0.02, ease: "power2.out" }
+        );
+    }
+  }, [isExpanded]);
 
   const toggleLanguage = () => {
     playSound('click');
@@ -134,12 +147,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate }) => 
           isExpanded ? 'opacity-100 translate-x-0 w-auto' : 'opacity-0 -translate-x-4 w-0'
         )}>
           <span className="font-display font-bold text-lg tracking-wide text-white leading-none">FORGE OS</span>
-          <span className="text-[10px] font-mono mt-1 text-forge-cyan">v2.8.0-beta</span>
+          <span className="text-[10px] font-mono mt-1 text-forge-cyan">v2.9.0-gsap</span>
         </div>
       </div>
 
       {/* Navigation Groups */}
-      <nav className="flex-1 overflow-y-auto overflow-x-hidden px-3 py-2 space-y-6 scrollbar-hide">
+      <nav ref={navContainerRef} className="flex-1 overflow-y-auto overflow-x-hidden px-3 py-2 space-y-6 scrollbar-hide">
         {['Meta', 'Main', 'Reflection', 'Creativity', 'Evolution', 'System'].map((group) => (
           <div key={group} className="relative">
             {/* Group Label */}
@@ -162,7 +175,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate }) => 
                     onClick={() => handleNavigate(item.id)}
                     onMouseEnter={() => playSound('hover')}
                     className={cn(
-                      "group relative w-full flex items-center p-3 rounded-xl text-sm font-medium transition-all duration-200",
+                      "nav-item-btn group relative w-full flex items-center p-3 rounded-xl text-sm font-medium transition-all duration-200",
                       isActive 
                         ? `bg-white/10 text-white shadow-inner border border-white/5` 
                         : 'text-gray-400 hover:text-white hover:bg-white/5 border border-transparent',

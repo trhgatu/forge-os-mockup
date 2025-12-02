@@ -1,10 +1,11 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { getDailyInsight } from '../services/geminiService';
 import { InsightData } from '../types';
 import { cn } from '../lib/utils';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useSoundtrack } from '../contexts/SoundtrackContext';
+import { gsap } from 'gsap';
 import { 
   Clock, 
   Zap, 
@@ -58,19 +59,17 @@ interface WidgetProps {
   noPadding?: boolean;
 }
 
-const WidgetShell: React.FC<WidgetProps> = ({ children, className, title, delay = 0, noPadding = false }) => {
+const WidgetShell: React.FC<WidgetProps> = ({ children, className, title, noPadding = false }) => {
   return (
     <div 
       className={cn(
-        "relative group flex flex-col",
+        "dashboard-widget relative group flex flex-col",
         "bg-white/[0.02] backdrop-blur-xl rounded-[20px]",
         "hover:bg-white/[0.04] hover:-translate-y-1 hover:shadow-2xl",
         "transition-all duration-500 ease-spring-out",
         "overflow-hidden border border-white/5",
-        "animate-in fade-in slide-in-from-bottom-4 fill-mode-backwards",
         className
       )}
-      style={{ animationDelay: `${delay}ms` }}
     >
       {/* Glow Gradient Top */}
       <div className={cn("absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700")} />
@@ -100,6 +99,7 @@ export const Dashboard: React.FC = () => {
   const [focusScore] = useState(85);
   const { t } = useLanguage();
   const { emitSignal } = useSoundtrack();
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Emit neutral focus signal on dashboard load
@@ -113,6 +113,23 @@ export const Dashboard: React.FC = () => {
     getDailyInsight().then(setInsight);
   }, []);
 
+  // GSAP Stagger Entrance for widgets
+  useEffect(() => {
+    if (containerRef.current) {
+        const widgets = containerRef.current.querySelectorAll('.dashboard-widget');
+        gsap.fromTo(widgets, 
+            { opacity: 0, y: 20 },
+            { opacity: 1, y: 0, duration: 0.5, stagger: 0.08, ease: "power2.out" }
+        );
+        
+        // Also animate the header text
+        gsap.fromTo(".dashboard-header",
+            { opacity: 0, x: -20 },
+            { opacity: 1, x: 0, duration: 0.6, delay: 0.1, ease: "power2.out" }
+        );
+    }
+  }, []);
+
   const timeString = time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   const dateString = time.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' });
 
@@ -123,13 +140,13 @@ export const Dashboard: React.FC = () => {
       <div className="flex-1 h-full overflow-y-auto overflow-x-hidden scrollbar-hide p-6 md:p-8 pb-32">
          
          {/* 1. Greeting Block */}
-         <header className="mb-10 relative">
+         <header className="dashboard-header mb-10 relative">
             <div className="absolute -left-20 -top-20 w-64 h-64 bg-forge-accent/20 rounded-full blur-[80px] pointer-events-none opacity-20" />
             
-            <h1 className="text-4xl md:text-5xl font-display font-bold text-white mb-2 tracking-tight leading-tight animate-in fade-in slide-in-from-bottom-2">
+            <h1 className="text-4xl md:text-5xl font-display font-bold text-white mb-2 tracking-tight leading-tight">
                {t('dashboard.welcome')}
             </h1>
-            <div className="flex items-center gap-4 text-gray-400 animate-in fade-in slide-in-from-bottom-3 duration-700 delay-100">
+            <div className="flex items-center gap-4 text-gray-400">
                <span className="flex items-center gap-2 font-light">
                   <Calendar size={14} /> {dateString}
                </span>
@@ -141,10 +158,10 @@ export const Dashboard: React.FC = () => {
          </header>
 
          {/* 2. Bento Grid Layout */}
-         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 auto-rows-min">
+         <div ref={containerRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 auto-rows-min">
             
             {/* A. Time & Focus Widget */}
-            <WidgetShell className="col-span-1 md:col-span-2 row-span-1 min-h-[220px] relative overflow-hidden border-white/10" delay={0}>
+            <WidgetShell className="col-span-1 md:col-span-2 row-span-1 min-h-[220px] relative overflow-hidden border-white/10">
                <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/4 w-64 h-64 border border-white/5 rounded-full opacity-20 animate-[spin_60s_linear_infinite]">
                   <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2 h-2 bg-white rounded-full shadow-[0_0_10px_white]" />
                </div>
@@ -175,8 +192,8 @@ export const Dashboard: React.FC = () => {
                </div>
             </WidgetShell>
 
-            {/* B. Daily Mantra Widget (NEW) */}
-            <WidgetShell className="col-span-1 md:col-span-2 lg:col-span-2 row-span-1 bg-gradient-to-br from-emerald-900/10 to-transparent border-emerald-500/20" delay={100} title={<><Mic2 size={12}/> Daily Mantra</>}>
+            {/* B. Daily Mantra Widget */}
+            <WidgetShell className="col-span-1 md:col-span-2 lg:col-span-2 row-span-1 bg-gradient-to-br from-emerald-900/10 to-transparent border-emerald-500/20" title={<><Mic2 size={12}/> Daily Mantra</>}>
                <div className="h-full flex flex-col justify-center text-center">
                   <p className="text-2xl font-display font-medium text-emerald-100 leading-relaxed drop-shadow-lg">
                      "Hôm nay tao nhẹ nhưng thật."
@@ -190,7 +207,7 @@ export const Dashboard: React.FC = () => {
             </WidgetShell>
 
             {/* C. Mood Graph Widget */}
-            <WidgetShell className="col-span-1 md:col-span-2 lg:col-span-2 row-span-1 min-h-[200px]" delay={200} title={<><TrendingUp size={12}/> {t('dashboard.emotional_resonance')}</>} noPadding>
+            <WidgetShell className="col-span-1 md:col-span-2 lg:col-span-2 row-span-1 min-h-[200px]" title={<><TrendingUp size={12}/> {t('dashboard.emotional_resonance')}</>} noPadding>
                <div className="h-full w-full pt-4">
                   <ResponsiveContainer width="100%" height="85%">
                      <AreaChart data={MOOD_DATA}>
@@ -218,7 +235,7 @@ export const Dashboard: React.FC = () => {
             </WidgetShell>
 
             {/* D. Forge Chamber Quick Access */}
-            <WidgetShell className="col-span-1 row-span-1" delay={300} title={<><BrainCircuit size={12}/> {t('dashboard.neural_core')}</>}>
+            <WidgetShell className="col-span-1 row-span-1" title={<><BrainCircuit size={12}/> {t('dashboard.neural_core')}</>}>
                <div className="flex flex-col items-center justify-center h-full gap-4">
                   <div className="flex -space-x-3">
                      {AGENTS.slice(0,3).map((agent) => (
@@ -243,7 +260,7 @@ export const Dashboard: React.FC = () => {
             </WidgetShell>
 
             {/* E. Timeline Snapshot */}
-            <WidgetShell className="col-span-1 row-span-1" delay={400} title={<><Activity size={12}/> {t('dashboard.pulse')}</>}>
+            <WidgetShell className="col-span-1 row-span-1" title={<><Activity size={12}/> {t('dashboard.pulse')}</>}>
                <div className="relative h-full pl-4">
                   <div className="absolute left-0 top-2 bottom-2 w-px bg-white/10" />
                   
@@ -260,7 +277,7 @@ export const Dashboard: React.FC = () => {
             </WidgetShell>
 
             {/* F. Memory Digest */}
-            <WidgetShell className="col-span-1 md:col-span-2 row-span-1 min-h-[180px]" delay={500} title={<><Target size={12}/> {t('dashboard.artifacts')}</>}>
+            <WidgetShell className="col-span-1 md:col-span-2 row-span-1 min-h-[180px]" title={<><Target size={12}/> {t('dashboard.artifacts')}</>}>
                <div className="grid grid-cols-3 gap-3 h-full">
                   {RECENT_ARTIFACTS.map((item) => (
                      <div key={item.id} className="group/card relative bg-white/5 rounded-xl p-3 hover:bg-white/10 transition-colors cursor-pointer border border-white/5">

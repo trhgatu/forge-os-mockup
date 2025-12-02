@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { Dashboard } from './components/Dashboard';
 import { ForgeChamber } from './components/ForgeChamber';
@@ -31,7 +31,7 @@ import { PresenceView } from './components/PresenceView';
 import { EchoesView } from './components/EchoesView'; 
 import { WikiView } from './components/WikiView';
 import { ThoughtStreamView } from './components/ThoughtStreamView';
-import { EpicSceneVault } from './components/EpicSceneVault/EpicSceneVault'; // New import
+import { EpicSceneVault } from './components/EpicSceneVault/EpicSceneVault';
 import { SettingsView } from './components/SettingsView';
 import { NovaGuide } from './components/NovaGuide';
 import { View } from './types';
@@ -48,9 +48,34 @@ import { SeasonProvider } from './contexts/SeasonContext';
 import { NavigationProvider } from './contexts/NavigationContext';
 import { InsightProvider } from './contexts/InsightContext'; 
 import { ThoughtStreamProvider } from './contexts/ThoughtStreamContext';
+import { gsap } from 'gsap';
 
 const AppContent: React.FC = () => {
   const [currentView, setCurrentView] = useState<View>(View.DASHBOARD);
+  const mainContentRef = useRef<HTMLDivElement>(null);
+
+  // GSAP View Transition
+  useEffect(() => {
+    if (mainContentRef.current) {
+        gsap.fromTo(mainContentRef.current, 
+            { 
+                opacity: 0, 
+                y: 20, 
+                filter: 'blur(8px)',
+                scale: 0.98
+            },
+            { 
+                opacity: 1, 
+                y: 0, 
+                filter: 'blur(0px)',
+                scale: 1,
+                duration: 0.6, 
+                ease: 'power3.out',
+                clearProps: 'all' // Cleanup to avoid issues with fixed positioned children
+            }
+        );
+    }
+  }, [currentView]);
 
   const renderContent = () => {
     switch (currentView) {
@@ -67,7 +92,7 @@ const AppContent: React.FC = () => {
       case View.SOUNDTRACK: return <SoundtrackView />; 
       case View.INSIGHTS: return <InsightView />;
       case View.FORGE_LAB: return <ForgeLabView />; 
-      case View.EPIC_SCENE_VAULT: return <EpicSceneVault />; // New View
+      case View.EPIC_SCENE_VAULT: return <EpicSceneVault />;
       case View.GOALS: return <GoalsView />;
       case View.HABITS: return <HabitsView />;
       case View.ROUTINES: return <RoutinesView />;
@@ -115,7 +140,7 @@ const AppContent: React.FC = () => {
         <div className="relative z-10 flex w-full h-full">
           <Sidebar currentView={currentView} onNavigate={setCurrentView} />
           <main className="flex-1 h-full relative overflow-hidden flex flex-col">
-             <div className="flex-1 overflow-hidden">
+             <div ref={mainContentRef} className="flex-1 overflow-hidden w-full h-full">
                {renderContent()}
              </div>
              
