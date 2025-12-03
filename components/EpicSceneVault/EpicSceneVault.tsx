@@ -1,22 +1,50 @@
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { EpicSceneProvider, useEpicScene } from '../../contexts/EpicSceneContext';
 import { EpicSceneCard } from './EpicSceneCard';
 import { EpicSceneDetail } from './EpicSceneDetail';
 import { EpicUploader } from './EpicUploader';
 import { VaultStats } from './VaultStats';
-import { Film, Plus, Search, Filter } from 'lucide-react';
+import { SceneTagClusters } from './SceneTagClusters';
+import { Film, Plus, Search, Filter, Layers } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
 const SceneVaultContent: React.FC = () => {
   const { scenes, activeScene, setActiveScene, toggleFavorite, stats } = useEpicScene();
   const [isUploading, setIsUploading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [activeFilter, setActiveFilter] = useState<string | null>(null);
 
-  const filteredScenes = scenes.filter(s => 
-    s.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    s.series.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Derive all unique tags for the filter clusters
+  const allTags = useMemo(() => {
+    const emotions = new Set<string>();
+    const archetypes = new Set<string>();
+    const vibes = new Set<string>();
+    
+    scenes.forEach(s => {
+        s.emotionTags.forEach(t => emotions.add(t));
+        s.archetypeTags.forEach(t => archetypes.add(t));
+        s.vibeTags.forEach(t => vibes.add(t));
+    });
+
+    return {
+        emotions: Array.from(emotions),
+        archetypes: Array.from(archetypes),
+        vibes: Array.from(vibes)
+    };
+  }, [scenes]);
+
+  const filteredScenes = scenes.filter(s => {
+    const matchesSearch = s.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                          s.series.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesFilter = activeFilter ? (
+        s.emotionTags.includes(activeFilter) || 
+        s.archetypeTags.includes(activeFilter) || 
+        s.vibeTags.includes(activeFilter)
+    ) : true;
+    
+    return matchesSearch && matchesFilter;
+  });
 
   return (
     <div className="h-full flex flex-col bg-[#050508] text-white relative overflow-hidden animate-in fade-in duration-1000 selection:bg-fuchsia-500/30">
@@ -38,7 +66,7 @@ const SceneVaultContent: React.FC = () => {
                 <Film size={12} className="text-fuchsia-400 animate-pulse-slow" /> Cinematic Archive
               </div>
               <h1 className="text-5xl md:text-7xl font-display font-bold text-white mb-3 tracking-tight">
-                Epic Vault
+                Epic Vault <span className="text-fuchsia-500">v∞</span>
               </h1>
               <p className="text-lg text-gray-400 font-light max-w-xl leading-relaxed">
                 A chamber of emotional impact. The moments that forged the soul.
@@ -59,7 +87,7 @@ const SceneVaultContent: React.FC = () => {
           <VaultStats stats={stats} />
 
           {/* Search Bar */}
-          <div className="relative mb-12 group">
+          <div className="relative mb-8 group">
             <div className="absolute inset-0 bg-gradient-to-r from-fuchsia-500/20 to-cyan-500/20 rounded-2xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
             <div className="relative flex items-center bg-[#09090b] border border-white/10 rounded-2xl p-2 shadow-2xl">
               <Search className="ml-4 text-gray-500" size={20} />
@@ -76,6 +104,13 @@ const SceneVaultContent: React.FC = () => {
             </div>
           </div>
 
+          {/* Filter Clusters */}
+          <SceneTagClusters 
+            activeFilter={activeFilter} 
+            onFilterChange={setActiveFilter}
+            tags={allTags}
+          />
+
           {/* Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredScenes.map((scene) => (
@@ -90,8 +125,8 @@ const SceneVaultContent: React.FC = () => {
 
           {filteredScenes.length === 0 && (
             <div className="py-32 text-center border border-dashed border-white/10 rounded-3xl bg-white/[0.01]">
-              <Film className="mx-auto mb-4 text-white/10" size={48} />
-              <p className="text-gray-500 font-light text-lg">The vault is waiting for its first artifact.</p>
+              <Layers className="mx-auto mb-4 text-white/10" size={48} />
+              <p className="text-gray-500 font-light text-lg">No artifacts found in this sector.</p>
             </div>
           )}
 

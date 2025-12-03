@@ -21,7 +21,7 @@ export enum View {
   MANTRA = 'MANTRA', 
   INSIGHTS = 'INSIGHTS',
   FORGE_LAB = 'FORGE_LAB', 
-  EPIC_SCENE_VAULT = 'EPIC_SCENE_VAULT', // New View
+  EPIC_SCENE_VAULT = 'EPIC_SCENE_VAULT', 
   GOALS = 'GOALS',
   HABITS = 'HABITS',
   ROUTINES = 'ROUTINES',
@@ -146,20 +146,50 @@ export interface Echo {
   tone: EchoTone;
 }
 
-// --- Epic Scene Vault Types (New) ---
+// --- Epic Scene Vault Types (Updated v∞) ---
+
+export interface EpicSoundtrack {
+  title: string;
+  artist?: string;
+  url?: string;
+  intensityLevel: number; // 1-10
+}
+
+export interface EpicOSLink {
+  type: 'thought' | 'journal' | 'insight' | 'project';
+  id: string;
+  title: string;
+}
 
 export interface EpicScene {
   id: string;
-  title: string;               // User defined title
-  imageUrl: string;            // screenshot, artwork, frame
-  videoUrl?: string;           // optional short clip
-  series: string;              // anime or media name
+  title: string;               
+  imageUrl: string;            
+  videoUrl?: string;           
+  series: string;              
   episode?: string;
   timestamp?: string;
-  quote?: string;              // spoken line or caption
-  emotionTags: string[];       // "resolve", "rage", "hope", "grief"...
-  archetypeTags: string[];     // "lone-wolf", "hero", "shadow", "strategist"...
-  vibeTags: string[];          // "cinematic", "calm", "brutal", "ethereal"...
+  
+  quote?: string;              
+  quoteBy?: string; // Character name
+
+  // Context & Meaning
+  context?: string; // Scene description
+  reflection?: string; // User's personal note
+  insight?: string; // AI/System generated wisdom
+  
+  // Tags
+  emotionTags: string[];       
+  archetypeTags: string[];     
+  themeTags: string[]; // New
+  vibeTags: string[];          
+  
+  // Audio
+  soundtrack?: EpicSoundtrack;
+
+  // OS Integration
+  osLinks?: EpicOSLink[];
+
   novaReflection?: string;
   createdAt: Date;
   isFavorite: boolean;
@@ -188,7 +218,7 @@ export type NotificationSource =
   | 'echoes'
   | 'wiki'
   | 'forge_lab'
-  | 'epic_vault'; // Added
+  | 'epic_vault'; 
 
 export interface Notification {
   id: string;
