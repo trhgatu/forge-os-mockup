@@ -1,4 +1,5 @@
-import React from 'react';
+
+import React, { useEffect, useState } from 'react';
 import { Notification } from '../../types';
 import { Sparkles, Wind, Activity, Zap } from 'lucide-react';
 import { cn } from '../../lib/utils';
@@ -30,7 +31,7 @@ const SOURCE_ICONS = {
   season: Wind,
   thoughtstream: Activity,
   insight: Sparkles,
-  identity: FingerprintIcon, // Fallback defined below
+  identity: FingerprintIcon,
   connection: Zap,
   system: Activity,
   nova: Sparkles,
@@ -39,13 +40,41 @@ const SOURCE_ICONS = {
 
 interface WhisperBubbleProps {
   notification: Notification;
+  onDismiss: () => void;
 }
 
-export const WhisperBubble: React.FC<WhisperBubbleProps> = ({ notification }) => {
+export const WhisperBubble: React.FC<WhisperBubbleProps> = ({ notification, onDismiss }) => {
   const Icon = SOURCE_ICONS[notification.source] || Sparkles;
+  const [isExiting, setIsExiting] = useState(false);
+
+  useEffect(() => {
+    // Wait 5 seconds, then trigger exit animation
+    const timer = setTimeout(() => {
+      setIsExiting(true);
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (isExiting) {
+      // Wait for animation to finish (700ms) then actually remove from store
+      const timer = setTimeout(() => {
+        onDismiss();
+      }, 700);
+      return () => clearTimeout(timer);
+    }
+  }, [isExiting, onDismiss]);
 
   return (
-    <div className="animate-in slide-in-from-bottom-4 fade-in duration-700 pointer-events-none mb-2">
+    <div 
+      className={cn(
+        "pointer-events-none mb-2 transition-all duration-700 ease-in-out",
+        isExiting 
+          ? "opacity-0 -translate-y-4 filter blur-sm scale-95" 
+          : "opacity-100 translate-y-0 animate-in slide-in-from-top-4 fade-in"
+      )}
+    >
       <div className={cn(
         "inline-flex items-center gap-3 px-4 py-2 rounded-full backdrop-blur-md shadow-lg border border-white/5",
         "bg-black/60 text-sm font-medium text-gray-200"

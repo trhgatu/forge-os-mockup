@@ -7,7 +7,7 @@ import { Activity } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
 export const NotificationOverlay: React.FC = () => {
-  const { activeWhispers, toggleCenter, notifications } = useNotification();
+  const { activeWhispers, toggleCenter, notifications, removeWhisper } = useNotification();
   const unreadCount = notifications.filter(n => !n.read).length;
 
   return (
@@ -15,7 +15,11 @@ export const NotificationOverlay: React.FC = () => {
       {/* Floating Whispers Layer - Top Center */}
       <div className="fixed top-24 left-1/2 -translate-x-1/2 flex flex-col items-center z-[80] pointer-events-none w-full max-w-md px-4 space-y-2">
         {activeWhispers.map(n => (
-          <WhisperBubble key={n.id} notification={n} />
+          <WhisperBubble 
+            key={n.id} 
+            notification={n} 
+            onDismiss={() => removeWhisper(n.id)} 
+          />
         ))}
       </div>
 
