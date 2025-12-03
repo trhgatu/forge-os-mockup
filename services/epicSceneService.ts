@@ -7,8 +7,8 @@ const MOCK_SCENES: EpicScene[] = [
     title: 'United States of Smash',
     series: 'My Hero Academia',
     imageUrl: 'https://static.wikia.nocookie.net/everyth1ng/images/a/a5/United_States_of_Smash.png/revision/latest?cb=20250429184631',
-    // videoUrl: 'https://www.youtube.com/embed/rLl9XBg7wSs?si=c4eeOM-XY2T9_nNu', // Optional video link
-    episode: 'Season 3, Episode 11 (One For All)',
+    videoUrl: 'https://www.youtube.com/embed/rLl9XBg7wSs?si=c4eeOM-XY2T9_nNu', 
+    episode: 'Season 3, Episode 11',
     timestamp: '20:45',
     quote: "Farewell, All For One... Next, it's your turn.",
     quoteBy: 'All Might',
@@ -17,13 +17,14 @@ const MOCK_SCENES: EpicScene[] = [
     archetypeTags: ['Mentor', 'Hero', 'Successor'],
     themeTags: ['Inheritance', 'Willpower'],
     vibeTags: ['Legendary', 'Explosive', 'Emotional'],
-    novaReflection: "You feel the weight of the torch being passed. The embers are fading, but the fire has already ignited the next generation. It is not an end, but a transfer of will.",
+    reflection: "I feel the weight of the torch being passed. The embers are fading, but the fire has already ignited the next generation. It is not an end, but a transfer of will.",
     insight: "True power is not in holding on, but in knowing when to entrust the future to others.",
     soundtrack: { title: "You Say Run", intensityLevel: 10 },
     osLinks: [
         { type: 'insight', id: 'i1', title: 'Power Transfer Dynamics' },
         { type: 'thought', id: 't1', title: 'The burden of legacy' }
     ],
+    novaReflection: "A moment of absolute expenditure. The system notes a high resonance with the concept of 'Noble Sacrifice'.",
     createdAt: new Date(),
     isFavorite: true
   },
@@ -39,8 +40,9 @@ const MOCK_SCENES: EpicScene[] = [
     archetypeTags: ['villain', 'god-hand'],
     themeTags: ['ambition', 'betrayal'],
     vibeTags: ['dark', 'ethereal', 'cosmic_horror'],
-    novaReflection: "This scene carries the weight of ultimate ambition. What are you willing to sacrifice to ascend?",
+    reflection: "The absolute chill of ambition that severs all human connection.",
     insight: "Ambition without connection creates a kingdom of ash.",
+    novaReflection: "This scene carries the weight of ultimate ambition. What are you willing to sacrifice to ascend?",
     soundtrack: { title: "Behelit Theme", intensityLevel: 8 },
     createdAt: new Date('2023-10-26'),
     isFavorite: true
@@ -57,8 +59,9 @@ const MOCK_SCENES: EpicScene[] = [
     archetypeTags: ['pilot', 'savior'],
     themeTags: ['responsibility', 'isolation'],
     vibeTags: ['mechanical', 'apocalyptic', 'neon'],
-    novaReflection: "Fear is not the enemy. Paralysis is. Step into the cockpit.",
+    reflection: "The moment of deciding to act despite terror.",
     insight: "Courage is not the absence of fear, but the decision that something else is more important.",
+    novaReflection: "Fear is not the enemy. Paralysis is. Step into the cockpit.",
     createdAt: new Date('2023-11-02'),
     isFavorite: false
   },
@@ -74,8 +77,9 @@ const MOCK_SCENES: EpicScene[] = [
     archetypeTags: ['dreamer', 'runner'],
     themeTags: ['dreams', 'consequence'],
     vibeTags: ['cyberpunk', 'neon', 'high-octane'],
-    novaReflection: "Sometimes the dream outlives the dreamer. Keep running.",
+    reflection: "The beauty of burning out for someone else's dream.",
     insight: "A dream shared is a bond forged in chrome and blood.",
+    novaReflection: "Sometimes the dream outlives the dreamer. Keep running.",
     createdAt: new Date('2023-11-15'),
     isFavorite: true
   }
@@ -122,15 +126,24 @@ export const addScene = async (sceneData: Partial<EpicScene>): Promise<EpicScene
     title: sceneData.title || 'Untitled Scene',
     series: sceneData.series || 'Unknown Series',
     imageUrl: sceneData.imageUrl || '',
+    videoUrl: sceneData.videoUrl,
+    episode: sceneData.episode,
+    timestamp: sceneData.timestamp,
     quote: sceneData.quote,
     quoteBy: sceneData.quoteBy || 'Unknown',
     context: sceneData.context || 'No context provided.',
+    
     emotionTags: sceneData.emotionTags || [],
     archetypeTags: sceneData.archetypeTags || [],
     themeTags: sceneData.themeTags || [],
     vibeTags: sceneData.vibeTags || [],
+    
+    reflection: sceneData.reflection || "",
+    insight: sceneData.insight || analysis.insight,
     novaReflection: analysis.reflection,
-    insight: analysis.insight,
+    
+    soundtrack: sceneData.soundtrack,
+    
     createdAt: new Date(),
     isFavorite: false,
     ...sceneData
