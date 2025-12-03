@@ -1,53 +1,34 @@
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { ThoughtFragment, ThoughtType, ThoughtStats } from '../types';
-import { fetchInitialFragments, createFragment } from '../services/thoughtStreamService';
+import React, { useEffect } from 'react';
+import { ThoughtStats } from '../types';
+import { useAppSelector, useAppDispatch } from '../store/hooks';
+import { loadFragments, addFragment as reduxAdd, removeFragment as reduxRemove, setActiveFragmentId } from '../store/slices/thoughtStreamSlice';
 import { useNotification } from './NotificationContext';
 
-interface ThoughtStreamContextType {
-  fragments: ThoughtFragment[];
-  isLoading: boolean;
-  addFragment: (text: string) => Promise<void>;
-  removeFragment: (id: string) => void;
-  activeFragment: ThoughtFragment | null;
-  setActiveFragment: (fragment: ThoughtFragment | null) => void;
-  stats: ThoughtStats;
-}
+export const ThoughtStreamProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const dispatch = useAppDispatch();
+    useEffect(() => { dispatch(loadFragments()); }, [dispatch]);
+    return <>{children}</>;
+};
 
-const ThoughtStreamContext = createContext<ThoughtStreamContextType | undefined>(undefined);
-
-export const ThoughtStreamProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [fragments, setFragments] = useState<ThoughtFragment[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [activeFragment, setActiveFragment] = useState<ThoughtFragment | null>(null);
+export const useThoughtStream = () => {
+  const { fragments, isLoading, activeFragmentId } = useAppSelector((state) => state.thoughtStream);
+  const dispatch = useAppDispatch();
   const { notify } = useNotification();
 
-  useEffect(() => {
-    const load = async () => {
-      setIsLoading(true);
-      const data = await fetchInitialFragments();
-      setFragments(data);
-      setIsLoading(false);
-    };
-    load();
-  }, []);
+  const activeFragment = fragments.find(f => f.id === activeFragmentId) || null;
 
   const addFragment = async (text: string) => {
-    const newFragment = await createFragment(text);
-    setFragments(prev => [newFragment, ...prev]);
-    
-    // Subtle notification for flow feedback
-    if (newFragment.type === 'stream') {
+    const result = await dispatch(reduxAdd(text));
+    if (result.payload && (result.payload as any).type === 'stream') {
         notify('signal', 'thoughtstream', 'Deep thought captured in the stream.');
     }
   };
 
-  const removeFragment = (id: string) => {
-    setFragments(prev => prev.filter(f => f.id !== id));
-    if (activeFragment?.id === id) setActiveFragment(null);
-  };
+  const removeFragment = (id: string) => dispatch(reduxRemove(id));
+  const setActiveFragment = (f: any | null) => dispatch(setActiveFragmentId(f ? f.id : null));
 
-  // Calculate stats on the fly
+  // Derived state
   const stats: ThoughtStats = {
     totalCount: fragments.length,
     avgDepth: Math.round(fragments.reduce((acc, f) => acc + f.metadata.depth, 0) / (fragments.length || 1)),
@@ -55,23 +36,13 @@ export const ThoughtStreamProvider: React.FC<{ children: ReactNode }> = ({ child
     flowState: fragments.length > 10 ? 'rushing' : fragments.length > 5 ? 'flowing' : 'drifting'
   };
 
-  return (
-    <ThoughtStreamContext.Provider value={{
-      fragments,
-      isLoading,
-      addFragment,
-      removeFragment,
-      activeFragment,
-      setActiveFragment,
-      stats
-    }}>
-      {children}
-    </ThoughtStreamContext.Provider>
-  );
-};
-
-export const useThoughtStream = () => {
-  const context = useContext(ThoughtStreamContext);
-  if (!context) throw new Error("useThoughtStream must be used within ThoughtStreamProvider");
-  return context;
+  return {
+    fragments,
+    isLoading,
+    addFragment,
+    removeFragment,
+    activeFragment,
+    setActiveFragment,
+    stats
+  };
 };

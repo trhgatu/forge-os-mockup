@@ -1,48 +1,17 @@
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React from 'react';
+import { useAppSelector, useAppDispatch } from '../store/hooks';
+import { toggleTheme as toggleReduxTheme } from '../store/slices/systemSlice';
 
-type Theme = 'dark' | 'light';
-
-interface ThemeContextType {
-  theme: Theme;
-  toggleTheme: () => void;
-}
-
-const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
-
-export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  // Initialize from localStorage or default to dark
-  const [theme, setTheme] = useState<Theme>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('forge-theme');
-      return (saved === 'light' || saved === 'dark') ? saved : 'dark';
-    }
-    return 'dark';
-  });
-
-  useEffect(() => {
-    const root = document.documentElement;
-    if (theme === 'light') {
-      root.setAttribute('data-theme', 'light');
-    } else {
-      root.removeAttribute('data-theme');
-    }
-    localStorage.setItem('forge-theme', theme);
-  }, [theme]);
-
-  const toggleTheme = () => {
-    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
-  };
-
-  return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
-      {children}
-    </ThemeContext.Provider>
-  );
-};
+export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => <>{children}</>;
 
 export const useTheme = () => {
-  const context = useContext(ThemeContext);
-  if (!context) throw new Error("useTheme must be used within a ThemeProvider");
-  return context;
+  const theme = useAppSelector((state) => state.system.theme);
+  const dispatch = useAppDispatch();
+
+  const toggleTheme = () => {
+    dispatch(toggleReduxTheme());
+  };
+
+  return { theme, toggleTheme };
 };

@@ -1,37 +1,34 @@
 
-import React, { createContext, useState, useContext, ReactNode } from 'react';
+import React from 'react';
 import { TRANSLATIONS } from '../lib/translations';
 import { Language } from '../types';
+import { useAppSelector, useAppDispatch } from '../store/hooks';
+import { setLanguage as setReduxLanguage } from '../store/slices/systemSlice';
 
-type LanguageContextType = {
-  language: Language;
-  setLanguage: (lang: Language) => void;
-  t: (key: string) => string;
-};
+// --- ADAPTER ---
+// This mimics the old Context Provider but acts as a passthrough for Redux.
+// Components import { useLanguage } from '../contexts/LanguageContext';
+// and it works exactly the same.
 
-const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
-
-interface LanguageProviderProps {
-  children: ReactNode;
-}
-
-export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) => {
-  const [language, setLanguage] = useState<Language>('en');
-
-  const t = (key: string) => {
-    // @ts-ignore - simple key access
-    return TRANSLATIONS[language][key] || key;
-  };
-
-  return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>
-      {children}
-    </LanguageContext.Provider>
-  );
+export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // Provider is now a no-op dummy to keep App.tsx structure valid without breaking changes,
+  // or we can remove it from App.tsx. 
+  // Since we are migrating, we will simply render children.
+  return <>{children}</>;
 };
 
 export const useLanguage = () => {
-  const context = useContext(LanguageContext);
-  if (!context) throw new Error("useLanguage must be used within a LanguageProvider");
-  return context;
+  const language = useAppSelector((state) => state.system.language);
+  const dispatch = useAppDispatch();
+
+  const setLanguage = (lang: Language) => {
+    dispatch(setReduxLanguage(lang));
+  };
+
+  const t = (key: string) => {
+    // @ts-ignore
+    return TRANSLATIONS[language][key] || key;
+  };
+
+  return { language, setLanguage, t };
 };

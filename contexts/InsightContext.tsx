@@ -1,77 +1,50 @@
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Insight, InsightSource } from '../types';
-import { fetchInitialInsights, analyzeInput, detectPatterns } from '../services/insightService';
-import { useNotification } from './NotificationContext';
+import React, { useEffect } from 'react';
+import { InsightSource } from '../types';
+import { useAppSelector, useAppDispatch } from '../store/hooks';
+import { loadInsights, addInsight as reduxAddInsight, deleteInsight as reduxDelete, setActiveInsightId, updatePatterns } from '../store/slices/insightSlice';
+import { detectPatterns } from '../services/insightService';
 
-interface InsightContextType {
-  insights: Insight[];
-  isLoading: boolean;
-  addInsight: (text: string, source: InsightSource) => Promise<void>;
-  deleteInsight: (id: string) => void;
-  activeInsight: Insight | null;
-  setActiveInsight: (insight: Insight | null) => void;
-  patterns: { title: string, count: number }[];
-  refreshPatterns: () => void;
-}
-
-const InsightContext = createContext<InsightContextType | undefined>(undefined);
-
-export const InsightProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [insights, setInsights] = useState<Insight[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [activeInsight, setActiveInsight] = useState<Insight | null>(null);
-  const [patterns, setPatterns] = useState<{ title: string, count: number }[]>([]);
-  const { notify } = useNotification();
-
-  useEffect(() => {
-    const load = async () => {
-      setIsLoading(true);
-      const data = await fetchInitialInsights();
-      setInsights(data);
-      const pats = await detectPatterns(data);
-      setPatterns(pats);
-      setIsLoading(false);
-    };
-    load();
-  }, []);
-
-  const addInsight = async (text: string, source: InsightSource) => {
-    // Optimistic UI or wait? Let's wait for "analysis" simulation
-    const newInsights = await analyzeInput(text, source);
-    setInsights(prev => [...newInsights, ...prev]);
-    notify('signal', 'insight', 'New insight crystallized from the stream.');
-    refreshPatterns();
-  };
-
-  const deleteInsight = (id: string) => {
-    setInsights(prev => prev.filter(i => i.id !== id));
-    if (activeInsight?.id === id) setActiveInsight(null);
-  };
-
-  const refreshPatterns = async () => {
-    const pats = await detectPatterns(insights);
-    setPatterns(pats);
-  };
-
-  return (
-    <InsightContext.Provider value={{
-      insights,
-      isLoading,
-      addInsight,
-      deleteInsight,
-      activeInsight,
-      setActiveInsight,
-      patterns,
-      refreshPatterns
-    }}>
-      {children}
-    </InsightContext.Provider>
-  );
+export const InsightProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const dispatch = useAppDispatch();
+    useEffect(() => {
+        dispatch(loadInsights());
+    }, [dispatch]);
+    return <>{children}</>;
 };
 
 export const useInsight = () => {
-  const context = useContext(InsightContext);
-  if (!context) throw new Error("useInsight must be used within InsightProvider");
-  return context;
+  const { items, isLoading, activeInsightId, patterns } = useAppSelector((state) => state.insight);
+  const dispatch = useAppDispatch();
+
+  const activeInsight = items.find(i => i.id === activeInsightId) || null;
+
+  const addInsight = async (text: string, source: InsightSource) => {
+    await dispatch(reduxAddInsight({ text, source }));
+  };
+
+  const deleteInsight = (id: string) => {
+    dispatch(reduxDelete(id));
+  };
+
+  const setActiveInsight = (insight: any | null) => {
+      dispatch(setActiveInsightId(insight ? insight.id : null));
+  };
+
+  const refreshPatterns = async () => {
+      // In a real app, this logic might be in a middleware or thunk
+      const pats = await detectPatterns(items);
+      dispatch(updatePatterns(pats));
+  };
+
+  return {
+    insights: items,
+    isLoading,
+    addInsight,
+    deleteInsight,
+    activeInsight,
+    setActiveInsight,
+    patterns,
+    refreshPatterns
+  };
 };

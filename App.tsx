@@ -1,5 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
+import { Provider } from 'react-redux';
+import { store } from './store/store';
 import { Sidebar } from './components/Sidebar';
 import { Dashboard } from './components/Dashboard';
 import { ForgeChamber } from './components/ForgeChamber';
@@ -37,21 +39,22 @@ import { NovaGuide } from './components/NovaGuide';
 import { View } from './types';
 import { GlassCard } from './components/GlassCard';
 import { Hammer } from 'lucide-react';
-import { LanguageProvider } from './contexts/LanguageContext';
-import { SoundProvider } from './contexts/SoundContext';
-import { SoundtrackProvider } from './contexts/SoundtrackContext';
-import { NotificationProvider } from './contexts/NotificationContext';
-import { EchoesProvider } from './contexts/EchoesContext'; 
 import { NotificationOverlay } from './components/Notification/NotificationOverlay';
 import { GlobalPlayer } from './components/GlobalPlayer';
-import { SeasonProvider } from './contexts/SeasonContext'; 
-import { NavigationProvider } from './contexts/NavigationContext';
-import { InsightProvider } from './contexts/InsightContext'; 
-import { ThoughtStreamProvider } from './contexts/ThoughtStreamContext';
 import { gsap } from 'gsap';
 
+// Redux Adapter Hooks (formerly Contexts)
+import { useNavigation } from './contexts/NavigationContext';
+import { NotificationProvider } from './contexts/NotificationContext';
+import { EchoesProvider } from './contexts/EchoesContext';
+import { InsightProvider } from './contexts/InsightContext';
+import { ThoughtStreamProvider } from './contexts/ThoughtStreamContext';
+import { SoundtrackProvider } from './contexts/SoundtrackContext';
+import { ForgeLabProvider } from './contexts/ForgeLabContext';
+import { EpicSceneProvider } from './contexts/EpicSceneContext';
+
 const AppContent: React.FC = () => {
-  const [currentView, setCurrentView] = useState<View>(View.DASHBOARD);
+  const { currentView, navigateTo } = useNavigation();
   const mainContentRef = useRef<HTMLDivElement>(null);
 
   // GSAP View Transition
@@ -123,7 +126,7 @@ const AppContent: React.FC = () => {
                 The {(currentView as string).toLowerCase().replace('_', ' ')} interface is currently being forged in the system core.
               </p>
               <button 
-                onClick={() => setCurrentView(View.DASHBOARD)}
+                onClick={() => navigateTo(View.DASHBOARD)}
                 className="px-6 py-2 bg-white text-black rounded-lg font-medium hover:bg-gray-200 transition-colors"
               >
                 Return to Dashboard
@@ -135,44 +138,43 @@ const AppContent: React.FC = () => {
   };
 
   return (
-    <NavigationProvider currentView={currentView} onNavigate={setCurrentView}>
-      <div className="flex h-screen w-screen bg-forge-bg text-white overflow-hidden font-sans transition-colors duration-300">
-        <div className="relative z-10 flex w-full h-full">
-          <Sidebar currentView={currentView} onNavigate={setCurrentView} />
-          <main className="flex-1 h-full relative overflow-hidden flex flex-col">
-             <div ref={mainContentRef} className="flex-1 overflow-hidden w-full h-full">
-               {renderContent()}
-             </div>
-             
-             {/* System Layers */}
-             <NovaGuide currentView={currentView} />
-             <GlobalPlayer />
-             <NotificationOverlay />
-          </main>
-        </div>
+    <div className="flex h-screen w-screen bg-forge-bg text-white overflow-hidden font-sans transition-colors duration-300">
+      <div className="relative z-10 flex w-full h-full">
+        <Sidebar currentView={currentView} onNavigate={navigateTo} />
+        <main className="flex-1 h-full relative overflow-hidden flex flex-col">
+            <div ref={mainContentRef} className="flex-1 overflow-hidden w-full h-full">
+              {renderContent()}
+            </div>
+            
+            {/* System Layers */}
+            <NovaGuide currentView={currentView} />
+            <GlobalPlayer />
+            <NotificationOverlay />
+        </main>
       </div>
-    </NavigationProvider>
+    </div>
   );
 };
 
 const App: React.FC = () => (
-  <LanguageProvider>
-    <SeasonProvider>
-      <SoundProvider>
-        <NotificationProvider>
-          <EchoesProvider>
-            <InsightProvider>
-              <ThoughtStreamProvider>
-                <SoundtrackProvider>
+  <Provider store={store}>
+    {/* These "Providers" now just trigger initial data loads via Redux dispatch */}
+    <NotificationProvider>
+      <EchoesProvider>
+        <InsightProvider>
+          <ThoughtStreamProvider>
+            <SoundtrackProvider>
+              <ForgeLabProvider>
+                <EpicSceneProvider>
                   <AppContent />
-                </SoundtrackProvider>
-              </ThoughtStreamProvider>
-            </InsightProvider>
-          </EchoesProvider>
-        </NotificationProvider>
-      </SoundProvider>
-    </SeasonProvider>
-  </LanguageProvider>
+                </EpicSceneProvider>
+              </ForgeLabProvider>
+            </SoundtrackProvider>
+          </ThoughtStreamProvider>
+        </InsightProvider>
+      </EchoesProvider>
+    </NotificationProvider>
+  </Provider>
 );
 
 export default App;

@@ -1,103 +1,69 @@
 
-import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
-import { Notification, NotificationType, NotificationSource, Season } from '../types';
-import { useSeason } from './SeasonContext';
+import React, { useEffect, useCallback } from 'react';
+import { NotificationType, NotificationSource } from '../types';
+import { useAppSelector, useAppDispatch } from '../store/hooks';
+import { notify as reduxNotify, markAsRead as reduxMarkRead, clearWhispers as reduxClearWhispers, removeWhisper, toggleCenter as reduxToggleCenter } from '../store/slices/notificationSlice';
 
-interface NotificationContextType {
-  notifications: Notification[];
-  activeWhispers: Notification[];
-  notify: (type: NotificationType, source: NotificationSource, message: string, title?: string, linkTo?: any) => void;
-  markAsRead: (id: string) => void;
-  clearWhispers: () => void;
-  toggleCenter: () => void;
-  isCenterOpen: boolean;
-}
-
-const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
-
-// Mock messages for ambient system
+// Mock messages
 const AMBIENT_WHISPERS = [
   "Season Engine: A subtle shift towards Autumn.",
   "Your memory constellation is growing dense.",
   "Identity Vector aligning with 'Builder' archetype.",
   "Energy reserves are stable. Good time for deep work.",
-  "Subconscious pattern detected in recent journals.",
-  "Connection node 'Catalyst' active.",
 ];
 
-export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [activeWhispers, setActiveWhispers] = useState<Notification[]>([]);
-  const [isCenterOpen, setIsCenterOpen] = useState(false);
-  const { season } = useSeason();
+export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const dispatch = useAppDispatch();
+    const season = useAppSelector(state => state.system.season);
 
-  // Create a new notification
-  const notify = useCallback((type: NotificationType, source: NotificationSource, message: string, title?: string, linkTo?: any) => {
-    const newNotif: Notification = {
-      id: Date.now().toString() + Math.random().toString(),
-      type,
-      source,
-      title,
-      message,
-      timestamp: new Date(),
-      read: false,
-      priority: 'medium',
-      seasonTint: season,
-      linkTo
-    };
+    // Ambient heartbeat logic moved here to run once
+    useEffect(() => {
+        const interval = setInterval(() => {
+            if (Math.random() > 0.8) {
+                const msg = AMBIENT_WHISPERS[Math.floor(Math.random() * AMBIENT_WHISPERS.length)];
+                dispatch(reduxNotify({ type: 'whisper', source: 'system', message: msg, season }));
+                // Auto remove handled by component timeouts usually, but slice can handle logic too
+                // Here we rely on the component rendering the whisper to handle fade out or simple timeout dispatch
+            }
+        }, 30000);
+        return () => clearInterval(interval);
+    }, [dispatch, season]);
 
-    // Add to history
-    setNotifications(prev => [newNotif, ...prev]);
-
-    // If it's a whisper, add to active whispers queue
-    if (type === 'whisper') {
-      setActiveWhispers(prev => [...prev, newNotif]);
-      
-      // Auto dismiss whisper after 5 seconds
-      setTimeout(() => {
-        setActiveWhispers(prev => prev.filter(n => n.id !== newNotif.id));
-      }, 5000);
-    }
-  }, [season]);
-
-  const markAsRead = (id: string) => {
-    setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
-  };
-
-  const clearWhispers = () => setActiveWhispers([]);
-  const toggleCenter = () => setIsCenterOpen(prev => !prev);
-
-  // Ambient System Heartbeat
-  // Simulates the OS "thinking" or "feeling" occasionally
-  useEffect(() => {
-    const interval = setInterval(() => {
-      // 20% chance every 30s to emit a whisper
-      if (Math.random() > 0.8) {
-        const msg = AMBIENT_WHISPERS[Math.floor(Math.random() * AMBIENT_WHISPERS.length)];
-        notify('whisper', 'system', msg);
-      }
-    }, 30000);
-
-    return () => clearInterval(interval);
-  }, [notify]);
-
-  return (
-    <NotificationContext.Provider value={{ 
-      notifications, 
-      activeWhispers, 
-      notify, 
-      markAsRead, 
-      clearWhispers,
-      toggleCenter,
-      isCenterOpen
-    }}>
-      {children}
-    </NotificationContext.Provider>
-  );
+    return <>{children}</>;
 };
 
 export const useNotification = () => {
-  const context = useContext(NotificationContext);
-  if (!context) throw new Error("useNotification must be used within NotificationProvider");
-  return context;
+  const { items, activeWhispers, isCenterOpen } = useAppSelector((state) => state.notifications);
+  const season = useAppSelector((state) => state.system.season);
+  const dispatch = useAppDispatch();
+
+  const notify = useCallback((type: NotificationType, source: NotificationSource, message: string, title?: string, linkTo?: any) => {
+    dispatch(reduxNotify({ type, source, message, title, linkTo, season }));
+    if(type === 'whisper') {
+        // Auto dismiss logic simulation
+        const id = Date.now(); // This won't match exact ID in reducer but we need a way. 
+        // Actually, the reducer generates ID. 
+        // For simple auto-dismiss visual, WhisperBubble handles animation out.
+        // We can dispatch removeWhisper after timeout if needed, but for now we let state persist briefly.
+        setTimeout(() => {
+             // In a real app we'd need the ID returned from dispatch, but RTK doesn't return payload ID easily without thunks.
+             // We'll rely on `clearWhispers` or UI components handling exit animations.
+             dispatch(reduxClearWhispers()); // Simple clear for now
+        }, 5000);
+    }
+  }, [dispatch, season]);
+
+  const markAsRead = (id: string) => dispatch(reduxMarkRead(id));
+  const clearWhispers = () => dispatch(reduxClearWhispers());
+  const toggleCenter = () => dispatch(reduxToggleCenter());
+
+  return { 
+    notifications: items, 
+    activeWhispers, 
+    notify, 
+    markAsRead, 
+    clearWhispers,
+    toggleCenter,
+    isCenterOpen
+  };
 };

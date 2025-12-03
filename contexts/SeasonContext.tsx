@@ -1,7 +1,9 @@
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React from 'react';
 import { Season, SeasonTheme } from '../types';
 import { Sprout, Sun, Leaf, Snowflake } from 'lucide-react';
+import { useAppSelector, useAppDispatch } from '../store/hooks';
+import { setSeason as setReduxSeason, cycleSeason as cycleReduxSeason } from '../store/slices/systemSlice';
 
 const SEASON_CONFIG: Record<Season, SeasonTheme> = {
   Spring: {
@@ -54,38 +56,19 @@ const SEASON_CONFIG: Record<Season, SeasonTheme> = {
   }
 };
 
-interface SeasonContextType {
-  season: Season;
-  setSeason: (season: Season) => void;
-  theme: SeasonTheme;
-  cycleSeason: () => void;
-}
-
-const SeasonContext = createContext<SeasonContextType | undefined>(undefined);
-
-export const SeasonProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [season, setSeason] = useState<Season>('Winter'); // Default to Winter/Stillness
-
-  const cycleSeason = () => {
-    const order: Season[] = ['Spring', 'Summer', 'Autumn', 'Winter'];
-    const currentIndex = order.indexOf(season);
-    setSeason(order[(currentIndex + 1) % 4]);
-  };
-
-  return (
-    <SeasonContext.Provider value={{ 
-      season, 
-      setSeason, 
-      theme: SEASON_CONFIG[season],
-      cycleSeason
-    }}>
-      {children}
-    </SeasonContext.Provider>
-  );
-};
+export const SeasonProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => <>{children}</>;
 
 export const useSeason = () => {
-  const context = useContext(SeasonContext);
-  if (!context) throw new Error('useSeason must be used within a SeasonProvider');
-  return context;
+  const season = useAppSelector((state) => state.system.season);
+  const dispatch = useAppDispatch();
+
+  const setSeason = (s: Season) => dispatch(setReduxSeason(s));
+  const cycleSeason = () => dispatch(cycleReduxSeason());
+
+  return { 
+    season, 
+    setSeason, 
+    theme: SEASON_CONFIG[season],
+    cycleSeason
+  };
 };
